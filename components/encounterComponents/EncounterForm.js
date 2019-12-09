@@ -48,7 +48,7 @@ const EncounterForm = props => {
         {
           name: 'party',
           type: 'character-picker',
-          label: 'Available parties: ',
+          label: 'Selected Party: ',
           placeholder: 'Encounter party here...',
 
         }
@@ -83,7 +83,7 @@ const EncounterForm = props => {
                 <View style={ styles.stepHeader }>
                   <Text style={ styles.stepHeaderText }> {el.title} </Text>
                 </View>
-                <Text style={ styles.messageText }> { el.message } </Text>
+                {/* <Text style={ styles.messageText }> { el.message } </Text> */}
                 <View>
                   {
                     el.inputs.map(input => (
@@ -127,13 +127,13 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
     marginBottom: 15,
   },
-  messageText: {
-    alignSelf: 'center',
-    fontSize: 16,
-    fontStyle: 'italic',
-    color: 'gray',
-    marginBottom: 5,
-  },
+  // messageText: {
+  //   alignSelf: 'center',
+  //   fontSize: 16,
+  //   fontStyle: 'italic',
+  //   color: 'gray',
+  //   marginBottom: 5,
+  // },
 });
 
 

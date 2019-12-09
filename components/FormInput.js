@@ -22,22 +22,24 @@ class FormInput extends PureComponent {
     const { onChangeValue, name, type, ...rest } = this.props;
       return(
         <View>
-          <Text style={ styles.inputLabel }> {this.props.label} </Text>
           { type == 'text-input' ?
             (
-
-              <TextInput
-                style={ this.state.active? [styles.textInput, styles.active] : styles.textInput }
-              { ...rest }
-              onChangeText={ this._onChangeValue }
-              onFocus={ this.toggleActive }
-              onEndEditing={ this.toggleActive }
-             />)
+              <View>
+                <Text style={ styles.inputLabel }> {this.props.label} </Text>
+                <TextInput
+                  style={ this.state.active? [styles.textInput, styles.active] : styles.textInput }
+                { ...rest }
+                onChangeText={ this._onChangeValue }
+                onFocus={ this.toggleActive }
+                onEndEditing={ this.toggleActive }
+               />
+              </View>
+)
               :
               null
             }
             { (type == 'character-picker' && name == 'party') ?
-              ( <PartyInput />)
+              ( <PartyInput onChangeValue={ this._onChangeValue } label={ this.props.label }/>)
               :
               null
             }
@@ -56,7 +58,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputLabel: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold'
   },
   textInput: {
