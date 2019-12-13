@@ -6,6 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import FormButton from '../FormButton';
+import PartyList from './PartyList';
+
 
 const PartyInput = props => {
   const [ listViewToggle, setListViewToggle ] = useState(true);
@@ -14,6 +16,7 @@ const PartyInput = props => {
   const [ selectedParty, setSelectedParty ] = useState('');
   // console.log("PARTIIIIESSSSSUHH: ", parties);
   const handlePress = (partyId) => {
+    console.log("CLICKED", partyId);
     setSelectedParty( parties.find((party) => party.id === partyId ) );
   };
   const handleClearParty = () => {
@@ -49,7 +52,7 @@ const PartyInput = props => {
         {
           listViewToggle?
           (
-            <ScrollView style={ styles.partyListContainer }>
+            <ScrollView contentContainerStyle={ styles.partyListContainer }>
               {
                 (parties.length) == 0 ? (
                   <View>
@@ -58,17 +61,8 @@ const PartyInput = props => {
                   </View>
                 )
                 :
-                ( parties.map( party => (
-                  <TouchableHighlight
-                    key={ party.id }
-                    onPress={ () => { handlePress(party.id) } } >
-
-                    <View style={ styles.partyItemContainer }>
-                      <Text> { party.title } </Text>
-                      <Text> { party.players.length } </Text>
-                    </View>
-                  </TouchableHighlight>
-                ))
+                (
+                  <PartyList parties={ parties } removePartyHandler={ console.log("Edit triggered in input") } handlePress={ handlePress } />
                 )
               }
               </ScrollView>
@@ -85,9 +79,15 @@ const PartyInput = props => {
 const styles = StyleSheet.create({
   container: {
   },
+  titleText: {
+    color: "white",
+  },
+  titleCountText: {
+    color: "white",
+  },
   headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
   },
   partyListContainer: {
     flexDirection: 'row'
@@ -106,7 +106,8 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: "white",
   },
 });
 

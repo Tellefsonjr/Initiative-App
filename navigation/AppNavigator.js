@@ -8,6 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
 import EncountersScreen from '../screens/EncountersScreen';
+import AddEncounterScreen from '../screens/AddEncounterScreen';
 import EncounterScreen from '../screens/EncounterScreen';
 import PartiesScreen from '../screens/PartiesScreen';
 import PartyScreen from '../screens/PartyScreen';
@@ -21,6 +22,7 @@ const EncounterStack = createStackNavigator({
   Encounter: {
     screen: EncounterScreen
   },
+  AddEncounter: AddEncounterScreen,
 });
 
 EncounterStack.navigationOptions = {

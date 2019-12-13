@@ -1,12 +1,14 @@
 /* @flow */
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, Dimensions } from 'react-native';
 import MultiStepForm from '../MultiStepForm';
 import FormInput from '../FormInput';
+import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { Formik } from 'formik';
 
 const EncounterForm = props => {
+  const [ progress, setProgress ] = useState(0);
   const [ encounter, setEncounter ] = useState( {
     title: "",
     campaign: "",
@@ -16,6 +18,8 @@ const EncounterForm = props => {
     allies: []
   });
   // Form objects to render see FormInput for Form Handling UI
+  const barWidth = Dimensions.get('screen').width - 30;
+
   const forms = [
     {
       title: 'Encounter details: ',
@@ -73,15 +77,26 @@ const EncounterForm = props => {
   const handleSubmit = (encounter) => {
     props.addEncounterHandler(encounter);
   };
+  const handleNext = (value) => {
+    setProgress( value );
+  };
+
+
   return (
     <View style={ styles.container }>
-      <MultiStepForm onSubmit={ handleSubmit } initialValues={encounter}>
-          { forms.map(el => (
+      <ProgressBarAnimated
+        style={ styles.progressBar }
+        width={ barWidth }
+        value={ progress }
+        backgroundColorOnComplete="#6CC644"
+      />
+    <MultiStepForm onSubmit={ handleSubmit } initialValues={encounter} handleNext={ handleNext }>
+          { forms.map((el, index) => (
             <MultiStepForm.Step key={ el.title }>
-            { ({ onChangeValue, values, type, label, message, inputs }) => (
+            { ({ onChangeValue, values, type, label, message, inputs, currentIndex }) => (
               <View style={{flex: 1}}>
                 <View style={ styles.stepHeader }>
-                  <Text style={ styles.stepHeaderText }> {el.title} </Text>
+                <Text style={ styles.stepHeaderText }> {el.title} </Text>
                 </View>
                 {/* <Text style={ styles.messageText }> { el.message } </Text> */}
                 <View>
@@ -113,6 +128,8 @@ const EncounterForm = props => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 10,
+    alignItems: 'center',
   },
   formHeader: {
     borderBottomWidth: 1,
@@ -121,11 +138,16 @@ const styles = StyleSheet.create({
   },
   stepHeaderText: {
     fontSize: 20,
+    color: "white",
   },
   stepHeader: {
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
     marginBottom: 15,
+  },
+  progressBar: {
+    marginTop: 5,
+    alignSelf: 'center',
   },
   // messageText: {
   //   alignSelf: 'center',

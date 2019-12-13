@@ -29,6 +29,7 @@ class FormInput extends PureComponent {
                 <TextInput
                   style={ this.state.active? [styles.textInput, styles.active] : styles.textInput }
                 { ...rest }
+                placeholderTextColor="rgba(60, 60, 60, 0.9)"
                 onChangeText={ this._onChangeValue }
                 onFocus={ this.toggleActive }
                 onEndEditing={ this.toggleActive }
@@ -59,11 +60,17 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 10,
   },
   textInput: {
     padding: 5,
     fontSize: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 2,
+    color: "black",
+    marginBottom: 5,
   },
   active: {
     borderWidth: 1,

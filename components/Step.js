@@ -23,7 +23,7 @@ class Step extends PureComponent {
           }) }
         <View style={ styles.buttonContainer }>
           <View style={ styles.button }>
-            <FormButton icon="arrow-left" iconPosition="left" text="Previous" color='#00578A' onPress={ this.props.prevStep } />
+            <FormButton icon="arrow-left" iconPosition="left" text="Previous" color={ this.props.currentIndex == 0 ? 'rgba(0, 87, 138, 0.6)' : '#00578A'} onPress={ this.props.prevStep } />
           </View>
           <View style={ styles.button }>
             { this.props.isLast ?
@@ -39,9 +39,9 @@ class Step extends PureComponent {
 }
 
 const styles = StyleSheet.create({
-  stepContainer: {
-    flex: 1
-  },
+  // stepContainer: {
+  //   flex: 1
+  // },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',

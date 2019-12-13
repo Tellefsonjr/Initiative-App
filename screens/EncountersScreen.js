@@ -8,7 +8,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector, useDispatch } from 'react-redux';
 import Modal from "react-native-modalbox";
 
-import EncounterForm from '../components/encounterComponents/EncounterForm';
 import EncounterList from '../components/encounterComponents/EncounterList';
 import CustomHeaderButton from '../components/HeaderButton';
 
@@ -20,14 +19,9 @@ const EncountersScreen = props => {
   const encounters = useSelector(state => state.encounters.encounters);
 
   const [ isAdding, setIsAdding ] = useState( false );
-  const [ isPlaying, setIsPlaying ] = useState( false );
   const [ isEditing, setIsEditing ] = useState( false );
 
   console.log("IS ADDING:", isAdding);
-  const addEncounterHandler = ( encounter ) => {
-    dispatch(encounterActions.addEncounter(encounter));
-    setIsAdding(!isAdding);
-  };
   const editEncounterHandler = ( encounterId ) => {
     setIsEditing(!isEditing);
     // dispatch(encounterActions.updateEncounter(encounter));
@@ -45,11 +39,8 @@ const EncountersScreen = props => {
     setIsAdding(false);
   };
 
-  const toggleEncounter = () => {
-    setIsPlaying(!isPlaying);
-  };
-  const handleButtonAction = () => {
-    setIsAdding(!isAdding);
+  const handleAddButtonAction = () => {
+    props.navigation.navigate("AddEncounter");
   };
   return (
     <ImageBackground source={require('../assets/images/bg.jpg')} style={[styles.backgroundImage, styles.container]} >
@@ -64,9 +55,9 @@ const EncountersScreen = props => {
             <Text style={ styles.textEmpty }> Click the + icon to add encounters! </Text>
             </View>
               :
-            <EncounterList encounters={ encounters } editEncounterHandler={ editEncounterHandler } removeEncounterHandler={ removeEncounterHandler } isPlaying={isPlaying} navigate={ props.navigation.navigate }/>
+            <EncounterList encounters={ encounters } editEncounterHandler={ editEncounterHandler } removeEncounterHandler={ removeEncounterHandler } navigate={ props.navigation.navigate }/>
           }
-          <Modal
+          {/* <Modal
             style={ styles.modal }
             backdropPressToClose={true}
             swipeToClose={false}
@@ -77,18 +68,18 @@ const EncountersScreen = props => {
             position={"center"}
             >
             <EncounterForm addEncounterHandler={ addEncounterHandler }/>
-          </Modal>
+          </Modal> */}
       </ScrollView>
       <View>
 
 
       </View>
       <ActionButton buttonColor='#00578A' size={ isAdding? 0 : 56}>
-        <ActionButton.Item buttonColor='#FF3D00' title={ isPlaying? "Stop Encounter" : "Resume Encounter" } onPress={ toggleEncounter }>
-          <Icon name={ isPlaying? "pause" : "play"} style={styles.actionButtonIcon} />
+        <ActionButton.Item buttonColor='#FF3D00' title={ "Resume Encounter" } onPress={ () => { console.log("Resume Encounter pressed.") } }>
+          <Icon name="play" style={styles.actionButtonIcon} />
         </ActionButton.Item>
-        <ActionButton.Item buttonColor='#00B358' title={ isPlaying? "Next Round" : "Add Encounter"} onPress={ handleButtonAction }>
-          <Icon name={ isPlaying? "arrow-forward" : "plus"} style={styles.actionButtonIcon} />
+        <ActionButton.Item buttonColor='#00B358' title="Add Encounter" onPress={ handleAddButtonAction }>
+          <Icon name="plus" style={styles.actionButtonIcon} />
         </ActionButton.Item>
       </ActionButton>
     </ImageBackground>
