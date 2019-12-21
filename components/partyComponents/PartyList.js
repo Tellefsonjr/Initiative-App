@@ -19,7 +19,6 @@ const PartyList = props => {
 
   };
   const handlePress = (id) =>{
-    console.log("HandlePRESS in LIST", id);
     props.handlePress(id);
   }
   const editPartyHandler = (id) => {
@@ -43,9 +42,9 @@ const PartyList = props => {
   };
 
   return (
-    <View>
+    <View style={ styles.container }>
       <FlatList
-        contentContainerStyle={ styles.listContainer }
+        style={ styles.listContainer }
         keyExtractor={(item, index) => item.id}
         data={ props.parties }
         renderItem={ renderParty.bind(this) }
@@ -56,8 +55,11 @@ const PartyList = props => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+  },
   listContainer: {
     width: "100%",
+    height: "100%",
   },
 });
 

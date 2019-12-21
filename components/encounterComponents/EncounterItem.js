@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const EncounterItem = props => {
   console.log("~~~~~~~~~~~~~PROPS.NAVIGATION.NAVIGATE~~~~~~~~~~~~~~", props.navigate);
-  renderRightActions = (progress, dragX) => {
+  const renderRightActions = (progress, dragX) => {
     const trans = dragX.interpolate({
       inputRange: [-151, -150, -50, 0],
       outputRange: [150, 0, 0, 1],
@@ -37,13 +37,13 @@ const EncounterItem = props => {
           <Text style={ styles.encounterName}> { props.encounter.title } </Text>
           <View style={ styles.partyWrapper }>
             <Icon name="account-group-outline" size={16} color="white" />
-            <Text style={ styles.partyTitle }> Party title... </Text>
+          <Text style={ styles.partyTitle }> { props.encounter.party.title } </Text>
           </View>
         </View>
         <View style={ styles.encounterStats }>
           <View>
             <Icon name="account-outline" size={28} color="white" />
-            <Text style={ styles.encounterName}> { " "+props.encounter.players.length } </Text>
+          <Text style={ styles.encounterName}> { " "+props.encounter.party.players.length } </Text>
           </View>
           <View>
             <Icon name="emoticon-devil-outline" size={28} color="white"/>

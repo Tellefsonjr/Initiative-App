@@ -4,33 +4,32 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableHighlight, TouchableWithoutFeedback, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Accordion from 'react-native-collapsible/Accordion';
+import Modal from "react-native-modalbox";
 
 import FormButton from '../FormButton';
 import PartyList from './PartyList';
+import PartyForm from './PartyForm';
+import PlayerSelect from '../playerComponents/PlayerSelect';
 
 
-const PartyInput = props => {
-  const [ listViewToggle, setListViewToggle ] = useState(true);
-  const [ addViewToggle, setAddViewToggle ] = useState(false);
+const PartySelect = props => {
+  const [ isAdding, setIsAdding ] = useState(false);
   const parties = useSelector(state => state.parties.parties);
   const [ selectedParty, setSelectedParty ] = useState('');
   // console.log("PARTIIIIESSSSSUHH: ", parties);
   const handlePress = (partyId) => {
     console.log("CLICKED", partyId);
-    setSelectedParty( parties.find((party) => party.id === partyId ) );
+    newParty = parties.find((party) => party.id === partyId )
+    setSelectedParty( newParty );
+    props.onChangeValue(newParty);
   };
   const handleClearParty = () => {
     console.log("CLEARING");
     setSelectedParty('');
   };
-  const handleTogglePress = (string) => {
-    if(string == 'list'){
-      setListViewToggle(true);
-      setAddViewToggle(false);
-    } else {
-      setListViewToggle(false);
-      setAddViewToggle(true);
-    }
+  const toggleModal = (bool) => {
+    setIsAdding(bool);
   };
   return (
       <View style={ styles.container }>
@@ -43,15 +42,9 @@ const PartyInput = props => {
 
         <View style={ styles.buttonContainer}>
           <View style={ styles.button }>
-            <FormButton icon="format-list-bulleted" text="Party list" iconPosition="left" color={ listViewToggle? '#00578A' : 'rgba(0, 87, 138, 0.6)'} onPress={ () => handleTogglePress('list') } />
-          </View>
-          <View style={ styles.button }>
-            <FormButton icon="plus" text="Add new party" iconPosition="left" color={ listViewToggle? 'rgba(0, 87, 138, 0.6)' : '#00578A' } onPress={ () => handleTogglePress('add') } />
+            <FormButton icon="plus" text="Add new party" iconPosition="left" color={ '#00578A' } onPress={ () => toggleModal(true) } />
           </View>
         </View>
-        {
-          listViewToggle?
-          (
             <ScrollView contentContainerStyle={ styles.partyListContainer }>
               {
                 (parties.length) == 0 ? (
@@ -62,16 +55,25 @@ const PartyInput = props => {
                 )
                 :
                 (
-                  <PartyList parties={ parties } removePartyHandler={ console.log("Edit triggered in input") } handlePress={ handlePress } />
+                  <PartyList parties={ parties } removePartyHandler={ handlePress } handlePress={ handlePress } />
                 )
               }
               </ScrollView>
-            )
-            :
-            (
-              <Text> Hi </Text>
-            )
-        }
+              <View>
+                <Modal
+                  style={ styles.modal }
+                  backdropPressToClose={true}
+                  swipeToClose={false}
+                  swipeThreshold={50}
+                  isOpen={ isAdding }
+                  coverScreen={ true }
+                  onClosed={ () => { toggleModal(false) } }
+                  backdropOpacity={0.7}
+                  position={"center"}
+                  >
+                    <PartyForm />
+                </Modal>
+              </View>
       </View>
     );
 }
@@ -90,7 +92,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   partyListContainer: {
-    flexDirection: 'row'
   },
   partyItemContainer: {
     flexDirection: 'row',
@@ -109,8 +110,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: "white",
   },
+  modal: {
+    height: '85%',
+    padding: 0,
+  },
 });
 
 
 
- export default PartyInput;
+ export default PartySelect;

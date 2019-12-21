@@ -12,6 +12,7 @@ import AddEncounterScreen from '../screens/AddEncounterScreen';
 import EncounterScreen from '../screens/EncounterScreen';
 import PartiesScreen from '../screens/PartiesScreen';
 import PartyScreen from '../screens/PartyScreen';
+import AddPartyScreen from '../screens/AddPartyScreen';
 import PlayersScreen from '../screens/PlayersScreen';
 import PlayerScreen from '../screens/PlayerScreen';
 import MonstersScreen from '../screens/MonstersScreen';
@@ -34,6 +35,7 @@ EncounterStack.navigationOptions = {
 const PartyStack = createStackNavigator({
   Parties: PartiesScreen,
   Party: PartyScreen,
+  AddParty: AddPartyScreen,
 });
 
 PartyStack.navigationOptions = {

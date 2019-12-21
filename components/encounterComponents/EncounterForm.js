@@ -13,6 +13,7 @@ const EncounterForm = props => {
     title: "",
     campaign: "",
     description: "",
+    party: {},
     players: [],
     enemies: [],
     allies: []
@@ -51,7 +52,7 @@ const EncounterForm = props => {
       inputs: [
         {
           name: 'party',
-          type: 'character-picker',
+          type: 'picker',
           label: 'Selected Party: ',
           placeholder: 'Encounter party here...',
 
@@ -103,13 +104,14 @@ const EncounterForm = props => {
                   {
                     el.inputs.map(input => (
                       <FormInput
-                      key={input.name}
-                      onChangeValue={ onChangeValue }
-                      placeholder={ input.placeholder }
-                      value={ values[input.name] }
-                      name={ input.name }
-                      type={ input.type }
-                      label={ input.label }
+                        theme={"dark"}
+                        key={input.name}
+                        onChangeValue={ onChangeValue }
+                        placeholder={ input.placeholder }
+                        value={ values[input.name] }
+                        name={ input.name }
+                        type={ input.type }
+                        label={ input.label }
                       />
                       ))
                   }

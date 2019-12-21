@@ -35,6 +35,7 @@ class MultiStepForm extends PureComponent {
     }
   };
   _onChangeValue = (name, value) => {
+    console.log("VALUE CHANGED IN FORM:", name, value);
     this.setState( prevState => ({
       values: {
         ...prevState.values,
@@ -44,6 +45,7 @@ class MultiStepForm extends PureComponent {
   };
   _onSubmit = () => {
     this.props.onSubmit(this.state.values);
+    console.log("Submitting these values: ", this.state.values);
   }
   render() {
     return (
