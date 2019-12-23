@@ -22,17 +22,20 @@ class MultiStepForm extends PureComponent {
     if( this.state.index != this.props.children.length - 1){
       this.setState(prevState => ({
         index: prevState.index + 1,
-      }))
+      }));
+      this.props.handleNext( ((this.state.index + 1) / this.props.children.length) * 100 );
     }
   };
   _prevStep = () => {
     if( this.state.index != 0){
       this.setState(prevState => ({
         index: prevState.index - 1,
-      }))
+      }));
+      this.props.handleNext( ((this.state.index - 1) / this.props.children.length) * 100 );
     }
   };
   _onChangeValue = (name, value) => {
+    console.log("VALUE CHANGED IN FORM:", name, value);
     this.setState( prevState => ({
       values: {
         ...prevState.values,
@@ -42,6 +45,7 @@ class MultiStepForm extends PureComponent {
   };
   _onSubmit = () => {
     this.props.onSubmit(this.state.values);
+    console.log("Submitting these values: ", this.state.values);
   }
   render() {
     return (
@@ -51,12 +55,13 @@ class MultiStepForm extends PureComponent {
             if ( index === this.state.index) {
               return React.cloneElement(el, {
                 values: this.state.values,
-                currentIndex: this.state.currentIndex,
+                currentIndex: this.state.index,
                 nextStep: this._nextStep,
                 prevStep: this._prevStep,
                 isLast: this.state.index === this.props.children.length - 1,
                 onChangeValue: this._onChangeValue,
-                onSubmit: this._onSubmit
+                onSubmit: this._onSubmit,
+                max: this.props.children.length
               });
             };
             return null;

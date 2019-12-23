@@ -6,15 +6,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
-const EncounterItem = props => {
-  console.log("~~~~~~~~~~~~~PROPS.NAVIGATION.NAVIGATE~~~~~~~~~~~~~~", props.navigate);
-  const renderRightActions = (progress, dragX) => {
+const PartyItem = props => {
+  renderRightActions = (progress, dragX) => {
     const trans = dragX.interpolate({
-      inputRange: [-151, -150, -50, 0],
-      outputRange: [150, 0, 0, 1],
+      inputRange: [-301, -300, -50, 0],
+      outputRange: [300, 0, 0, 1],
     });
     return (
-      <TouchableWithoutFeedback style={styles.rightAction} onPress={ props.onDelete.bind(this, props.encounter.id) }>
+      <TouchableWithoutFeedback style={styles.rightAction} onPress={ props.onDelete.bind(this, props.party.id) }>
         <Animated.View
           style={[
             styles.swipeableView,
@@ -31,29 +30,25 @@ const EncounterItem = props => {
   return (
     <Swipeable
       renderRightActions={this.renderRightActions}>
-      <TouchableOpacity onPress={() => { props.navigate("Encounter", { id: props.encounter.id })} }>
-        <View style={ (props.index == 0 ? [styles.first, styles.listItem]: styles.listItem)  }>
-        <View style={ styles.encounterTitleWrapper }>
-          <Text style={ styles.encounterName}> { props.encounter.title } </Text>
-          <View style={ styles.partyWrapper }>
-            <Icon name="account-group-outline" size={16} color="white" />
-          <Text style={ styles.partyTitle }> { props.encounter.party.title } </Text>
+      <TouchableOpacity onPress={ props.handlePress.bind(this, props.party.id) }>
+        <View style={ styles.listItem }>
+          <View style={ styles.partyTitleWrapper }>
+            <Text style={ styles.partyName}> { props.party.title } </Text>
+            <View style={ styles.partyWrapper }>
+              <Icon name="account-group-outline" size={16} color="white" />
+              <Text style={ styles.partyTitle }> Party title... </Text>
+            </View>
           </View>
-        </View>
-        <View style={ styles.encounterStats }>
-          <View>
-            <Icon name="account-outline" size={28} color="white" />
-          <Text style={ styles.encounterName}> { " "+props.encounter.party.players.length } </Text>
+          <View style={ styles.partyStats }>
+            <View>
+              <Icon name="account-outline" size={28} color="white" />
+              <Text style={ styles.partyName}> { " "+props.party.players.length } </Text>
+            </View>
+            <View>
+              <Text style={ styles.textIcon }> Lvl:</Text>
+              <Text style={ styles.partyName}> ~{ props.party.players.length }</Text>
+            </View>
           </View>
-          <View>
-            <Icon name="emoticon-devil-outline" size={28} color="white"/>
-            <Text style={ styles.encounterName}> { " "+props.encounter.enemies.length } </Text>
-          </View>
-          <View>
-            <Icon name="account-heart-outline" size={28} color="white" />
-            <Text style={ styles.encounterName}> { " "+props.encounter.allies.length } </Text>
-          </View>
-        </View>
         </View>
       </TouchableOpacity>
     </Swipeable>
@@ -64,20 +59,21 @@ const EncounterItem = props => {
 
 const styles = StyleSheet.create({
   listItem: {
+    width: '100%',
     padding: 10,
     marginVertical: 10,
     // backgroundColor: 'transparent',
     // backgroundColor: '#F5BB73',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginBottom: 5,
     // borderWidth: 1,
     borderRadius: 5,
 
     // width: "90%"
   },
-  encounterTitleWrapper: {
+  partyTitleWrapper: {
     flex: 2,
     flexDirection: 'column',
   },
@@ -91,14 +87,23 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 14,
   },
-  encounterName:{
+  partyName:{
     fontSize:18,
     color: "white",
   },
-  encounterStats: {
+  textIcon:{
+    padding: 2,
+    fontSize: 20,
+    color: "white",
+    letterSpacing: .5,
+  },
+  longValueText:{
+    color: "white",
+    fontSize: 16,
+  },
+  partyStats: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    flex: 1,
+    justifyContent: 'space-around',
   },
   gradientContainer: {
     borderRadius: 5,
@@ -123,4 +128,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EncounterItem;
+export default PartyItem;

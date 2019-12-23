@@ -17,7 +17,7 @@ const encountersReducer = (state = initialState, action) => {
         action.encounterData.title,
         action.encounterData.campaign,
         action.encounterData.description,
-        action.encounterData.players,
+        action.encounterData.party,
         action.encounterData.enemies,
         action.encounterData.allies
       );
