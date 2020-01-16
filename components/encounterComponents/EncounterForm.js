@@ -4,22 +4,23 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, Dimensions } from 'react-native';
 import MultiStepForm from '../MultiStepForm';
 import FormInput from '../FormInput';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { Formik } from 'formik';
 
 const EncounterForm = props => {
-  const [ progress, setProgress ] = useState(0);
   const [ encounter, setEncounter ] = useState( {
     title: "",
     campaign: "",
     description: "",
-    party: {},
-    players: [],
+    difficulty: 0,
+    party: {
+      id: new Date().toString,
+      title: "",
+      players: [],
+      },
     enemies: [],
     allies: []
   });
   // Form objects to render see FormInput for Form Handling UI
-  const barWidth = Dimensions.get('screen').width - 30;
 
   const forms = [
     {
@@ -46,33 +47,6 @@ const EncounterForm = props => {
         }
       ]
     },
-    {
-      title: 'Assemble your party: ',
-      message: 'Choose your party here, or create one below!',
-      inputs: [
-        {
-          name: 'party',
-          type: 'picker',
-          label: 'Selected Party: ',
-          placeholder: 'Encounter party here...',
-
-        }
-      ],
-    },
-    {
-      title: 'Choose your enemies: ',
-      message: 'Select which enemies your players will battle against!',
-      inputs: [
-        {
-          name: 'enemies',
-          type: 'character-picker',
-          label: 'Available enemies: ',
-          placeholder: 'Encounter enemies here...',
-
-        }
-      ],
-    },
-
   ];
 
   const handleSubmit = (encounter) => {
@@ -85,12 +59,7 @@ const EncounterForm = props => {
 
   return (
     <View style={ styles.container }>
-      <ProgressBarAnimated
-        style={ styles.progressBar }
-        width={ barWidth }
-        value={ progress }
-        backgroundColorOnComplete="#6CC644"
-      />
+
     <MultiStepForm onSubmit={ handleSubmit } initialValues={encounter} handleNext={ handleNext }>
           { forms.map((el, index) => (
             <MultiStepForm.Step key={ el.title }>
@@ -102,9 +71,10 @@ const EncounterForm = props => {
                 {/* <Text style={ styles.messageText }> { el.message } </Text> */}
                 <View>
                   {
-                    el.inputs.map(input => (
+                    el.inputs.map((input, index) => (
                       <FormInput
-                        theme={"dark"}
+                        theme={"light"}
+                        index={index}
                         key={input.name}
                         onChangeValue={ onChangeValue }
                         placeholder={ input.placeholder }
@@ -140,17 +110,14 @@ const styles = StyleSheet.create({
   },
   stepHeaderText: {
     fontSize: 20,
-    color: "white",
+    color: "grey",
   },
   stepHeader: {
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
     marginBottom: 15,
   },
-  progressBar: {
-    marginTop: 5,
-    alignSelf: 'center',
-  },
+
   // messageText: {
   //   alignSelf: 'center',
   //   fontSize: 16,
