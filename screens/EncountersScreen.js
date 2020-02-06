@@ -71,7 +71,7 @@ const EncountersScreen = props => {
             backdropOpacity={0.7}
             position={"center"}
             >
-            <EncounterForm addEncounterHandler={ addEncounterHandler }/>
+            <EncounterForm addEncounterHandler={ addEncounterHandler } cancelEncounterHandler={ cancelEncounterHandler }/>
           </Modal>
       </ScrollView>
       <View>

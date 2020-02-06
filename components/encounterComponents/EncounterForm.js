@@ -1,10 +1,15 @@
 /* @flow */
+//TO DO: Add Form Validation with Yup
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Keyboard, Form } from 'react-native';
 import MultiStepForm from '../MultiStepForm';
 import FormInput from '../FormInput';
 import { Formik } from 'formik';
+import { Button, TextInput, HelperText } from 'react-native-paper';
+
+import DynamicForm from "../DynamicForm";
+import validation from '../../data/EncounterValidation';
 
 const EncounterForm = props => {
   const [ encounter, setEncounter ] = useState( {
@@ -13,54 +18,47 @@ const EncounterForm = props => {
     description: "",
     difficulty: 0,
     party: {
-      id: new Date().toString,
-      title: "",
-      players: [],
-      },
+      id: '',
+      title: '',
+      players: []
+    },
     enemies: [],
     allies: []
   });
-  // Form objects to render see FormInput for Form Handling UI
 
-  const forms = [
-    {
-      title: 'Encounter details: ',
-      message: 'Let\'s start with some info about this encounter...',
-      inputs: [
-        {
-          name: 'title',
-          type: 'text-input',
-          label: 'Encounter Title: ',
-          placeholder: 'Encounter title here...',
-        },
-        {
-          name: 'campaign',
-          type: 'text-input',
-          label: 'Campaign name: ',
-          placeholder: '(Optional) Encounter campaign here...',
-        },
-        {
-          name: 'description',
-          type: 'text-input',
-          label: 'Description: ',
-          placeholder: '(Optional) Encounter description here...',
-        }
-      ]
-    },
+  const fields = [
+    {label: 'Title', type: 'input', name: 'title', placeholder: 'Encounter Title (Required)'},
+    {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'Campaign (Optional)'},
+    {label: 'Description', type: 'input', name: 'description', placeholder: 'Description (Optional)'},
+
   ];
 
   const handleSubmit = (encounter) => {
     props.addEncounterHandler(encounter);
   };
-  const handleNext = (value) => {
-    setProgress( value );
+  const handleCancel = () => {
+    props.cancelEncounterHandler();
   };
 
 
   return (
     <View style={ styles.container }>
+      <View sytle={styles.formHeader}>
+        <Text style={styles.formHeaderText}> New Encounter </Text>
+      </View>
 
-    <MultiStepForm onSubmit={ handleSubmit } initialValues={encounter} handleNext={ handleNext }>
+
+    <View style={styles.content}>
+      <DynamicForm fields={fields}
+      data={encounter}
+      validation={validation}
+      handleCancel={handleCancel}
+      handleSubmit={handleSubmit}
+      />
+    </View>
+
+
+    {/*<MultiStepForm onSubmit={ handleSubmit } initialValues={encounter} handleNext={ handleNext }>
           { forms.map((el, index) => (
             <MultiStepForm.Step key={ el.title }>
             { ({ onChangeValue, values, type, label, message, inputs, currentIndex }) => (
@@ -68,7 +66,6 @@ const EncounterForm = props => {
                 <View style={ styles.stepHeader }>
                 <Text style={ styles.stepHeaderText }> {el.title} </Text>
                 </View>
-                {/* <Text style={ styles.messageText }> { el.message } </Text> */}
                 <View>
                   {
                     el.inputs.map((input, index) => (
@@ -92,7 +89,7 @@ const EncounterForm = props => {
             }
             </MultiStepForm.Step>
             ))}
-      </MultiStepForm>
+      </MultiStepForm>*/}
     </View>
   );
 }
@@ -101,23 +98,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    alignItems: 'center',
   },
   formHeader: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
-    padding: 5,
-  },
-  stepHeaderText: {
-    fontSize: 20,
-    color: "grey",
-  },
-  stepHeader: {
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
     marginBottom: 15,
   },
-
+  formHeaderText: {
+    fontSize: 20,
+    paddingLeft: 16,
+    color: "black",
+  },
+  // stepHeaderText: {
+  //   fontSize: 20,
+  //   color: "grey",
+  // },
+  // stepHeader: {
+  //   borderBottomWidth: 1,
+  //   borderBottomColor: 'grey',
+  //   marginBottom: 15,
+  // },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  content: {
+    padding: 16,
+  },
+  button: {
+    marginTop: 16,
+    width: "30%",
+  },
+  input: {
+    marginBottom: 10,
+  }
   // messageText: {
   //   alignSelf: 'center',
   //   fontSize: 16,

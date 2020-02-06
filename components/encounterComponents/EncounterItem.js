@@ -31,19 +31,19 @@ const EncounterItem = props => {
   return (
     <Swipeable
       renderRightActions={this.renderRightActions}>
-      <TouchableOpacity onPress={() => { props.navigate("Encounter", { id: props.encounter.id })} }>
+      <TouchableOpacity onPress={() => { props.navigate("Encounter", { id: props.encounter.id, title: props.encounter.title })} }>
         <View style={ (props.index == 0 ? [styles.first, styles.listItem]: styles.listItem)  }>
         <View style={ styles.encounterTitleWrapper }>
           <Text style={ styles.encounterName}> { props.encounter.title } </Text>
           <View style={ styles.partyWrapper }>
             <Icon name="account-group-outline" size={16} color="white" />
-          <Text style={ styles.partyTitle }> { props.encounter.party.title } </Text>
+          <Text style={ styles.partyTitle }> { props.encounter.party.title? props.encounter.party.title : "none" } </Text>
           </View>
         </View>
         <View style={ styles.encounterStats }>
           <View>
             <Icon name="account-outline" size={28} color="white" />
-          <Text style={ styles.encounterName}> { " "+props.encounter.party.players.length } </Text>
+          <Text style={ styles.encounterName}> { props.encounter.party.players? " "+props.encounter.party.players.length : 0} </Text>
           </View>
           <View>
             <Icon name="emoticon-devil-outline" size={28} color="white"/>

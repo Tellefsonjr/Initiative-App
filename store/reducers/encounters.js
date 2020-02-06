@@ -1,6 +1,7 @@
 import ENCOUNTERS from '../../data/dummy-encounter-data';
 import { ADD, DELETE, UPDATE } from '../actions/encounters';
 import Encounter from '../../models/encounter';
+import Party from '../../models/party';
 
 const initialState = {
   // encounters: [],
@@ -21,6 +22,7 @@ const encountersReducer = (state = initialState, action) => {
         action.encounterData.party,
         action.encounterData.enemies,
         action.encounterData.allies
+
       );
       return { ...state, encounters: state.encounters.concat( newEncounter ) };
     case DELETE:

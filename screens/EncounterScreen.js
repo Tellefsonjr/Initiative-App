@@ -51,6 +51,12 @@ EncounterScreen.navigationOptions = navData => {
   };
 };
 
+EncounterScreen.navigationOptions = navData => {
+  return {
+    headerTitle: navData.navigation.getParam("title"),
+  }
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
