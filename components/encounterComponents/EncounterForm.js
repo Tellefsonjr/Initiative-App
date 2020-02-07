@@ -1,97 +1,64 @@
 /* @flow */
+//TO DO: Add Form Validation with Yup
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Keyboard, Form } from 'react-native';
 import MultiStepForm from '../MultiStepForm';
 import FormInput from '../FormInput';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { Formik } from 'formik';
+import { Button, TextInput, HelperText } from 'react-native-paper';
+
+import DynamicForm from "../DynamicForm";
+import validation from '../../data/EncounterValidation';
 
 const EncounterForm = props => {
-  const [ progress, setProgress ] = useState(0);
   const [ encounter, setEncounter ] = useState( {
     title: "",
     campaign: "",
     description: "",
-    party: {},
-    players: [],
+    difficulty: 0,
+    party: {
+      id: '',
+      title: '',
+      players: []
+    },
     enemies: [],
     allies: []
   });
-  // Form objects to render see FormInput for Form Handling UI
-  const barWidth = Dimensions.get('screen').width - 30;
 
-  const forms = [
-    {
-      title: 'Encounter details: ',
-      message: 'Let\'s start with some info about this encounter...',
-      inputs: [
-        {
-          name: 'title',
-          type: 'text-input',
-          label: 'Encounter Title: ',
-          placeholder: 'Encounter title here...',
-        },
-        {
-          name: 'campaign',
-          type: 'text-input',
-          label: 'Campaign name: ',
-          placeholder: '(Optional) Encounter campaign here...',
-        },
-        {
-          name: 'description',
-          type: 'text-input',
-          label: 'Description: ',
-          placeholder: '(Optional) Encounter description here...',
-        }
-      ]
-    },
-    {
-      title: 'Assemble your party: ',
-      message: 'Choose your party here, or create one below!',
-      inputs: [
-        {
-          name: 'party',
-          type: 'picker',
-          label: 'Selected Party: ',
-          placeholder: 'Encounter party here...',
-
-        }
-      ],
-    },
-    {
-      title: 'Choose your enemies: ',
-      message: 'Select which enemies your players will battle against!',
-      inputs: [
-        {
-          name: 'enemies',
-          type: 'character-picker',
-          label: 'Available enemies: ',
-          placeholder: 'Encounter enemies here...',
-
-        }
-      ],
-    },
+  const fields = [
+    {label: 'Title', type: 'input', name: 'title', placeholder: 'Encounter Title (Required)'},
+    {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'Campaign (Optional)'},
+    {label: 'Description', type: 'input', name: 'description', placeholder: 'Description (Optional)'},
 
   ];
 
   const handleSubmit = (encounter) => {
     props.addEncounterHandler(encounter);
   };
-  const handleNext = (value) => {
-    setProgress( value );
+  const handleCancel = () => {
+    props.cancelEncounterHandler();
   };
 
 
   return (
     <View style={ styles.container }>
-      <ProgressBarAnimated
-        style={ styles.progressBar }
-        width={ barWidth }
-        value={ progress }
-        backgroundColorOnComplete="#6CC644"
+      <View sytle={styles.formHeader}>
+        <Text style={styles.formHeaderText}> New Encounter </Text>
+      </View>
+
+
+    <View style={styles.content}>
+      <DynamicForm fields={fields}
+      data={encounter}
+      validation={validation}
+      handleCancel={handleCancel}
+      handleSubmit={handleSubmit}
       />
-    <MultiStepForm onSubmit={ handleSubmit } initialValues={encounter} handleNext={ handleNext }>
+    </View>
+
+
+    {/*<MultiStepForm onSubmit={ handleSubmit } initialValues={encounter} handleNext={ handleNext }>
           { forms.map((el, index) => (
             <MultiStepForm.Step key={ el.title }>
             { ({ onChangeValue, values, type, label, message, inputs, currentIndex }) => (
@@ -99,12 +66,12 @@ const EncounterForm = props => {
                 <View style={ styles.stepHeader }>
                 <Text style={ styles.stepHeaderText }> {el.title} </Text>
                 </View>
-                {/* <Text style={ styles.messageText }> { el.message } </Text> */}
                 <View>
                   {
-                    el.inputs.map(input => (
+                    el.inputs.map((input, index) => (
                       <FormInput
-                        theme={"dark"}
+                        theme={"light"}
+                        index={index}
                         key={input.name}
                         onChangeValue={ onChangeValue }
                         placeholder={ input.placeholder }
@@ -122,7 +89,7 @@ const EncounterForm = props => {
             }
             </MultiStepForm.Step>
             ))}
-      </MultiStepForm>
+      </MultiStepForm>*/}
     </View>
   );
 }
@@ -131,26 +98,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    alignItems: 'center',
   },
   formHeader: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
-    padding: 5,
-  },
-  stepHeaderText: {
-    fontSize: 20,
-    color: "white",
-  },
-  stepHeader: {
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
     marginBottom: 15,
   },
-  progressBar: {
-    marginTop: 5,
-    alignSelf: 'center',
+  formHeaderText: {
+    fontSize: 20,
+    paddingLeft: 16,
+    color: "black",
   },
+  // stepHeaderText: {
+  //   fontSize: 20,
+  //   color: "grey",
+  // },
+  // stepHeader: {
+  //   borderBottomWidth: 1,
+  //   borderBottomColor: 'grey',
+  //   marginBottom: 15,
+  // },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  content: {
+    padding: 16,
+  },
+  button: {
+    marginTop: 16,
+    width: "30%",
+  },
+  input: {
+    marginBottom: 10,
+  }
   // messageText: {
   //   alignSelf: 'center',
   //   fontSize: 16,

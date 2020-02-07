@@ -35,6 +35,7 @@ class FormInput extends PureComponent {
                 { ...rest }
                 placeholderTextColor="rgba(60, 60, 60, 0.9)"
                 onChangeText={ this._onChangeValue }
+                autoFocus={ this.props.index == 0 ? true : false }
                 onFocus={ this.toggleActive }
                 onEndEditing={ this.toggleActive }
                />

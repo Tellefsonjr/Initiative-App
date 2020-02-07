@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, TouchableNativeFeedback, View, Text, Dimensions } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, View, Text, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const FormButton = props => {
     return (
       <View>
-        <TouchableNativeFeedback { ...props } onPress={ props.onPress } >
+        <TouchableWithoutFeedback { ...props } onPress={ props.onPress } >
           { props.iconPosition == "right"?
             <View style={ [styles.button, styles.right, { backgroundColor: `${props.color}`}] }>
               <Text style={ styles.buttonText}> { props.text }</Text>
@@ -18,7 +18,7 @@ const FormButton = props => {
             </View>
 
           }
-        </TouchableNativeFeedback>
+        </TouchableWithoutFeedback>
       </View>
   );
 

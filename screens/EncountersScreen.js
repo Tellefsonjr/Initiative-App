@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Modal from "react-native-modalbox";
 
 import EncounterList from '../components/encounterComponents/EncounterList';
+import EncounterForm from '../components/encounterComponents/EncounterForm';
 import CustomHeaderButton from '../components/HeaderButton';
 
 import * as encounterActions from '../store/actions/encounters'; //Redux Actions
@@ -21,7 +22,10 @@ const EncountersScreen = props => {
   const [ isAdding, setIsAdding ] = useState( false );
   const [ isEditing, setIsEditing ] = useState( false );
 
-  console.log("IS ADDING:", isAdding);
+  const addEncounterHandler = ( encounter ) => {
+    dispatch(encounterActions.addEncounter(encounter));
+    setIsAdding(false);
+  };
   const editEncounterHandler = ( encounterId ) => {
     setIsEditing(!isEditing);
     // dispatch(encounterActions.updateEncounter(encounter));
@@ -40,7 +44,7 @@ const EncountersScreen = props => {
   };
 
   const handleAddButtonAction = () => {
-    props.navigation.navigate("AddEncounter");
+    setIsAdding(true);
   };
   return (
     <ImageBackground source={require('../assets/images/bg.jpg')} style={[styles.backgroundImage, styles.container]} >
@@ -57,7 +61,7 @@ const EncountersScreen = props => {
               :
             <EncounterList encounters={ encounters } editEncounterHandler={ editEncounterHandler } removeEncounterHandler={ removeEncounterHandler } navigate={ props.navigation.navigate }/>
           }
-          {/* <Modal
+          <Modal
             style={ styles.modal }
             backdropPressToClose={true}
             swipeToClose={false}
@@ -67,8 +71,8 @@ const EncountersScreen = props => {
             backdropOpacity={0.7}
             position={"center"}
             >
-            <EncounterForm addEncounterHandler={ addEncounterHandler }/>
-          </Modal> */}
+            <EncounterForm addEncounterHandler={ addEncounterHandler } cancelEncounterHandler={ cancelEncounterHandler }/>
+          </Modal>
       </ScrollView>
       <View>
 
