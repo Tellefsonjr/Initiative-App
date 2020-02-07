@@ -1,18 +1,27 @@
 /* aka Encounter Detail Screen, shows selected encounter details and allows edit before ActiveEncounterScreen */
 
 import React, { useState } from 'react';
-import { Dimensions, View, Text, StyleSheet, Button, ImageBackground, } from 'react-native';
+import { Dimensions, View, Text, StyleSheet, ImageBackground, } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector, useDispatch } from 'react-redux';
+import { FAB, Portal, Provider, Modal, Button } from 'react-native-paper';
 
 import CustomHeaderButton from '../components/HeaderButton';
 
 import PlayerList from '../components/playerComponents/PlayerList';
+import PlayerForm from '../components/playerComponents/PlayerForm';
+
 
 import * as encounterActions from '../store/actions/encounters'; //Redux Actions
+import * as playerActions from '../store/actions/players'; //Redux Actions
 
 const EncounterScreen = props => {
+  const [open, setOpen ] = useState( false );
+  const [visible, setVisible ] = useState( false );
+  const [modalType, setModalType] = useState( '' );
+
   const dispatch = useDispatch();
 
   const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
@@ -20,6 +29,26 @@ const EncounterScreen = props => {
   console.log("Encounter.players", encounter.players);
   const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)))
   const barWidth = Dimensions.get('screen').width - 30;
+
+  const addPlayerHandler = ( player ) => {
+    console.log("MADE IT TO THE ENCOUNTER SCREEN: ", player);
+    dispatch(playerActions.addPlayer(player));
+    console.log("NONO, READ THIS~~~>", encounter);
+    encounter.party.players.push(player.id);
+    console.log("READ THIS~~~~~~>", encounter);
+    dispatch(encounterActions.updateEncounter(encounter));
+    setVisible(false);
+  };
+  const cancelPlayerHandler = (  ) => {
+    setVisible(false);
+  };
+  const showModal = (type) => {
+    setModalType(type);
+    setVisible(true);
+  };
+  const hideModal = (type) => {
+    setVisible(false);
+  }
 
  return (
    <ImageBackground source={require('../assets/images/bg.jpg')} style={styles.backgroundImage} >
@@ -33,8 +62,38 @@ const EncounterScreen = props => {
             backgroundColorOnComplete="#6CC644"
           />
         </View>
+        <View style={ styles.playerListWrapper }>
+          <PlayerList players={players} selectable={false} selectedIds={[]}/>
+        </View>
 
-        <PlayerList players={players} selectable={false} selectedIds={[]}/>
+        <Provider>
+          <Portal>
+            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={ styles.modalContainer }>
+              <PlayerForm addPlayerHandler={ addPlayerHandler } cancelPlayerHandler={ cancelPlayerHandler } />
+            </Modal>
+          </Portal>
+        </Provider>
+
+          <Provider>
+            <Portal>
+              <FAB.Group
+              open={open}
+              icon={open ? 'close' : 'dots-vertical'}
+              actions={[
+                { icon: 'star', label: 'Start Encounter', onPress: () => console.log('Pressed star')},
+                { icon: 'email', label: 'Add Ally', onPress: () => console.log('Pressed email') },
+                { icon: 'bell', label: 'Add Monster', onPress: () => console.log('Pressed notifications') },
+                { icon: 'plus', label: 'Add Player', color: '#00B358', onPress: () => {showModal('player')} },
+              ]}
+              onStateChange={({ open }) => setOpen(open)}
+              onPress={() => {
+                if (open) {
+                  // do something if the speed dial is open
+                }
+              }}
+              />
+            </Portal>
+          </Provider>
       </View>
     </ImageBackground>
   );
@@ -77,11 +136,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
     alignSelf: 'center',
   },
-  actionButtonIcon: {
-    fontSize: 20,
-    height: 22,
-    color: 'white',
+  playerListWrapper: {
+    height: '100%',
   },
+  modalContainer: {
+    height: '80%',
+    backgroundColor: 'white'
+  }
 });
 
 

@@ -5,7 +5,7 @@
 
 import React, { PureComponent } from 'react';
 import {
-  View,Text, StyleSheet, Form,
+  View,Text, StyleSheet, Form, Picker
 } from 'react-native';
 import { Formik } from 'formik';
 import Colors from '../constants/Colors';
@@ -13,20 +13,50 @@ import { Button, TextInput } from 'react-native-paper';
 
 
 class DynamicForm extends PureComponent {
+
+
+  renderText = (input, handleChange, values, errors, i) => {
+    return(
+      <TextInput
+            autoFocus={i==0? true : false}
+            onChangeText={handleChange(input.name)}
+            value={values[input.name]}
+            label={input.label}
+            placeholder={input.placeholder}
+            theme={{colors: {primary: 'blue'}}}
+            type='text'
+      />
+      )
+  }
+  renderNumber = (input, handleChange, values, errors, i) => {
+    return(
+      <TextInput
+            autoFocus={i==0? true : false}
+            onChangeText={handleChange(input.name)}
+            value={values[input.name].toString()}
+            label={input.label}
+            keyboardType={'number-pad'}
+            placeholder={input.placeholder}
+            theme={{colors: {primary: 'blue'}}}
+            type='text'
+      />
+      )
+  }
+
+
+
   renderFields = (inputs, handleChange, values, errors) => {
-    console.log("INPUTS", inputs, values, errors);
-    return inputs.map(input => {
+    return inputs.map((input, i) => {
       return(
         <View key={input.name} style={styles.input}>
           <View>
-              <TextInput
-                    onChangeText={handleChange(input.name)}
-                    value={values[input.name]}
-                    label={input.label}
-                    placeholder={input.placeholder}
-                    theme={{colors: {primary: 'blue'}}}
-                    type='text'
-              />
+            {
+              (input.type == 'input-number' ?
+              this.renderNumber(input, handleChange, values, errors, i)
+              :
+              this.renderText(input, handleChange, values, errors, i) )
+            }
+
               { (errors[input.name] ?
                 <Text style={{ fontSize: 10, color: 'red' }}>{errors[input.name]}</Text>
                 : null )
@@ -36,6 +66,7 @@ class DynamicForm extends PureComponent {
         )
       });
   }
+
 
   render() {
     const initialValues = this.props.data;
