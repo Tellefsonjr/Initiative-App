@@ -3,10 +3,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button, ImageBackground, ScrollView, } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector, useDispatch } from 'react-redux';
-import Modal from "react-native-modalbox";
+import { FAB, Portal, Provider, Modal } from 'react-native-paper';
 
 import EncounterList from '../components/encounterComponents/EncounterList';
 import EncounterForm from '../components/encounterComponents/EncounterForm';
@@ -18,13 +17,13 @@ const EncountersScreen = props => {
   const dispatch = useDispatch();
 
   const encounters = useSelector(state => state.encounters.encounters);
-
-  const [ isAdding, setIsAdding ] = useState( false );
+  const [ open, setOpen ] = useState( false );
+  const [ visible, setVisible ] = useState( false );
   const [ isEditing, setIsEditing ] = useState( false );
 
   const addEncounterHandler = ( encounter ) => {
     dispatch(encounterActions.addEncounter(encounter));
-    setIsAdding(false);
+    setVisible(false);
   };
   const editEncounterHandler = ( encounterId ) => {
     setIsEditing(!isEditing);
@@ -39,53 +38,54 @@ const EncountersScreen = props => {
     dispatch(encounterActions.deleteEncounter(encounterId));
   };
 
-  const cancelEncounterHandler = () => {
-    setIsAdding(false);
+  const showModal = () => {
+    console.log("SHOWING");
+    setVisible(true);
+  };
+  const hideModal = () => {
+    setVisible(false);
   };
 
-  const handleAddButtonAction = () => {
-    setIsAdding(true);
-  };
   return (
     <ImageBackground source={require('../assets/images/bg.jpg')} style={[styles.backgroundImage, styles.container]} >
-      <ScrollView
-          style={ styles.container }
-          contentContainerStyle={styles.contentContainer}
-          keyboardShouldPersistTaps='never'
-          >
-          { encounters.length == 0 ?
-            <View style={ styles.emptyContainer }>
-              <Text style={ styles.textEmpty }> Your encounters are empty! </Text>
-            <Text style={ styles.textEmpty }> Click the + icon to add encounters! </Text>
-            </View>
-              :
-            <EncounterList encounters={ encounters } editEncounterHandler={ editEncounterHandler } removeEncounterHandler={ removeEncounterHandler } navigate={ props.navigation.navigate }/>
-          }
-          <Modal
-            style={ styles.modal }
-            backdropPressToClose={true}
-            swipeToClose={false}
-            swipeThreshold={50}
-            isOpen={ isAdding }
-            onClosed={ cancelEncounterHandler }
-            backdropOpacity={0.7}
-            position={"center"}
-            >
-            <EncounterForm addEncounterHandler={ addEncounterHandler } cancelEncounterHandler={ cancelEncounterHandler }/>
-          </Modal>
-      </ScrollView>
-      <View>
-
-
+      <View style={ styles.container }>
+        <View style={ styles.contentContainer }>
+            { encounters.length == 0 ?
+              <View style={ styles.emptyContainer }>
+                <Text style={ styles.textEmpty }> Your encounters are empty! </Text>
+              <Text style={ styles.textEmpty }> Click the + icon to add encounters! </Text>
+              </View>
+                :
+              <EncounterList encounters={ encounters } editEncounterHandler={ editEncounterHandler } removeEncounterHandler={ removeEncounterHandler } navigate={ props.navigation.navigate }/>
+            }
+        </View>
+        <Provider>
+          <Portal>
+          <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={ styles.modalContainer }>
+              <EncounterForm addEncounterHandler={ addEncounterHandler } cancelEncounterHandler={ hideModal }/>
+            </Modal>
+          </Portal>
+        </Provider>
+        <Provider>
+          <Portal>
+            <FAB.Group
+              open={open}
+              icon={open ? 'close' : 'dots-vertical'}
+              actions={[
+                { icon: 'reply', label: 'Resume Encounter', onPress: () => console.log('Pressed star')},
+                { icon: 'filter-variant', label: 'Sort', onPress: () => console.log('Pressed email') },
+                { icon: 'plus', label: 'Add Encounter', color: '#00B358', onPress: () => {showModal()} },
+              ]}
+              onStateChange={({ open }) => setOpen(open)}
+              onPress={() => {
+                if (open) {
+                  // do something if the speed dial is open
+                }
+            }}
+            />
+          </Portal>
+        </Provider>
       </View>
-      <ActionButton buttonColor='#00578A' size={ isAdding? 0 : 56}>
-        <ActionButton.Item buttonColor='#FF3D00' title={ "Resume Encounter" } onPress={ () => { console.log("Resume Encounter pressed.") } }>
-          <Icon name="play" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
-        <ActionButton.Item buttonColor='#00B358' title="Add Encounter" onPress={ handleAddButtonAction }>
-          <Icon name="plus" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
-      </ActionButton>
     </ImageBackground>
   );
 };
@@ -118,19 +118,11 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    // paddingTop: 30,
+    paddingTop: 10,
   },
-  modal: {
-    height: '85%',
-    padding: 0,
-  },
-  actionButtonIcon: {
-    fontSize: 20,
-    height: 22,
-    color: 'white',
-  },
-  hiddenButton: {
-
+  modalContainer: {
+    height: '80%',
+    backgroundColor: 'white'
   }
 });
 

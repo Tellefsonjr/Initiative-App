@@ -1,10 +1,10 @@
 import Player from '../models/player';
 
 const PLAYERS = [
-  new Player('p1', 'Player', 'Okaros', '15', '1'),
-  new Player('p2', 'Player', 'Vethis', '18', '2'),
-  new Player('p3', 'Player', 'Scree', '10', '2'),
-  new Player('p4', 'Player', 'Whisp', '12', '1'),
-  new Player('p5', 'Player', 'Kallista', '13', '3'),
+  new Player('p1', 'Okaros', 'Blood Hunter', 21, 0, 1),
+  new Player('p2', 'Vethis', 'Cleric', 19, 0, 2),
+  new Player('p3', 'Scree', 'Monk', 20, 0, 2),
+  new Player('p4', 'Whisp', 'Warlock', 18, 0, 1),
+  new Player('p5', 'Kallista', 'Rogue', 19, 0, 3),
 ];
 export default PLAYERS;

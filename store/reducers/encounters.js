@@ -1,5 +1,5 @@
 import ENCOUNTERS from '../../data/dummy-encounter-data';
-import { ADD, DELETE, UPDATE } from '../actions/encounters';
+import { ADD, DELETE, UPDATE, UPDATE_PLAYERS } from '../actions/encounters';
 import Encounter from '../../models/encounter';
 import Party from '../../models/party';
 
@@ -14,7 +14,7 @@ const encountersReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD:
       const newEncounter = new Encounter(
-        new Date().toString(),
+        action.encounterData.id,
         action.encounterData.title,
         action.encounterData.campaign,
         action.encounterData.description,
@@ -28,11 +28,20 @@ const encountersReducer = (state = initialState, action) => {
     case DELETE:
       return { ...state, encounters: state.encounters.filter((encounter) => encounter.id !== action.encounterId ) };
     case UPDATE:
+      const updatedEncounter = action.encounterData;
+      return {
+        ...state,
+        encounters: state.encounters.map( encounter => encounter.id === action.encounterData.id ?
+          updatedEncounter :
+          encounter
+        )
+      }
+    case UPDATE_PLAYERS:
 
       return {
         ...state,
         encounters: state.encounters.map( encounter => encounter.id === action.encounterData.id ?
-          action.encounterData :
+          encounter.players = action.encounterPlayers  :
           encounter
         )
       }

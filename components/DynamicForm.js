@@ -5,30 +5,105 @@
 
 import React, { PureComponent } from 'react';
 import {
-  View,Text, StyleSheet, Form,
+  View,Text, StyleSheet, Form, Picker, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, ActivityIndicator, ScrollView, Platform
 } from 'react-native';
-import { Formik } from 'formik';
+import { Formik, FieldArray, Field } from 'formik';
 import Colors from '../constants/Colors';
-import { Button, TextInput } from 'react-native-paper';
+import { Button, TextInput, Menu } from 'react-native-paper';
 
 
 class DynamicForm extends PureComponent {
+
+  renderSelect = (input, handleChange, values, errors, i) => {
+    return(
+      <FieldArray name={input.name}>
+      {(arrayHelpers) => (
+        <View>
+        <Picker
+          name={input.name}
+          style={ Platform.OS == 'ios' ? styles.pickerContainerIOS : '' }
+          itemStyle={styles.pickerItemIOS}
+          visible={true}
+          style={ styles.pickerContainer }
+          selectedValue={ values[input.name]}
+          onValueChange={ handleChange(input.name) }
+          prompt={ input.label }
+        >
+        <Picker.Item name={input.name} label={input.label} value={'default'} />
+      { input.data.map((d, index) => (
+            <Field
+              type="select"
+              id={input.name}
+              name={input.name}
+              key={index}
+              as={Picker.Item}
+              name={input.name}
+              label={d}
+              value={d} />
+          )
+
+            )
+        }
+        </Picker>
+        </View>
+        )}
+      </FieldArray>
+    )
+  }
+  renderText = (input, handleChange, values, errors, i) => {
+    return(
+      <Field
+            name={input.name}
+            as={TextInput}
+            style={ styles.textInput }
+            onEndEditing={() => {Keyboard.dismiss()}}
+            autoFocus={i==0? true : false}
+            onChangeText={handleChange(input.name)}
+            value={values[input.name]}
+            label={input.label}
+            placeholder={input.placeholder}
+            theme={{colors: {primary: 'blue'}}}
+            type='text'
+      />
+      )
+  }
+  renderNumber = (input, handleChange, values, errors, i) => {
+    return(
+      <Field
+            name={input.name}
+            as={TextInput}
+            style={ styles.textInput }
+            autoFocus={i==0? true : false}
+            onChangeText={handleChange(input.name)}
+            value={values[input.name].toString()}
+            label={input.label}
+            keyboardType={'number-pad'}
+            placeholder={input.placeholder}
+            theme={{colors: {primary: 'blue'}}}
+            type='text'
+      />
+      )
+  }
+
+
+
   renderFields = (inputs, handleChange, values, errors) => {
-    console.log("INPUTS", inputs, values, errors);
-    return inputs.map(input => {
+    return inputs.map((input, i) => {
       return(
-        <View key={input.name} style={styles.input}>
+        <View key={input.name} style={styles.input} name={input.name}>
           <View>
-              <TextInput
-                    onChangeText={handleChange(input.name)}
-                    value={values[input.name]}
-                    label={input.label}
-                    placeholder={input.placeholder}
-                    theme={{colors: {primary: 'blue'}}}
-                    type='text'
-              />
+            { (input.type == 'select'?
+              this.renderSelect(input, handleChange, values, errors, i)
+              :
+              (input.type == 'input-number' ?
+              this.renderNumber(input, handleChange, values, errors, i)
+              :
+              this.renderText(input, handleChange, values, errors, i) )
+              )
+            }
+
               { (errors[input.name] ?
-                <Text style={{ fontSize: 10, color: 'red' }}>{errors[input.name]}</Text>
+                <Text name={input.name} style={{ fontSize: 10, color: 'red' }}>{errors[input.name]}</Text>
                 : null )
               }
           </View>
@@ -37,18 +112,20 @@ class DynamicForm extends PureComponent {
       });
   }
 
+
   render() {
     const initialValues = this.props.data;
 
       return(
-        <View>
+          <ScrollView keyboardShouldPersistTaps="never">
+          <KeyboardAvoidingView behavior='padding' style={{flex: 1}} enabled>
           <Formik
           onSubmit={this.props.handleSubmit}
           validationSchema={this.props.validation}
           initialValues={initialValues}>
-          {({ handleChange, handleSubmit, values, errors }) => (
+          {({ handleChange, handleSubmit, values, errors, isSubmitting, touched }) => (
             <View>
-            { this.renderFields(this.props.fields, handleChange, values, errors) }
+            { this.renderFields(this.props.fields, handleChange, values, errors, touched) }
             <View style={styles.buttonContainer}>
               <Button onPress={this.props.handleCancel} style={styles.button}
               icon="cancel"
@@ -58,21 +135,22 @@ class DynamicForm extends PureComponent {
               Cancel
               </Button>
 
-              <Button onPress={handleSubmit} style={styles.button}
+              <Button disabled={isSubmitting} onPress={handleSubmit} style={styles.button}
                 disabled={Object.keys(errors).length > 0 ?true : false}
                 type="submit"
-                icon="check-circle-outline"
+                icon={isSubmitting? <ActivityIndicator size="small" color="#00ff00" /> : "check-circle-outline"}
                 mode="contained"
                 title="Submit"
                 color="#00578A">
                 Submit
               </Button>
             </View>
-          </View>
+            </View>
           )
         }
         </Formik>
-      </View>
+        </KeyboardAvoidingView>
+        </ScrollView>
   )
   }
 }
@@ -91,8 +169,20 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 5,
-
-  }
+  },
+  textInput: {
+    height: 50,
+  },
+  pickerContainerIOS: {
+    width: 200,
+    height: 88,
+  },
+  pickerItemIOS: {
+    height: 88,
+  },
+  pickerLabel: {
+    fontSize: 20,
+  },
 });
 
 export default DynamicForm;

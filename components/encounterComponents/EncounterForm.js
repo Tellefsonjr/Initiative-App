@@ -1,10 +1,10 @@
 /* @flow */
-//TO DO: Add Form Validation with Yup
+// Dynamic form used for easier Formik Forms.
+// format: {label: 'label for input', type: '{input type (text, select, number)}', name: {key of state obj}, placeholder: '{placeholder text}'}
+// validation for these forms stored in data/validation
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, Keyboard, Form } from 'react-native';
-import MultiStepForm from '../MultiStepForm';
-import FormInput from '../FormInput';
+import { View, Text, StyleSheet, Dimensions, Keyboard, Form, TouchableWithoutFeedback } from 'react-native';
 import { Formik } from 'formik';
 import { Button, TextInput, HelperText } from 'react-native-paper';
 
@@ -18,7 +18,7 @@ const EncounterForm = props => {
     description: "",
     difficulty: 0,
     party: {
-      id: '',
+      id: new Date().toString(),
       title: '',
       players: []
     },
@@ -42,55 +42,22 @@ const EncounterForm = props => {
 
 
   return (
-    <View style={ styles.container }>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={ styles.container }>
       <View sytle={styles.formHeader}>
         <Text style={styles.formHeaderText}> New Encounter </Text>
       </View>
 
-
-    <View style={styles.content}>
-      <DynamicForm fields={fields}
-      data={encounter}
-      validation={validation}
-      handleCancel={handleCancel}
-      handleSubmit={handleSubmit}
-      />
-    </View>
-
-
-    {/*<MultiStepForm onSubmit={ handleSubmit } initialValues={encounter} handleNext={ handleNext }>
-          { forms.map((el, index) => (
-            <MultiStepForm.Step key={ el.title }>
-            { ({ onChangeValue, values, type, label, message, inputs, currentIndex }) => (
-              <View style={{flex: 1}}>
-                <View style={ styles.stepHeader }>
-                <Text style={ styles.stepHeaderText }> {el.title} </Text>
-                </View>
-                <View>
-                  {
-                    el.inputs.map((input, index) => (
-                      <FormInput
-                        theme={"light"}
-                        index={index}
-                        key={input.name}
-                        onChangeValue={ onChangeValue }
-                        placeholder={ input.placeholder }
-                        value={ values[input.name] }
-                        name={ input.name }
-                        type={ input.type }
-                        label={ input.label }
-                      />
-                      ))
-                  }
-                </View>
-              </View>
-              )
-
-            }
-            </MultiStepForm.Step>
-            ))}
-      </MultiStepForm>*/}
-    </View>
+      <View style={styles.content}>
+        <DynamicForm fields={fields}
+        data={encounter}
+        validation={validation}
+        handleCancel={handleCancel}
+        handleSubmit={handleSubmit}
+        />
+      </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 

@@ -1,8 +1,9 @@
 class Player {
-  constructor(id, charType, name, initiativeBonus, initiative ){
+  constructor(id, name, className, hp, initiativeBonus, initiative ){
     this.id = id;
-    this.charType = charType;
     this.name = name;
+    this.className = className;
+    this.hp = hp;
     // this.user = user;
     this.initiativeBonus = initiativeBonus;
     this.initiative = initiative;

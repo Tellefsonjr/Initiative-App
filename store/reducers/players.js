@@ -1,5 +1,6 @@
 import PLAYERS from '../../data/dummy-player-data';
 import { GET, ADD, DELETE } from '../actions/players';
+import Player from '../../models/player';
 
 const initialState = {
   // players: [],
@@ -18,8 +19,10 @@ const playersReducer = (state = initialState, action) => {
     //   )};
     case ADD:
       const newPlayer = new Player(
-        new Date().toString(),
+        action.playerData.id,
         action.playerData.name,
+        action.playerData.className,
+        action.playerData.hp,
         action.playerData.initiativeBonus,
         action.playerData.initiative,
       );
