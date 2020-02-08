@@ -29,7 +29,7 @@ class DynamicForm extends PureComponent {
           onValueChange={ handleChange(input.name) }
           prompt={ input.label }
         >
-        <Picker.Item name={input.name} label={input.label} value={'default'} />
+        <Picker.Item name={input.name} label='Select an option' value='' />
       { input.data.map((d, index) => (
             <Field
               type="select"
@@ -52,11 +52,9 @@ class DynamicForm extends PureComponent {
   }
   renderText = (input, handleChange, values, errors, i) => {
     return(
-      <Field
+      <TextInput
             name={input.name}
-            as={TextInput}
             style={ styles.textInput }
-            onEndEditing={() => {Keyboard.dismiss()}}
             autoFocus={i==0? true : false}
             onChangeText={handleChange(input.name)}
             value={values[input.name]}
@@ -69,9 +67,8 @@ class DynamicForm extends PureComponent {
   }
   renderNumber = (input, handleChange, values, errors, i) => {
     return(
-      <Field
+      <TextInput
             name={input.name}
-            as={TextInput}
             style={ styles.textInput }
             autoFocus={i==0? true : false}
             onChangeText={handleChange(input.name)}
@@ -123,7 +120,7 @@ class DynamicForm extends PureComponent {
           onSubmit={this.props.handleSubmit}
           validationSchema={this.props.validation}
           initialValues={initialValues}>
-          {({ handleChange, handleSubmit, values, errors, isSubmitting, touched }) => (
+          {({ handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid }) => (
             <View>
             { this.renderFields(this.props.fields, handleChange, values, errors, touched) }
             <View style={styles.buttonContainer}>
@@ -135,7 +132,7 @@ class DynamicForm extends PureComponent {
               Cancel
               </Button>
 
-              <Button disabled={isSubmitting} onPress={handleSubmit} style={styles.button}
+              <Button disabled={isSubmitting || !isValid} onPress={handleSubmit} style={styles.button}
                 disabled={Object.keys(errors).length > 0 ?true : false}
                 type="submit"
                 icon={isSubmitting? <ActivityIndicator size="small" color="#00ff00" /> : "check-circle-outline"}
