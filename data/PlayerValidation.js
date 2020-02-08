@@ -10,8 +10,7 @@ const validation = Yup.object().shape({
     .min(1)
     .max(35),
   className: Yup.string()
-    .required()
-    .max(50),
+    .matches(/^((?!default).)*$/, "Please select a different option."),
   hp: Yup.number()
     .max(100),
   initiativeBonus: Yup.number()

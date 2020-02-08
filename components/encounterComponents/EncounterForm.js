@@ -4,7 +4,7 @@
 // validation for these forms stored in data/validation
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, Keyboard, Form } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Keyboard, Form, TouchableWithoutFeedback } from 'react-native';
 import { Formik } from 'formik';
 import { Button, TextInput, HelperText } from 'react-native-paper';
 
@@ -42,7 +42,8 @@ const EncounterForm = props => {
 
 
   return (
-    <View style={ styles.container }>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={ styles.container }>
       <View sytle={styles.formHeader}>
         <Text style={styles.formHeaderText}> New Encounter </Text>
       </View>
@@ -55,8 +56,8 @@ const EncounterForm = props => {
         handleSubmit={handleSubmit}
         />
       </View>
-
-    </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
