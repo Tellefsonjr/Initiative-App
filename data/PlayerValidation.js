@@ -10,7 +10,10 @@ const validation = Yup.object().shape({
     .min(1)
     .max(35),
   className: Yup.string()
-    .required("Please select a class."),
+    .matches(/^(?!.*(default))/, "Please choose a different class."),
+  level: Yup.number()
+    .typeError("Level must be a number.")
+    .max(20),
   hp: Yup.number()
     .typeError("HP must be a number.")
     .max(100),

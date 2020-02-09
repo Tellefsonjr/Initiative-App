@@ -17,6 +17,7 @@ const PlayerForm = props => {
     id: new Date().toString(),
     name: '',
     className: '',
+    level: '',
     hp: '',
     initiativeBonus: '',
     initiative: '',
@@ -26,6 +27,7 @@ const PlayerForm = props => {
     {label: 'Name', type: 'input', name: 'name', placeholder: 'Player name (Required)'},
     // {label: 'Class', type: 'input', name: 'className', placeholder: 'Class name (Required)'},
     {label: 'Select Class', type: 'select', name: 'className', default: 'default', data: ['Artificer', 'Barbarian', 'Bard', 'Blood Hunter', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard', 'Other'], value: 'Please Select'},
+    {label: 'Level', type: 'input-number', name: 'level', placeholder: 'Level (Required)'},
     {label: 'HP Total', type: 'input-number', name: 'hp', placeholder: 'HP Total (Optional)'},
     {label: 'Initiative Bonus', type: 'input-number', name: 'initiativeBonus', placeholder: 'Initiative Bonus (Optional)'},
   ];

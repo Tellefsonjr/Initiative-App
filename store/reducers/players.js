@@ -22,6 +22,7 @@ const playersReducer = (state = initialState, action) => {
         action.playerData.id,
         action.playerData.name,
         action.playerData.className,
+        action.playerData.level,
         action.playerData.hp,
         action.playerData.initiativeBonus,
         action.playerData.initiative,

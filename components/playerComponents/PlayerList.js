@@ -19,9 +19,6 @@ const PlayerList = props => {
 
 
   const renderPlayer = (itemData, i) => {
-    console.log("PROPS.SELECTABLE", props.selectable);
-    const isSelected = props.selectedIds.find((existingId) => existingId == itemData.item.id);
-    console.log("Selected this one: ", isSelected);
     // console.log("ITEMDATA", itemData);
     // console.log("Player Instance", itemData.item.constructor.name);
     return (
@@ -34,8 +31,6 @@ const PlayerList = props => {
           onEdit={ editPlayerHandler }
           handlePress={ handlePress }
           onDelete={ removePlayerHandler }
-          selectable={ props.selectable }
-          isSelected={ isSelected }
         />
     )
 

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, ImageBackgroun
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { FlatList, RectButton } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const PlayerItem = props => {
   renderRightActions = (progress, dragX) => {
@@ -53,19 +53,11 @@ const PlayerItem = props => {
             <Text style={ styles.playerName}> { props.player.name } </Text>
             <Icon name="account-outline" size={28} color="white" />
           </View>
-          {
-            props.selectable == false ? (
-              <ImageBackground style={styles.initiativeBG} source={ require("../../assets/images/gryd20transp.png") }>
-                <Text style={ styles.playerInitiative}> { props.player.initiative } </Text>
-              </ImageBackground>
-            ) : ((
-              props.isSelected? (
-                <Icon name="checkbox-marked" size={28} color="white" />
-              ) : (
-                <Icon name="checkbox-blank-outline" size={28} color="white" />
-              ))
-            )
-          }
+
+          <ImageBackground style={styles.initiativeBG} source={ require("../../assets/images/gryd20transp.png") }>
+            <Text style={ styles.playerInitiative}> { props.player.initiative } </Text>
+          </ImageBackground>
+
         </View>
       </TouchableWithoutFeedback>
     </Swipeable>

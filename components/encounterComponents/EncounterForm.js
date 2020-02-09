@@ -8,10 +8,14 @@ import { View, Text, StyleSheet, Dimensions, Keyboard, Form, TouchableWithoutFee
 import { Formik } from 'formik';
 import { Button, TextInput, HelperText } from 'react-native-paper';
 
+import { useSelector, useDispatch } from 'react-redux';
+
 import DynamicForm from "../DynamicForm";
 import validation from '../../data/EncounterValidation';
 
 const EncounterForm = props => {
+  const parties = useSelector(state => state.parties.parties);
+  console.log(parties);
   const [ encounter, setEncounter ] = useState( {
     title: "",
     campaign: "",
@@ -25,11 +29,17 @@ const EncounterForm = props => {
     enemies: [],
     allies: []
   });
+  const defaultParty = {
+    id: new Date().toString(),
+    title: '',
+    players: []
+  };
 
   const fields = [
     {label: 'Title', type: 'input', name: 'title', placeholder: 'Encounter Title (Required)'},
     {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'Campaign (Optional)'},
     {label: 'Description', type: 'input', name: 'description', placeholder: 'Description (Optional)'},
+    {label: 'Party', type: 'select', subType: 'party', name: 'party', data: parties, default: defaultParty, },
 
   ];
 

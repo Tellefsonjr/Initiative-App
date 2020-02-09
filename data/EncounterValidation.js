@@ -11,7 +11,11 @@ const validation = Yup.object().shape({
   campaign: Yup.string()
     .max(50),
   description: Yup.string()
-    .max(255),    
+    .max(255),
+  party: Yup.object().shape({
+    title: Yup.string("Please enter a title for this party below."),
+  }),
+
 });
 
 export default validation;

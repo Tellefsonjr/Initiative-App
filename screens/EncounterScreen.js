@@ -20,32 +20,36 @@ import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 import * as playerActions from '../store/actions/players'; //Redux Actions
 
 const EncounterScreen = props => {
+  const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
+  const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)));
+  console.log("DIS THE NEW ENCOUNTER BOIIII:::", encounter);
+  console.log("These are the players", players, players.length);
+
   const [open, setOpen ] = useState( false );
   const [visible, setVisible ] = useState( false );
   const [ toggle, setToggle ] = useState( 'add' );
   const [modalType, setModalType] = useState( '' );
+  const [ progress, setProgress ] = useState( encounter.difficulty );
 
+  const barWidth = Dimensions.get('screen').width - 30;
   const dispatch = useDispatch();
 
-  const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
-  const [ progress, setProgress ] = useState( encounter.difficulty );
-  console.log("Encounter.players", encounter.players);
-  const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)))
-  const barWidth = Dimensions.get('screen').width - 30;
-
-  const addPlayerHandler = ( player ) => {
+  const createPlayerHandler = ( player ) => {
     dispatch(playerActions.addPlayer(player));
     encounter.party.players.push(player.id);
     dispatch(encounterActions.updateEncounter(encounter));
     setVisible(false);
   };
-  const updatePlayersHandler = ( players ) => {
-    encounter.party.players = players;
-    console.log("READ THIS~~~~~~>", encounter);
-    //dispatch(encounterActions.updateEncounter(encounter));
+  const updateEncounterHandler = ( encounter ) => {
+    console.log("Updated encounter::::::::", encounter);
+    dispatch(encounterActions.updateEncounter(encounter));
     setVisible(false);
   }
-
+  const updateEncounterPlayers = ( updatedPlayers ) => {
+    const updatedEncounter = encounter;
+    updatedEncounter.party.players = updatedPlayers.map(player => player.id);
+    updateEncounterHandler(updatedEncounter);
+  };
   const showModal = (type) => {
     setModalType(type);
     setVisible(true);
@@ -96,10 +100,10 @@ const EncounterScreen = props => {
               </View>
               {
                 toggle == 'add' ?
-                  <PlayerForm handleSubmit={ addPlayerHandler } handleCancel={ () => {hideModal('player') } } />
+                  <PlayerForm handleSubmit={ createPlayerHandler } handleCancel={ () => {hideModal('player') } } />
                 :
                 <View style={{flex: 1}}>
-                  <PlayerSelect players={players}  handleSubmit={ updatePlayersHandler } handleCancel={ () => {hideModal('player') } } />
+                  <PlayerSelect players={players} handleSubmit={ updateEncounterPlayers } handleCancel={ () => {hideModal('player') } } />
                 </View>
               }
 
