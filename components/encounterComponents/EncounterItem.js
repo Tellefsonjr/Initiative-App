@@ -7,30 +7,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
 const EncounterItem = props => {
-  console.log("~~~~~~~~~~~~~PROPS.NAVIGATION.NAVIGATE~~~~~~~~~~~~~~", props.navigate);
-  const renderRightActions = (progress, dragX) => {
-    const trans = dragX.interpolate({
-      inputRange: [-151, -150, -50, 0],
-      outputRange: [150, 0, 0, 1],
-    });
-    return (
-      <TouchableWithoutFeedback style={styles.rightAction} onPress={ props.onDelete.bind(this, props.encounter.id) }>
-        <Animated.View
-          style={[
-            styles.swipeableView,
-            {
-              transform: [{ translateX: trans }],
-            },
-          ]}>
-          <Icon name="trash-can" size={26} color="white" />
-          <Text style={ styles.actionText } > Delete?</Text>
-        </Animated.View>
-      </TouchableWithoutFeedback>
-    );
-  };
+
   return (
-    <Swipeable
-      renderRightActions={this.renderRightActions}>
       <TouchableOpacity onPress={() => { props.navigate("Encounter", { id: props.encounter.id, title: props.encounter.title })} }>
         <View style={ (props.index == 0 ? [styles.first, styles.listItem]: styles.listItem)  }>
         <View style={ styles.encounterTitleWrapper }>
@@ -56,8 +34,6 @@ const EncounterItem = props => {
         </View>
         </View>
       </TouchableOpacity>
-    </Swipeable>
-
   );
 
 };

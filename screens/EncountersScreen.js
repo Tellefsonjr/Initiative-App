@@ -21,6 +21,8 @@ const EncountersScreen = props => {
   const [ visible, setVisible ] = useState( false );
   const [ isEditing, setIsEditing ] = useState( false );
 
+  console.log("Rendering EncountersScreen");
+
   const addEncounterHandler = ( encounter ) => {
     dispatch(encounterActions.addEncounter(encounter));
     setVisible(false);

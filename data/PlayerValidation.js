@@ -10,10 +10,15 @@ const validation = Yup.object().shape({
     .min(1)
     .max(35),
   className: Yup.string()
-    .matches(/^((?!default).)*$/, "Please select a different option."),
+    .matches(/^(?!.*(default))/, "Please choose a different class."),
+  level: Yup.number()
+    .typeError("Level must be a number.")
+    .max(20),
   hp: Yup.number()
+    .typeError("HP must be a number.")
     .max(100),
   initiativeBonus: Yup.number()
+    .typeError("Initiative bonus must be a number.")
     .max(10),
 });
 

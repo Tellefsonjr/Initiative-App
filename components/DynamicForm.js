@@ -14,7 +14,7 @@ import { Button, TextInput, Menu } from 'react-native-paper';
 
 class DynamicForm extends PureComponent {
 
-  renderSelect = (input, handleChange, values, errors, i) => {
+  renderSelect = ( input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, i, initialValues ) => {
     return(
       <FieldArray name={input.name}>
       {(arrayHelpers) => (
@@ -25,11 +25,18 @@ class DynamicForm extends PureComponent {
           itemStyle={styles.pickerItemIOS}
           visible={true}
           style={ styles.pickerContainer }
-          selectedValue={ values[input.name]}
-          onValueChange={ handleChange(input.name) }
+          selectedValue={ values[input.name] }
+          label={input.label}
+          onValueChange={ (itemValue, itemIndex) => {
+            setFieldValue(input.name, itemValue);
+            } }
           prompt={ input.label }
         >
-        <Picker.Item name={input.name} label={input.label} value={'default'} />
+        {input.subType == 'party' ?
+          <Picker.Item name={input.name} label='New Party' value={ initialValues.party } />
+          :
+          <Picker.Item name={input.name} label='Select an option' value='default' />
+        }
       { input.data.map((d, index) => (
             <Field
               type="select"
@@ -38,25 +45,34 @@ class DynamicForm extends PureComponent {
               key={index}
               as={Picker.Item}
               name={input.name}
-              label={d}
-              value={d} />
+              label={input.subType == 'party' ? d.title : d }
+              value={ d } />
           )
 
             )
         }
         </Picker>
+        { //If Party && default option, render party title input
+          (input.subType == 'party') ?
+            ( values.party.id == initialValues.party.id ?
+              this.renderText({label: 'Party Title', type: 'input', name: 'party.title', placeholder: 'Party Title (Required)' }, handleChange, values, errors)
+              :
+                <TextInput style={ styles.textInput } disabled value={ values.party.title }/>
+              )
+              :
+              null
+        }
         </View>
         )}
       </FieldArray>
     )
   }
+
   renderText = (input, handleChange, values, errors, i) => {
     return(
-      <Field
+      <TextInput
             name={input.name}
-            as={TextInput}
             style={ styles.textInput }
-            onEndEditing={() => {Keyboard.dismiss()}}
             autoFocus={i==0? true : false}
             onChangeText={handleChange(input.name)}
             value={values[input.name]}
@@ -69,9 +85,8 @@ class DynamicForm extends PureComponent {
   }
   renderNumber = (input, handleChange, values, errors, i) => {
     return(
-      <Field
+      <TextInput
             name={input.name}
-            as={TextInput}
             style={ styles.textInput }
             autoFocus={i==0? true : false}
             onChangeText={handleChange(input.name)}
@@ -87,13 +102,13 @@ class DynamicForm extends PureComponent {
 
 
 
-  renderFields = (inputs, handleChange, values, errors) => {
+  renderFields = (inputs, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) => {
     return inputs.map((input, i) => {
       return(
         <View key={input.name} style={styles.input} name={input.name}>
           <View>
             { (input.type == 'select'?
-              this.renderSelect(input, handleChange, values, errors, i)
+              this.renderSelect(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, i, initialValues)
               :
               (input.type == 'input-number' ?
               this.renderNumber(input, handleChange, values, errors, i)
@@ -119,36 +134,36 @@ class DynamicForm extends PureComponent {
       return(
           <ScrollView keyboardShouldPersistTaps="never">
           <KeyboardAvoidingView behavior='padding' style={{flex: 1}} enabled>
-          <Formik
-          onSubmit={this.props.handleSubmit}
-          validationSchema={this.props.validation}
-          initialValues={initialValues}>
-          {({ handleChange, handleSubmit, values, errors, isSubmitting, touched }) => (
-            <View>
-            { this.renderFields(this.props.fields, handleChange, values, errors, touched) }
-            <View style={styles.buttonContainer}>
-              <Button onPress={this.props.handleCancel} style={styles.button}
-              icon="cancel"
-              mode="contained"
-              title="Cancel"
-              color="rgba(255, 61, 0, .5)">
-              Cancel
-              </Button>
-
-              <Button disabled={isSubmitting} onPress={handleSubmit} style={styles.button}
-                disabled={Object.keys(errors).length > 0 ?true : false}
-                type="submit"
-                icon={isSubmitting? <ActivityIndicator size="small" color="#00ff00" /> : "check-circle-outline"}
+            <Formik
+            onSubmit={this.props.handleSubmit}
+            validationSchema={this.props.validation}
+            initialValues={initialValues}>
+            {({handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues }) => (
+              <View>
+              { this.renderFields(this.props.fields, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) }
+              <View style={styles.buttonContainer}>
+                <Button onPress={this.props.handleCancel} style={styles.button}
+                icon="cancel"
                 mode="contained"
-                title="Submit"
-                color="#00578A">
-                Submit
-              </Button>
-            </View>
-            </View>
-          )
-        }
-        </Formik>
+                title="Cancel"
+                color="rgba(255, 61, 0, .5)">
+                Cancel
+                </Button>
+
+                <Button disabled={isSubmitting || !isValid} onPress={handleSubmit} style={styles.button}
+                  disabled={ isSubmitting || Object.keys(errors).length > 0 ? true : false}
+                  type="submit"
+                  icon={isSubmitting? <ActivityIndicator size="small" color="#00ff00" /> : "check-circle-outline"}
+                  mode="contained"
+                  title="Submit"
+                  color="#00578A">
+                  Submit
+                </Button>
+              </View>
+              </View>
+            )
+          }
+          </Formik>
         </KeyboardAvoidingView>
         </ScrollView>
   )
@@ -179,9 +194,6 @@ const styles = StyleSheet.create({
   },
   pickerItemIOS: {
     height: 88,
-  },
-  pickerLabel: {
-    fontSize: 20,
   },
 });
 

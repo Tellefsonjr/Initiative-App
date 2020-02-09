@@ -10,37 +10,45 @@ import { FAB, Portal, Provider, Modal, Button } from 'react-native-paper';
 
 import CustomHeaderButton from '../components/HeaderButton';
 
+
 import PlayerList from '../components/playerComponents/PlayerList';
 import PlayerForm from '../components/playerComponents/PlayerForm';
+import PlayerSelect from '../components/playerComponents/PlayerSelect';
 
 
 import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 import * as playerActions from '../store/actions/players'; //Redux Actions
 
 const EncounterScreen = props => {
+  const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
+  const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)));
+  console.log("DIS THE NEW ENCOUNTER BOIIII:::", encounter);
+  console.log("These are the players", players, players.length);
+
   const [open, setOpen ] = useState( false );
   const [visible, setVisible ] = useState( false );
+  const [ toggle, setToggle ] = useState( 'add' );
   const [modalType, setModalType] = useState( '' );
+  const [ progress, setProgress ] = useState( encounter.difficulty );
 
+  const barWidth = Dimensions.get('screen').width - 30;
   const dispatch = useDispatch();
 
-  const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
-  const [ progress, setProgress ] = useState( encounter.difficulty );
-  console.log("Encounter.players", encounter.players);
-  const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)))
-  const barWidth = Dimensions.get('screen').width - 30;
-
-  const addPlayerHandler = ( player ) => {
-    console.log("MADE IT TO THE ENCOUNTER SCREEN: ", player);
+  const createPlayerHandler = ( player ) => {
     dispatch(playerActions.addPlayer(player));
-    console.log("NONO, READ THIS~~~>", encounter);
     encounter.party.players.push(player.id);
-    console.log("READ THIS~~~~~~>", encounter);
     dispatch(encounterActions.updateEncounter(encounter));
     setVisible(false);
   };
-  const cancelPlayerHandler = (  ) => {
+  const updateEncounterHandler = ( encounter ) => {
+    console.log("Updated encounter::::::::", encounter);
+    dispatch(encounterActions.updateEncounter(encounter));
     setVisible(false);
+  }
+  const updateEncounterPlayers = ( updatedPlayers ) => {
+    const updatedEncounter = encounter;
+    updatedEncounter.party.players = updatedPlayers.map(player => player.id);
+    updateEncounterHandler(updatedEncounter);
   };
   const showModal = (type) => {
     setModalType(type);
@@ -68,8 +76,37 @@ const EncounterScreen = props => {
 
         <Provider>
           <Portal>
-            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={ styles.modalContainer }>
-              <PlayerForm addPlayerHandler={ addPlayerHandler } cancelPlayerHandler={ cancelPlayerHandler } />
+            <Modal visible={visible} onDismiss={() => {hideModal('player')} } contentContainerStyle={ styles.modalContainer }>
+              <View style={styles.formHeader}>
+                <Text style={styles.formHeaderText}>Add Player</Text>
+              </View>
+              <View style={styles.buttonContainer}>
+                <Button
+                  icon="account-plus-outline"
+                  onPress={() => {setToggle('add')}}
+                  style={ styles.toggleButton }
+                  color='#00578A'
+                  mode={toggle == 'add' ? 'contained' : 'outlined' }>
+                  Create Player
+                </Button>
+                <Button
+                  icon="account-details"
+                  onPress={() => {setToggle('select')}}
+                  style={ styles.toggleButton }
+                  color='#00578A'
+                  mode={toggle == 'select' ? 'contained' : 'outlined' }>
+                  Select Players
+                </Button>
+              </View>
+              {
+                toggle == 'add' ?
+                  <PlayerForm handleSubmit={ createPlayerHandler } handleCancel={ () => {hideModal('player') } } />
+                :
+                <View style={{flex: 1}}>
+                  <PlayerSelect players={players} handleSubmit={ updateEncounterPlayers } handleCancel={ () => {hideModal('player') } } />
+                </View>
+              }
+
             </Modal>
           </Portal>
         </Provider>
@@ -80,10 +117,10 @@ const EncounterScreen = props => {
               open={open}
               icon={open ? 'close' : 'dots-vertical'}
               actions={[
-                { icon: 'star', label: 'Start Encounter', onPress: () => console.log('Pressed star')},
-                { icon: 'email', label: 'Add Ally', onPress: () => console.log('Pressed email') },
-                { icon: 'bell', label: 'Add Monster', onPress: () => console.log('Pressed notifications') },
-                { icon: 'plus', label: 'Add Player', color: '#00B358', onPress: () => {showModal('player')} },
+                { icon: 'sword-cross', label: 'Start Encounter', onPress: () => console.log('Pressed star')},
+                { icon: 'account-heart-outline', label: 'Add Ally', onPress: () => console.log('Pressed email') },
+                { icon: 'emoticon-devil-outline', label: 'Add Monster', onPress: () => console.log('Pressed notifications') },
+                { icon: 'account-plus-outline', label: 'Add Player', color: '#00B358', onPress: () => {showModal('player')} },
               ]}
               onStateChange={({ open }) => setOpen(open)}
               onPress={() => {
@@ -141,8 +178,35 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     height: '80%',
-    backgroundColor: 'white'
-  }
+    backgroundColor: 'white',
+    padding: 10,
+  },
+  formHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'grey',
+  },
+  formHeaderText: {
+    fontSize: 20,
+    paddingLeft: 16,
+    color: "black",
+  },
+  buttonContainer: {
+    padding: 15,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  toggleButton:{
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  button: {
+    marginTop: 16,
+    width: "30%",
+  },
+  input: {
+    marginBottom: 10,
+  },
 });
 
 
