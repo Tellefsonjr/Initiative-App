@@ -19,7 +19,7 @@ const encountersReducer = (state = initialState, action) => {
         action.encounterData.description,
         action.encounterData.difficulty,
         action.encounterData.party,
-        action.encounterData.enemies,
+        action.encounterData.monsters,
         action.encounterData.allies
 
       );
@@ -35,7 +35,7 @@ const encountersReducer = (state = initialState, action) => {
         action.encounterData.description,
         action.encounterData.difficulty,
         action.encounterData.party,
-        action.encounterData.enemies,
+        action.encounterData.monsters,
         action.encounterData.allies
       );
       const updatedEncounters = [...state.encounters];

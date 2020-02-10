@@ -25,7 +25,7 @@ const EncounterItem = props => {
           </View>
           <View>
             <Icon name="emoticon-devil-outline" size={28} color="white"/>
-            <Text style={ styles.encounterName}> { " "+props.encounter.enemies.length } </Text>
+            <Text style={ styles.encounterName}> { " "+props.encounter.monsters.length } </Text>
           </View>
           <View>
             <Icon name="account-heart-outline" size={28} color="white" />

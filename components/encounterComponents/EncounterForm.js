@@ -26,7 +26,7 @@ const EncounterForm = props => {
       title: '',
       players: []
     },
-    enemies: [],
+    monsters: [],
     allies: []
   });
   const defaultParty = {

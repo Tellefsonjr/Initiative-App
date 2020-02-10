@@ -73,7 +73,6 @@ class DynamicForm extends PureComponent {
       <TextInput
             name={input.name}
             style={ styles.textInput }
-            autoFocus={i==0? true : false}
             onChangeText={handleChange(input.name)}
             value={values[input.name]}
             label={input.label}
@@ -88,7 +87,6 @@ class DynamicForm extends PureComponent {
       <TextInput
             name={input.name}
             style={ styles.textInput }
-            autoFocus={i==0? true : false}
             onChangeText={handleChange(input.name)}
             value={values[input.name].toString()}
             label={input.label}

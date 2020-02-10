@@ -7,11 +7,13 @@ import { Provider } from 'react-redux';
 
 //Redux Reducers and Store
 import playersReducer from './store/reducers/players';
+import monstersReducer from './store/reducers/monsters';
 import encountersReducer from './store/reducers/encounters';
 import partiesReducer from './store/reducers/parties';
 
 const rootReducer = combineReducers({
   players: playersReducer,
+  monsters: monstersReducer,
   encounters: encountersReducer,
   parties: partiesReducer
 });

@@ -11,7 +11,7 @@ const EncounterInput = props => {
     id: Math.random().toString(),
     title: title,
     players: [],
-    enemies: [],
+    monsters: [],
     allies: [],
   })
 
@@ -28,8 +28,8 @@ const EncounterInput = props => {
     switch(selection){
       case 'party':
         return <PartyInput />
-      case 'enemies':
-        return <Text style={ styles.formColor }> enemies </Text>
+      case 'monsters':
+        return <Text style={ styles.formColor }> monsters </Text>
       case 'allies':
         return <Text style={ styles.formColor }> allies </Text>
     }
@@ -39,7 +39,7 @@ const EncounterInput = props => {
       id: Math.random().toString(),
       title: title,
       players: [],
-      enemies: [],
+      monsters: [],
       allies: [],
     }
     props.onAddEncounter(encounter);
@@ -78,12 +78,12 @@ const EncounterInput = props => {
                 <Text style={ selection == 'party' ? [styles.active] : '' }> ({encounter.players.length}) </Text>
               </View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={ () => toggleSelectionHandler("enemies") }>
-              <View style={ selection == 'enemies' ? [styles.active, styles.tabBarIcon] : styles.tabBarIcon } >
+            <TouchableHighlight onPress={ () => toggleSelectionHandler("monsters") }>
+              <View style={ selection == 'monsters' ? [styles.active, styles.tabBarIcon] : styles.tabBarIcon } >
                 <Icon
-                  style={ selection == 'enemies' ? [styles.active] : '' }
+                  style={ selection == 'monsters' ? [styles.active] : '' }
                   size={ 28 } name='emoticon-devil-outline' />
-                <Text style={ selection == 'enemies' ? [styles.active] : '' }> ({encounter.enemies.length}) </Text>
+                <Text style={ selection == 'monsters' ? [styles.active] : '' }> ({encounter.monsters.length}) </Text>
               </View>
             </TouchableHighlight>
             <TouchableHighlight onPress={ () => toggleSelectionHandler("allies") }>
