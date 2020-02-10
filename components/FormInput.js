@@ -39,6 +39,7 @@ class FormInput extends PureComponent {
                 onFocus={ this.toggleActive }
                 onEndEditing={ this.toggleActive }
                />
+               
               </View>
 )
               :

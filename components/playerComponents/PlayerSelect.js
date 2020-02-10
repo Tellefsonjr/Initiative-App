@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, FlatList, ImageBackground } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Chip, Avatar, Searchbar, Button, Dialog, Portal, Paragraph } from 'react-native-paper';
@@ -14,16 +14,21 @@ const PlayerSelect = props => {
   const [ toggleDialog, setToggleDialog ] = useState(false);
   const [ selectedPlayers, setSelectedPlayers ] = useState(props.players);
   const [ filteredPlayers, setFilteredPlayers ] = useState( players );
-  // console.log("PARTIIIIESSSSSUHH: ", players);
+  const [ refresh, setRefresh ] = useState(false);
+
+
   const handleSubmit = (selectedPlayers) => {
-    console.log("Subbmitting players: ", selectedPlayers);
     props.handleSubmit(selectedPlayers)
   };
-  const addPlayer = (playerId) => {
-    setSelectedPlayers( selectedPlayers.concat(playerId) );
+  const addPlayer = (player) => {
+    const updatedPlayers = selectedPlayers;
+    updatedPlayers.push(player);
+    setSelectedPlayers( updatedPlayers );
+    setRefresh(!refresh);
   }
   const removePlayer = (playerId) => {
     setSelectedPlayers( selectedPlayers.filter((selected) => selected.id !== playerId ) );
+    setRefresh(!refresh);
   }
   const handleClearParty = () => {
     setSelectedParty('');
@@ -33,11 +38,65 @@ const PlayerSelect = props => {
     setFilteredPlayers(players.filter( player => player.name.indexOf(query) > -1));
   }
   const showDialog = () => {
-    console.log("showing!");
     setToggleDialog(true);
   }
   const hideDialog = () => {
     setToggleDialog(false);
+  }
+  const renderPlayer = (itemData, index) => {
+    return(
+            <View>
+            <Chip
+            key={itemData.item.id}
+            avatar={
+              <Avatar.Image
+                style={ styles.avatar }
+                size={25}
+                source={require("../../assets/images/whtenemy.png")} />
+              }
+            accessibilityLabel={`player: ${itemData.item.name}+selected: ${selectedPlayers.length > 0 && selectedPlayers.find( p => p.id == itemData.item.id)}? true : false`}
+            style={ styles.playerChip }
+            textStyle={ styles.chipText }
+            selected={selectedPlayers.length > 0 && selectedPlayers.find( p => p.id == itemData.item.id)? true : false}
+            onPress={() => { selectedPlayers.length > 0 && selectedPlayers.find( p => p.id == itemData.item.id)? removePlayer(itemData.item.id) : addPlayer(itemData.item) }}
+            onLongPress={() => { showDialog() }}
+            >
+            <Text style={ styles.playerName }> {itemData.item.name} </Text>
+            <Text style={ styles.playerStatsText }> {itemData.item.className} </Text>
+            <Text style={ styles.playerStatsText }> Level {itemData.item.level} </Text>
+          </Chip>
+          <Portal>
+            <Dialog
+            visible={ toggleDialog }
+            onDismiss={ hideDialog }>
+              <Dialog.Title style={ styles.dialogHeaderWrapper }>
+                <Text style={ styles.dialogueHeader }> { itemData.item.name } </Text>
+                <Text style={ styles.dialogueSubHeader }> { itemData.item.className }</Text>
+                <Text style={ styles.dialogueSubHeader }> Level { itemData.item.level }</Text>
+              </Dialog.Title>
+              <Dialog.Content style={ styles.dialogContentWrapper }>
+                <View style={ styles.contentGroup }>
+                  <View style={ styles.contentSubGroup }>
+                    <Text style={{ fontWeight: 'bold'}}>Health:</Text>
+                    <Text> {itemData.item.hp} </Text>
+                  </View>
+                  <View style={ styles.contentSubGroup }>
+                    <Text style={{ fontWeight: 'bold'}}>Initiative Bonus:</Text>
+                    <Text> {itemData.item.initiativeBonus} </Text>
+                  </View>
+                  <View style={ styles.contentSubGroup }>
+                    <Text style={{ fontWeight: 'bold'}}>Armor Class:</Text>
+                    <Text> 15 </Text>
+                  </View>
+                </View>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={hideDialog} color="#00578A">Dismiss</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+          </View>
+      )
   }
   const fields = [
     {label: 'Select Players', type: 'multi-select', name: 'selectedPlayers', data: players,},
@@ -53,76 +112,20 @@ const PlayerSelect = props => {
                 value={query}
                 />
               </View>
-              <ScrollView>
               {
-                (players.length) == 0 ? (
-                    <View>
-                      <Text> Looks like you haven't made any players yet. </Text>
-                      <Text> Click add new player to begin setting one up! </Text>
-                    </View>
-                  )
-                  :
-                  (
-                    filteredPlayers.map( player => {
-                      console.log("SELECTED PLAYERS", selectedPlayers);
-                      const isSelected = selectedPlayers.find( p => p.id == player.id);
-
-                      return(
-                        <View>
-                        <Chip
-                        key={player.id}
-                        avatar={
-                          <Avatar.Image
-                            style={ styles.avatar }
-                            size={25}
-                            source={require("../../assets/images/whtenemy.png")} />
-                          }
-                        accessibilityLabel={`player: ${player.name}+selected: ${isSelected}`}
-                        style={ styles.playerChip }
-                        textStyle={ styles.chipText }
-                        selected={isSelected}
-                        onPress={() => { isSelected? removePlayer(player.id) : addPlayer(player.id) }}
-                        onLongPress={() => { showDialog() }}
-                        >
-                        <Text style={ styles.playerName }> {player.name} </Text>
-                        <Text style={ styles.playerStatsText }> {player.className} </Text>
-                        <Text style={ styles.playerStatsText }> Level {player.level} </Text>
-                      </Chip>
-                      <Portal>
-                        <Dialog
-                        visible={ toggleDialog }
-                        onDismiss={ hideDialog }>
-                          <Dialog.Title style={ styles.dialogHeaderWrapper }>
-                            <Text style={ styles.dialogueHeader }> { player.name } </Text>
-                            <Text style={ styles.dialogueSubHeader }> { player.className }</Text>
-                            <Text style={ styles.dialogueSubHeader }> Level { player.level }</Text>
-                          </Dialog.Title>
-                          <Dialog.Content style={ styles.dialogContentWrapper }>
-                            <View style={ styles.contentGroup }>
-                              <View style={ styles.contentSubGroup }>
-                                <Text style={{ fontWeight: 'bold'}}>Health:</Text>
-                                <Text> {player.hp} </Text>
-                              </View>
-                              <View style={ styles.contentSubGroup }>
-                                <Text style={{ fontWeight: 'bold'}}>Initiative Bonus:</Text>
-                                <Text> {player.initiativeBonus} </Text>
-                              </View>
-                              <View style={ styles.contentSubGroup }>
-                                <Text style={{ fontWeight: 'bold'}}>Armor Class:</Text>
-                                <Text> 15 </Text>
-                              </View>
-                            </View>
-                          </Dialog.Content>
-                          <Dialog.Actions>
-                            <Button onPress={hideDialog} color="#00578A">Dismiss</Button>
-                          </Dialog.Actions>
-                        </Dialog>
-                      </Portal>
-                      </View>
-                      )})
-                  )
+              (players.length) == 0 ? (
+                  <View>
+                    <Text> Looks like you haven't made any players yet. </Text>
+                    <Text> Click add new player to begin setting one up! </Text>
+                  </View>
+                )
+                :
+                (<FlatList
+                  extraData={ refresh }
+                  keyExtractor={(item, index) => index.toString()}
+                  data={ filteredPlayers }
+                  renderItem={ (item, index) => renderPlayer(item, index) } />     )
               }
-              </ScrollView>
               <View style={styles.buttonContainer}>
                 <Button onPress={() => {handleCancel} } style={styles.button}
                 icon="cancel"
@@ -135,7 +138,7 @@ const PlayerSelect = props => {
                   icon="check-circle-outline"
                   mode="contained"
                   color="#00578A">
-                  Save party
+                  Save
                 </Button>
               </View>
               </View>
