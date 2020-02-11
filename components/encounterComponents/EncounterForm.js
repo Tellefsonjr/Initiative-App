@@ -17,6 +17,7 @@ const EncounterForm = props => {
   const parties = useSelector(state => state.parties.parties);
   console.log(parties);
   const [ encounter, setEncounter ] = useState( {
+    id: new Date().toString(),
     title: "",
     campaign: "",
     description: "",

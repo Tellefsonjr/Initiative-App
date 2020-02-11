@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
 import * as Font from 'expo-font';
 import { AppLoading } from 'expo';
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import Thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 
 //Redux Reducers and Store
@@ -18,7 +19,7 @@ const rootReducer = combineReducers({
   parties: partiesReducer
 });
 
-const store = createStore(rootReducer);
+const store = createStore(rootReducer, applyMiddleware(Thunk));
 // End Redux Reducers and Store
 
 import AppNavigator from './navigation/AppNavigator.js';

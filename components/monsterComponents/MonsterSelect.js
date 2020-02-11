@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Chip, Avatar, Searchbar, Button, IconButton, Dialog, Portal, Paragraph } from 'react-native-paper';
+import { Chip, Avatar, Searchbar, Button, IconButton, Dialog, Portal, Paragraph, BottomNavigation } from 'react-native-paper';
 import DynamicForm from '../DynamicForm';
 import MonsterList from './MonsterList';
 import MonsterSelectItem from './MonsterSelectItem';
