@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 
 const alpha = /^[a-zA-Z_]+( [a-zA-Z_]+)*$/;
 const numeric = /^(0|[1-9][0-9]*)$/;
+const numericFraction = /(\d+[\/\d]*)/;
 
 const validation = Yup.object().shape({
   name: Yup.string()
@@ -12,7 +13,7 @@ const validation = Yup.object().shape({
   type: Yup.string()
     .matches(/^(?!.*(default))/, "Please choose a different type."),
   cr: Yup.string()
-    .matches(numeric, "Level must be a number.")
+    .matches(numericFraction, "Level must be a number.")
     .max(20),
   hp: Yup.number()
     .typeError("HP must be a number.")

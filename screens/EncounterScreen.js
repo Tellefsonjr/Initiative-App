@@ -41,7 +41,7 @@ const EncounterScreen = props => {
     dispatch(playerActions.addPlayer(player));
     const newEncounter = encounter;
     console.log("New encounter: ", newEncounter);
-    newEncounter.party.players.push(player.id);
+    newEncounter.party.players = newEncounter.party.players.concat(player.id);
     console.log("New encounter after: ", newEncounter);
     dispatch(encounterActions.updateEncounter(newEncounter));
     setVisible(false);
@@ -57,14 +57,15 @@ const EncounterScreen = props => {
     setVisible(false);
   };
   const createMonsterHandler = ( monster ) => {
-    dispatch(monsterActions.addPlayer(monster));
-    encounter.monsters.push(monster.id);
+    dispatch(monsterActions.addMonster(monster));
+    encounter.monsters.push({ id: monster.id, count: 1});
     dispatch(encounterActions.updateEncounter(encounter));
     setVisible(false);
   };
   const updateEncounterMonsters = ( updatedMonsters ) => {
+    console.log("Updating Monsters:", updatedMonsters);
     const updatedEncounter = encounter;
-    updatedEncounter.monsters = updatedMonsters.map(monster => monster.id);
+    updatedEncounter.monsters = updatedEncounter.monsters.concat(updatedMonsters);
     updateEncounterHandler(updatedEncounter);
   };
   const showModal = (type) => {

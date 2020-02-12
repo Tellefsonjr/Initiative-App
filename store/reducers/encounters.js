@@ -27,6 +27,7 @@ const encountersReducer = (state = initialState, action) => {
     case DELETE:
       return { ...state, encounters: state.encounters.filter((encounter) => encounter.id !== action.encounterId ) };
     case UPDATE:
+      console.log('Updated Encounter:::::', action.encounterData);
       const encounterIndex = state.encounters.findIndex( enc => enc.id === action.encounterData.id);
       const updatedEncounter = new Encounter(
         action.encounterData.id,
