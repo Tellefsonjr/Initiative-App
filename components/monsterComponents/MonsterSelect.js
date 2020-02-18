@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Chip, Avatar, Searchbar, Button, IconButton, Dialog, Portal, Paragraph, BottomNavigation } from 'react-native-paper';
+import { Chip, Avatar, Searchbar, Button, IconButton, Dialog, Portal, Paragraph, Provider } from 'react-native-paper';
 import DynamicForm from '../DynamicForm';
 import MonsterList from './MonsterList';
 import MonsterSelectItem from './MonsterSelectItem';
@@ -16,12 +16,14 @@ const MonsterSelect = props => {
   const [ selectedMonsters, setSelectedMonsters ] = useState( props.monsters );
   const [ filteredMonsters, setFilteredMonsters ] = useState( monsters );
   const [ selectedMonster, setSelectedMonster ] = useState({});
+  console.log("Selected Monsters: ", selectedMonsters);
   const [ isSelected, setIsSelected] = useState( selectedMonsters.find( m => m.id == selectedMonster.id));
   const [ refresh, setRefresh ] = useState(false);
 
   const handleSubmit = (selectedMonsters) => {
     console.log("Subbmitting monsters: ", selectedMonsters);
-    props.handleSubmit(selectedMonsters)
+    props.handleSubmit(selectedMonsters.filter( (selected) => selected.count !== 0 ));
+    setRefresh(!refresh);
   };
   const addMonster = (monsterId) => {
     const existing = selectedMonsters.find( m => m.id == monsterId);
@@ -29,23 +31,24 @@ const MonsterSelect = props => {
       existing.count ++
     :
     setSelectedMonsters( [...selectedMonsters, {id: monsterId, count: 1}]);
+    props.submitable? null : handleSubmit(selectedMonsters);
     setRefresh(!refresh);
   }
   const decreaseMonster = (monsterId) => {
     console.log("Decreasing", monsterId);
     const existing = selectedMonsters.find( m => m.id == monsterId);
-    existing.count > 1?
-      (existing.count --)
+      existing.count --;
+      existing.count == 0?
+        (setSelectedMonsters( selectedMonsters.filter( (selected) => selected.count !== 0 ) ))
       :
-      (setSelectedMonsters( selectedMonsters.filter((selected) => selected.id !== monsterId ) ));
+        (console.log("Count is now <1"));
+    console.log("Selected Monsters after Decrease", selectedMonsters);
+    props.submitable? null : handleSubmit(selectedMonsters);
     setRefresh(!refresh);
 
   }
-  const removeMonster = (monsterId) => {
-    setSelectedMonsters( selectedMonsters.filter((selected) => selected.id !== monsterId ) );
-  }
-  const handleClearParty = () => {
-    setSelectedParty('');
+  const handleCancel = () => {
+    props.handleCancel();
   };
   const searchByName = (query) => {
     setQuery(query);
@@ -63,6 +66,7 @@ const MonsterSelect = props => {
   const renderMonster = (itemData, i) =>{
     const count = selectedMonsters.find( m => m.id == itemData.item.id );
     return(
+        <TouchableWithoutFeedback onPress={() => {}}>
         <MonsterSelectItem monster={ itemData.item }
           isSelected={count}
           handlePress={ () => addMonster( itemData.item.id ) }
@@ -70,6 +74,7 @@ const MonsterSelect = props => {
           decreaseMonster={ () => decreaseMonster( itemData.item.id )}
           removeMonster={ () => removeMonster( itemData.item.id )}
           />
+        </TouchableWithoutFeedback>
     )
   }
 
@@ -79,21 +84,28 @@ const MonsterSelect = props => {
   return (
       <View style={ styles.container }>
             <View style={ styles.monsterListContainer }>
-              <View style={ styles.searchBarContainer }>
-                <Searchbar
-                style={ styles.searchBar }
-                placeholder="Search by name"
-                onChangeText={query => { searchByName(query) }}
-                value={query}
-                />
-              </View>
+                {
+                  props.searchable?
+                  <View style={ styles.searchBarContainer }>
+                    <Searchbar
+                    style={ styles.searchBar }
+                    placeholder="Search by name"
+                    onChangeText={query => { searchByName(query) }}
+                    value={query}
+                    />
+                  </View>
+                    :
+                  null
+                }
 
               <View style={ styles.selectListContainer } >
                 <FlatList
                 extraData={ refresh }
                 keyExtractor={(item, index) => index.toString()}
                 data={ filteredMonsters }
-                renderItem={ (item, index) => renderMonster(item, index) } />
+                renderItem={ (item, index) => renderMonster(item, index) }
+                contentContainerStyle={{flexGrow: 1}}
+                />
               </View>
               {
                 selectedMonster ?
@@ -142,28 +154,33 @@ const MonsterSelect = props => {
                 </Portal>
                 </View>
 
+
                 : ''
 
               }
 
-
-              <View style={styles.buttonContainer}>
-                <Button onPress={() => {handleCancel} } style={styles.button}
-                icon="cancel"
-                style={ styles.button }
-                mode="contained"
-                title="Cancel"
-                color="rgba(255, 61, 0, .5)">
-                Cancel
-                </Button>
-                <Button onPress={() => {handleSubmit(selectedMonsters)}}
-                  icon="check-circle-outline"
-                  style={ styles.button }
-                  mode="contained"
-                  color="#00578A">
+              {
+                props.submitable?
+                <View style={styles.buttonContainer}>
+                  <Button onPress={() => handleCancel() } style={styles.button}
+                    icon="cancel"
+                    style={ styles.button }
+                    mode="contained"
+                    title="Cancel"
+                    color="rgba(255, 61, 0, .5)">
+                  Cancel
+                  </Button>
+                  <Button onPress={() => {handleSubmit(selectedMonsters)}}
+                    icon="check-circle-outline"
+                    style={ styles.button }
+                    mode="contained"
+                    color="#00578A">
                   Save
-                </Button>
-              </View>
+                  </Button>
+                </View>
+                :
+                null
+              }
               </View>
 
       </View>
@@ -183,6 +200,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   monsterListContainer: {
+    height: '90%',
   },
   selectListContainer: {
   },
@@ -208,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
   },
-  dialogueSubHeader: {
+  dialogSubHeader: {
     fontSize: 18,
     color: 'rgb(77, 77, 77)',
     borderBottomWidth: 1,

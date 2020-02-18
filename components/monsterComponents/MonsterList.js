@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 
 
 import MonsterItem from './MonsterItem';
 
 const MonsterList = props => {
-
+  const [ monsters, setMonsters ] = useState( useSelector(state => state.monsters.monsters) );
+  const [ selectedMonsters, setSelectedMonsters ] = useState( props.monsters.map( pmonster => monsters.map( monster => monster.id == pmonster.id)));
   const handlePress = (id) => {
     props.handlePress(id);
   };
@@ -27,7 +29,7 @@ const MonsterList = props => {
           key={ itemData.item.id }
           index={itemData.index}
           id={itemData.item.id}
-          player={ itemData.item }
+          monster={ itemData.item }
           onEdit={ editMonsterHandler }
           handlePress={ handlePress }
         />
@@ -41,7 +43,7 @@ const MonsterList = props => {
       <FlatList
         contentContainerStyle={ styles.listContainer }
         keyExtractor={(item, index) => item.id}
-        data={ props.players }
+        data={ selectedMonsters }
         renderItem={ renderMonster.bind(this) }
       />
     </View>
@@ -51,9 +53,9 @@ const MonsterList = props => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
   },
   listContainer: {
+    height: '100%',
     width: '100%',
     justifyContent: 'center',
     padding: 5,

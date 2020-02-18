@@ -4,7 +4,9 @@ import * as Font from 'expo-font';
 import { AppLoading } from 'expo';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import Thunk from 'redux-thunk';
-import { Provider } from 'react-redux';
+import { Provider as ReduxProvider } from 'react-redux';
+import { Provider, Portal } from 'react-native-paper';
+
 
 //Redux Reducers and Store
 import playersReducer from './store/reducers/players';
@@ -38,11 +40,15 @@ export default function App() {
   };
 
   return (
-    <Provider store={store}>
+    <Provider>
+    <Portal>
+    <ReduxProvider store={store}>
       <View style={styles.container}>
         {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
         <AppNavigator />
       </View>
+    </ReduxProvider>
+    </Portal>
     </Provider>
   );
 }

@@ -5,16 +5,18 @@
 
 import React, { PureComponent } from 'react';
 import {
-  View,Text, StyleSheet, Form, Picker, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, ActivityIndicator, ScrollView, Platform
+  View,Text, StyleSheet, Form, Picker, Keyboard, TouchableWithoutFeedback, ActivityIndicator, Platform
 } from 'react-native';
 import { Formik, FieldArray, Field } from 'formik';
 import Colors from '../constants/Colors';
 import { Button, TextInput, Menu } from 'react-native-paper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 
 class DynamicForm extends PureComponent {
 
   renderSelect = ( input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, i, initialValues ) => {
+    console.log("ASKDJLAKSJDLK", values.party.title === '');
     return(
       <FieldArray name={input.name}>
       {(arrayHelpers) => (
@@ -33,7 +35,7 @@ class DynamicForm extends PureComponent {
           prompt={ input.label }
         >
         {input.subType == 'party' ?
-          <Picker.Item name={input.name} label='New Party' value={ initialValues.party } />
+          <Picker.Item name={input.name} label='New Party' value={ { title: '', players: [], id: new Date().toString() } } />
           :
           <Picker.Item name={input.name} label='Select an option' value='default' />
         }
@@ -54,7 +56,7 @@ class DynamicForm extends PureComponent {
         </Picker>
         { //If Party && default option, render party title input
           (input.subType == 'party') ?
-            ( values.party.id == initialValues.party.id ?
+            ( values.party.title === '' ?
               this.renderText({label: 'Party Title', type: 'input', name: 'party.title', placeholder: 'Party Title (Required)' }, handleChange, values, errors)
               :
                 <TextInput style={ styles.textInput } disabled value={ values.party.title }/>
@@ -130,8 +132,10 @@ class DynamicForm extends PureComponent {
     const initialValues = this.props.data;
 
       return(
-          <ScrollView keyboardShouldPersistTaps="never">
-          <KeyboardAvoidingView behavior='padding' style={{flex: 1}} enabled>
+        <KeyboardAwareScrollView
+          enableOnAndroid={true}
+          extraScrollHeight={ Platform.OS == 'ios' ? -50 : 50}
+        >
             <Formik
             onSubmit={this.props.handleSubmit}
             validationSchema={this.props.validation}
@@ -162,8 +166,8 @@ class DynamicForm extends PureComponent {
             )
           }
           </Formik>
-        </KeyboardAvoidingView>
-        </ScrollView>
+          </KeyboardAwareScrollView>
+
   )
   }
 }

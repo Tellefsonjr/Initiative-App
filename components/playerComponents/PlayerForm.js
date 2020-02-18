@@ -5,7 +5,7 @@
 //TO DO: Add Picker-style option for character classes
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, Keyboard, KeyboardAvoidingView, Form, TouchableWithoutFeedback} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Keyboard, KeyboardAvoidingView, Form, TouchableWithoutFeedback, ScrollView, Platform} from 'react-native';
 import { Formik } from 'formik';
 import { Button, TextInput, HelperText, ToggleButton } from 'react-native-paper';
 
@@ -13,7 +13,8 @@ import DynamicForm from "../DynamicForm";
 import validation from '../../data/PlayerValidation';
 
 const PlayerForm = props => {
-  const [ player, setPlayer ] = useState( {
+  const [ player, setPlayer ] = useState( props.player? props.player :
+    {
     id: new Date().toString(),
     name: '',
     className: '',
@@ -44,15 +45,13 @@ const PlayerForm = props => {
 
   return (
     <View style={ styles.container }>
-      <View style={styles.content}>
-              <DynamicForm fields={fields}
+            <DynamicForm fields={fields}
               data={player}
               validation={validation}
               handleCancel={handleCancel}
               handleSubmit={handleSubmit}
               />
       </View>
-    </View>
   );
 }
 

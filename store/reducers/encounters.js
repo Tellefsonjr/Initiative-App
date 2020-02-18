@@ -7,6 +7,7 @@ const initialState = {
   // filteredEncounters: [],
   encounters: ENCOUNTERS,
   filteredEncounters: ENCOUNTERS,
+  selectedEncounter: ENCOUNTERS,
 };
 
 const encountersReducer = (state = initialState, action) => {

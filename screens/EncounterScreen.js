@@ -1,15 +1,16 @@
 /* aka Encounter Detail Screen, shows selected encounter details and allows edit before ActiveEncounterScreen */
 
-import React, { useState } from 'react';
-import { Dimensions, View, Text, StyleSheet, ImageBackground, } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Dimensions, View, Text, StyleSheet, ImageBackground, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView} from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector, useDispatch } from 'react-redux';
-import { FAB, Portal, Provider, Modal, Button } from 'react-native-paper';
+import { FAB, Portal, Provider, Modal, Button, TouchableRipple, Badge } from 'react-native-paper';
 
 import CustomHeaderButton from '../components/HeaderButton';
 
+import EncounterForm from '../components/encounterComponents/EncounterForm';
 
 import PlayerList from '../components/playerComponents/PlayerList';
 import PlayerForm from '../components/playerComponents/PlayerForm';
@@ -31,8 +32,11 @@ const EncounterScreen = props => {
   const [open, setOpen ] = useState( false );
   const [visible, setVisible ] = useState( false );
   const [ toggle, setToggle ] = useState( 'create' );
+  const [ expandedType, setExpandedType ] = useState(['']);
+  const [ expanded, setExpanded ] = useState(true);
   const [modalType, setModalType] = useState( '' );
   const [ progress, setProgress ] = useState( encounter.difficulty );
+  const [ editPlayer, setEditPlayer ] = useState({});
 
   const barWidth = Dimensions.get('screen').width - 30;
   const dispatch = useDispatch();
@@ -45,6 +49,26 @@ const EncounterScreen = props => {
     console.log("New encounter after: ", newEncounter);
     dispatch(encounterActions.updateEncounter(newEncounter));
     setVisible(false);
+  };
+  const toggleEditPlayer = ( player ) => {
+    console.log("Editing: ", player);
+    setToggle('edit');
+    setModalType('player');
+    setEditPlayer(player);
+    setVisible(true);
+  };
+  const editPlayerHandler = ( player ) => {
+    console.log("Handling edit action: ");
+    dispatch(playerActions.updatePlayer(player));
+    setVisible(false);
+
+  };
+  const removePlayerHandler = ( playerId ) => {
+    const newEncounter = encounter;
+    console.log("New encounter: ", newEncounter);
+    newEncounter.party.players = newEncounter.party.players.filter(p => p != playerId);
+    console.log("New encounter after: ", newEncounter);
+    updateEncounterHandler(newEncounter);
   };
   const updateEncounterPlayers = ( updatedPlayers ) => {
     const updatedEncounter = encounter;
@@ -65,7 +89,7 @@ const EncounterScreen = props => {
   const updateEncounterMonsters = ( updatedMonsters ) => {
     console.log("Updating Monsters:", updatedMonsters);
     const updatedEncounter = encounter;
-    updatedEncounter.monsters = updatedEncounter.monsters.concat(updatedMonsters);
+    updatedEncounter.monsters = updatedMonsters;
     updateEncounterHandler(updatedEncounter);
   };
   const showModal = (type) => {
@@ -73,8 +97,21 @@ const EncounterScreen = props => {
     setVisible(true);
   };
   const hideModal = (type) => {
+    console.log("hiding modal", type);
     setVisible(false);
   }
+  const handleExpand = (type) => {
+    console.log("Expanded Type before: ", expandedType, expandedType.length);
+    expandedType.includes(type) ?
+      setExpandedType(expandedType.filter( t => t != type ))
+      :
+      setExpandedType( expandedType.concat([type]));
+    expandedType == [''] ?
+      setExpanded(false)
+      :
+      setExpanded(true);
+    console.log("Expanded: ", expanded, "Type: ", expandedType, "Includes: ", expandedType.includes(type), expandedType);
+  };
 
  return (
    <ImageBackground source={require('../assets/images/bg.jpg')} style={styles.backgroundImage} >
@@ -88,89 +125,190 @@ const EncounterScreen = props => {
             backgroundColorOnComplete="#6CC644"
           />
         </View>
-        <View style={ styles.playerListWrapper }>
-          <PlayerList players={players} selectable={false} selectedIds={[]}/>
-        </View>
 
-        <Provider>
-          <Portal>
-            <Modal visible={visible && modalType == 'player'} onDismiss={() => {hideModal('player')} } contentContainerStyle={ styles.modalContainer }>
-              <View style={styles.formHeader}>
-                <Text style={styles.formHeaderText}>Add Player</Text>
-              </View>
+{/* Monster List view based on expanded && expandedType */}
+<View style={ styles.playerListWrapper }>
+        <TouchableRipple
+          style={ styles.expandButton }
+          onPress={() => handleExpand('players')}
+          rippleColor="white"
+        >
+        <View style={ styles.expandInner }>
+          <Icon name="account-outline" size={24} color="white">
+            <Text style={{ fontSize: 24}}>{ encounter.party.players.length.toString() }</Text>
+          </Icon>
+          <Text style={ styles.expandText}>Players</Text>
+          <Icon name={expanded && expandedType.includes("players")? "menu-up": "menu-down"} size={24} color="white" />
+        </View>
+        </TouchableRipple>
+        {
+          expanded && expandedType.includes('players') ?
+          <View>
+
+          {
+            visible?
+            null
+            :
               <View style={styles.buttonContainer}>
                 <Button
                   icon="account-plus-outline"
-                  onPress={() => {setToggle('create')}}
+                  onPress={() => {setToggle('create'); showModal("player")}}
                   style={ styles.toggleButton }
                   color='#00578A'
-                  mode={toggle == 'create' ? 'contained' : 'outlined' }>
-                  Create Player
+                  mode='contained'>
+                Create
                 </Button>
                 <Button
                   icon="account-details"
-                  onPress={() => {setToggle('select')}}
+                  onPress={() => {setToggle('select'); showModal("player")}}
                   style={ styles.toggleButton }
                   color='#00578A'
-                  mode={toggle == 'select' ? 'contained' : 'outlined' }>
-                  Select Players
+                  mode='contained'>
+                Select
                 </Button>
               </View>
+              }
+              <PlayerList
+                players={players}
+                handlePress={ toggleEditPlayer }
+                removePlayerHandler={removePlayerHandler}/>
+              </View>
+            :
+            null
+        }
+</View>
+{/* Monster List view based on expanded && expandedType */}
+<View style={ styles.monsterListWrapper }>
+        <TouchableRipple
+          style={ styles.expandButton }
+          onPress={() => handleExpand('monsters')}
+          rippleColor="white"
+        >
+          <View style={ styles.expandInner}>
+          <Icon name="emoticon-devil-outline" size={24} color="white">
+            <Text style={{ fontSize: 24}}>{
+              encounter.monsters.reduce(function(prev, cur) {
+                return prev + cur.count;
+              }, 0)
+            }</Text>
+          </Icon>
+          <Text style={ styles.expandText}>Monsters</Text>
+          <Icon name={expanded && expandedType.includes("monsters")? "menu-up": "menu-down"} size={24} color="white" />
+          </View>
+        </TouchableRipple>
+        {
+          expanded && expandedType.includes('monsters') ?
+          <View>
+          {
+            visible?
+            null
+            :
+          <View style={styles.buttonContainer}>
+            <Button
+              icon="emoticon-devil-outline"
+              onPress={() => {setToggle('create'); showModal("monster")}}
+              style={ styles.toggleButton }
+              color='#00578A'
+              mode='contained'>
+              Create
+            </Button>
+            <Button
+              icon="account-details"
+              onPress={() => {setToggle('select'); showModal("monster")}}
+              style={ styles.toggleButton }
+              color='#00578A'
+              mode='contained'>
+              Select
+            </Button>
+          </View>
+          }
+            <MonsterSelect
+              monsters={encounter.monsters}
+              submitable={false}
+              handleSubmit={updateEncounterMonsters}
+              searchable={false}
+              />
+          </View>
+            :
+            null
+        }
+</View>
+
+
+{/* Player Modal changes per toggle and modalType */}
+
+            <Modal visible={visible && modalType == 'player'} onDismiss={() => {hideModal('player')} } contentContainerStyle={ styles.modalContainer }>
+              <View style={styles.formHeader}>
+                { toggle == 'create' ?
+                <Text style={styles.formHeaderText}>Create Player</Text>
+                :
+                toggle == 'edit'?
+                <Text style={styles.formHeaderText}>Edit Player</Text>
+                :
+                <Text style={styles.formHeaderText}>Select Players</Text>
+                }
+               </View>
               {
                 toggle == 'create' ?
-                  <PlayerForm handleSubmit={ createPlayerHandler } handleCancel={ () => {hideModal('player') } } />
+                  <PlayerForm handleSubmit={ createPlayerHandler } removePlayerHandler={ () => {removePlayerHandler } } handleCancel={ () => {hideModal('player')}}/>
+                :
+                toggle == 'edit' ?
+                  <PlayerForm handleSubmit={ editPlayerHandler } player={ editPlayer } handleCancel={ () => {hideModal('player')}}/>
                 :
                 <View style={{flex: 1}}>
                   <PlayerSelect players={players} handleSubmit={ updateEncounterPlayers } handleCancel={ () => {hideModal('player') } } />
                 </View>
               }
-
             </Modal>
+
+{/* Monster Modal changes per toggle and modalType */}
+
             <Modal visible={visible && modalType == 'monster'} onDismiss={() => {hideModal('monster')} } contentContainerStyle={ styles.modalContainer }>
               <View style={styles.formHeader}>
-                <Text style={styles.formHeaderText}>Add Monster</Text>
-              </View>
-              <View style={styles.buttonContainer}>
-                <Button
-                  icon="emoticon-devil-outline"
-                  onPress={() => {setToggle('create')}}
-                  style={ styles.toggleButton }
-                  color='#00578A'
-                  mode={toggle == 'create' ? 'contained' : 'outlined' }>
-                  Create Monster
-                </Button>
-                <Button
-                  icon="account-details"
-                  onPress={() => {setToggle('select')}}
-                  style={ styles.toggleButton }
-                  color='#00578A'
-                  mode={toggle == 'select' ? 'contained' : 'outlined' }>
-                  Select Monsters
-                </Button>
+                { toggle == 'create' ?
+                <Text style={styles.formHeaderText}>Create Monster</Text>
+                :
+                <Text style={styles.formHeaderText}>Select Monsters</Text>
+                }
               </View>
               {
                 toggle == 'create' ?
                 <MonsterForm handleSubmit={ createMonsterHandler } handleCancel={ () => {hideModal('monster') } } />
                 :
-                <View style={{flex: 1}}>
-                  <MonsterSelect monsters={encounter.monsters} handleSubmit={ updateEncounterMonsters } handleCancel={ () => {hideModal('monster') } } />
-                </View>
+                <MonsterSelect monsters={encounter.monsters} handleSubmit={ updateEncounterMonsters }
+                 submitable={true} searchable={true} handleCancel={ () => {hideModal('monster') } } />
               }
-
             </Modal>
-          </Portal>
-        </Provider>
 
-          <Provider>
-            <Portal>
+{/* Encounter Modal changes per toggle and modalType */}
+
+                        <Modal visible={visible && modalType == 'encounter'} onDismiss={() => {hideModal('encounter')} } contentContainerStyle={ styles.modalContainer }>
+                          <View style={styles.formHeader}>
+                            { toggle == 'edit' ?
+                            <Text style={styles.formHeaderText}>Edit Encounter</Text>
+                            :
+                            null
+                            }
+                          </View>
+                          {
+                            toggle == 'edit' ?
+                            <EncounterForm encounter={ encounter } handleSubmit={ updateEncounterHandler } 
+                            cancelEncounterHandler={ () => hideModal('encounter') }/>
+                            :
+                            null
+                          }
+                        </Modal>
+{/* Render Google Floating Action Button */}
+
               <FAB.Group
               open={open}
               icon={open ? 'close' : 'dots-vertical'}
               actions={[
                 { icon: 'sword-cross', label: 'Start Encounter', onPress: () => console.log('Pressed star')},
-                { icon: 'account-heart-outline', label: 'Add Ally', onPress: () => console.log('Pressed email') },
-                { icon: 'emoticon-devil-outline', label: 'Add Monster', onPress: () => {showModal('monster')} },
-                { icon: 'account-plus-outline', label: 'Add Player', color: '#00B358', onPress: () => {showModal('player')} },
+                { icon: 'pencil-outline', label: 'Edit Encounter', onPress: () => {
+                  setToggle('edit');
+                  showModal('encounter');
+                }},
               ]}
               onStateChange={({ open }) => setOpen(open)}
               onPress={() => {
@@ -179,16 +317,17 @@ const EncounterScreen = props => {
                 }
               }}
               />
-            </Portal>
-          </Provider>
-      </View>
+
+
+        </View>
+{/* Container End */}
     </ImageBackground>
   );
 }
 
-EncounterScreen.navigationOptions = navData => {
+EncounterScreen.navigationOptions = (navData, encounter) => {
   return {
-    headerTitle: "Encounters",
+    headerTitle: navData.navigation.getParam("title"),
     headerRight: (
       <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
         <Item title="Menu" iconName="menu" onPress={ () => { navData.navigation.openDrawer()}} />
@@ -197,15 +336,17 @@ EncounterScreen.navigationOptions = navData => {
   };
 };
 
-EncounterScreen.navigationOptions = navData => {
-  return {
-    headerTitle: navData.navigation.getParam("title"),
-  }
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '90%',
+
+  },
+  playerListWrapper: {
+
+  },
+  monsterListWrapper: {
+
   },
   backgroundImage: {
       flex: 1,
@@ -223,8 +364,17 @@ const styles = StyleSheet.create({
     marginTop: 5,
     alignSelf: 'center',
   },
-  playerListWrapper: {
-    height: '100%',
+  expandButton: {
+    padding: 5,
+  },
+  expandInner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  expandText: {
+    color: 'white',
+    fontSize: 20,
   },
   modalContainer: {
     height: '80%',
@@ -241,7 +391,6 @@ const styles = StyleSheet.create({
     color: "black",
   },
   buttonContainer: {
-    padding: 5,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-around',

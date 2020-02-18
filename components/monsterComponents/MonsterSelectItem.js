@@ -33,15 +33,15 @@ const MonsterSelectItem = props => {
           <View style={ styles.statsContainer }>
           <View style={{ alignItems: 'center'}}>
               <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.type } </Text>
-              <Icon size={16} name="tag-outline" />
+              <Icon color="white" size={16} name="tag-outline" />
             </View>
             <View style={{ alignItems: 'center'}}>
               <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.size } </Text>
-              <Icon size={16} name="tape-measure" />
+              <Icon color="white" size={16} name="tape-measure" />
             </View>
             <View style={{ alignItems: 'center'}}>
               <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.cr } </Text>
-              <Icon size={16} name="sword-cross" />
+              <Icon color="white" size={16} name="sword-cross" />
             </View>
           </View>
           {
@@ -49,11 +49,13 @@ const MonsterSelectItem = props => {
             <View style={ styles.buttonContainer }>
               <IconButton onPress={() => decreaseMonster(props.monster.id)}
                 icon="minus"
+                color="white"
                 size={18}
               />
-              <Text style={{ fontSize: 14}}>{ props.isSelected.count }</Text>
+              <Text style={{ color: "white", fontSize: 14}}>{ props.isSelected.count }</Text>
               <IconButton onPress={() => handlePress(props.monster.id) }
                 icon="plus"
+                color="white"
                 size={18}
               />
             </View>
@@ -61,6 +63,7 @@ const MonsterSelectItem = props => {
           <View style={ styles.buttonContainer }>
             <Button onPress={() => handlePress(props.monster.id)}
               compact={true}
+              color="white"
               style={ styles.addButton }
               icon="plus">Add</Button>
           </View>
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
   listItem: {
     padding: 10,
     marginVertical: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -98,11 +101,11 @@ const styles = StyleSheet.create({
   monsterName: {
     fontSize:16,
     fontWeight: 'bold',
-    color: 'black',
+    color: 'white',
   },
   monsterStatText: {
     fontSize: 14,
-    color: 'grey'
+    color: 'white'
   },
   buttonContainer: {
     height: '100%',

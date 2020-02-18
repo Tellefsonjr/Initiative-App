@@ -18,7 +18,10 @@ const PlayerSelect = props => {
 
 
   const handleSubmit = (selectedPlayers) => {
-    props.handleSubmit(selectedPlayers)
+    props.handleSubmit(selectedPlayers);
+  };
+  const handleCancel = () => {
+    props.handleCancel();
   };
   const addPlayer = (player) => {
     const updatedPlayers = selectedPlayers;
@@ -127,7 +130,7 @@ const PlayerSelect = props => {
                   renderItem={ (item, index) => renderPlayer(item, index) } />     )
               }
               <View style={styles.buttonContainer}>
-                <Button onPress={() => {handleCancel} } style={styles.button}
+                <Button onPress={() => {handleCancel()} } style={styles.button}
                 icon="cancel"
                 mode="contained"
                 title="Cancel"

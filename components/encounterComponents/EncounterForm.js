@@ -16,20 +16,24 @@ import validation from '../../data/EncounterValidation';
 const EncounterForm = props => {
   const parties = useSelector(state => state.parties.parties);
   console.log(parties);
-  const [ encounter, setEncounter ] = useState( {
-    id: new Date().toString(),
-    title: "",
-    campaign: "",
-    description: "",
-    difficulty: 0,
-    party: {
+  //If encounter, set initial values to current encounter
+  const [ encounter, setEncounter ] = useState(
+    props.encounter ? props.encounter :
+    {
       id: new Date().toString(),
-      title: '',
-      players: []
-    },
-    monsters: [],
-    allies: []
-  });
+      title: "",
+      campaign: "",
+      description: "",
+      difficulty: 0,
+      party: {
+        id: new Date().toString(),
+        title: '',
+        players: []
+      },
+      monsters: [],
+      allies: []
+    }
+  );
   const defaultParty = {
     id: new Date().toString(),
     title: '',
@@ -45,7 +49,7 @@ const EncounterForm = props => {
   ];
 
   const handleSubmit = (encounter) => {
-    props.addEncounterHandler(encounter);
+    props.handleSubmit(encounter);
   };
   const handleCancel = () => {
     props.cancelEncounterHandler();
@@ -56,7 +60,12 @@ const EncounterForm = props => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={ styles.container }>
       <View sytle={styles.formHeader}>
-        <Text style={styles.formHeaderText}> New Encounter </Text>
+        {
+          props.encounter?
+          <Text style={styles.formHeaderText}> Edit Encounter </Text>
+          :
+          <Text style={styles.formHeaderText}> New Encounter </Text>
+        }
       </View>
 
       <View style={styles.content}>

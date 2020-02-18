@@ -1,28 +1,72 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, ImageBackground, Animated, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, ImageBackground, } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { FlatList, RectButton } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Button, IconButton, Avatar } from 'react-native-paper';
 
 const MonsterItem = props => {
-
+  const handlePress = (monsterId) => {
+    props.handlePress(monsterId);
+  }
+  const handleLongPress = (monsterId) => {
+    props.handleLongPress(monsterId);
+  }
+  const decreaseMonster = (monsterId) => {
+    props.decreaseMonster(monsterId);
+  }
   return (
-      <TouchableWithoutFeedback onPress={ props.handlePress.bind(this, props.id) }>
-        <View style={ (props.index == 0 ? [styles.first, styles.listItem]: styles.listItem)  }>
-          <View style= { styles.imageWrapper }>
-            <Image
-              style={ styles.monsterImage }
-              source= { require("../../assets/images/whtenemy.png") }
+    <TouchableWithoutFeedback
+      onPress={ () => console.log("What to do here?") }
+      onLongPress={ () => handleLongPress(props.monster.id) }>
+      <View style={ styles.listItem } >
+        <View style= { styles.imageWrapper }>
+          <Avatar.Image
+            size={24}
+            style={ styles.monsterImage }
+            source= { require("../../assets/images/whtenemy.png") }
+          />
+        </View>
+        <View>
+          <Text allowsFontScaling style={ styles.monsterName}>{ props.monster.name } </Text>
+        </View>
+        <View style={ styles.statsContainer }>
+        <View style={{ alignItems: 'center'}}>
+            <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.type } </Text>
+            <Icon size={16} name="tag-outline" />
+          </View>
+          <View style={{ alignItems: 'center'}}>
+            <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.size } </Text>
+            <Icon size={16} name="tape-measure" />
+          </View>
+          <View style={{ alignItems: 'center'}}>
+            <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.cr } </Text>
+            <Icon size={16} name="sword-cross" />
+          </View>
+        </View>
+        {
+          props.isSelected?
+          <View style={ styles.buttonContainer }>
+            <IconButton onPress={() => decreaseMonster(props.monster.id)}
+              icon="minus"
+              size={18}
+            />
+            <Text style={{ fontSize: 14}}>{ props.isSelected.count }</Text>
+            <IconButton onPress={() => handlePress(props.monster.id) }
+              icon="plus"
+              size={18}
             />
           </View>
-          <View>
-            <Text style={ styles.monsterName}> { props.monster.name } </Text>
-            <Icon name="account-outline" size={28} color="white" />
-          </View>
-
+          :
+        <View style={ styles.buttonContainer }>
+          <Button onPress={() => handlePress(props.monster.id)}
+            compact={true}
+            style={ styles.addButton }
+            icon="plus">Add</Button>
         </View>
-      </TouchableWithoutFeedback>
+        }
+      </View>
+    </TouchableWithoutFeedback>
   );
 
 };
@@ -30,82 +74,46 @@ const MonsterItem = props => {
 const styles = StyleSheet.create({
   listItem: {
     padding: 10,
-    marginVertical: 10,
-    // backgroundColor: 'transparent',
-    // backgroundColor: '#F5BB73',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    marginVertical: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 5,
-    // borderWidth: 1,
     borderRadius: 5,
-
-    // width: "90%"
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginLeft: 'auto',
+    textAlign: 'right',
   },
   imageWrapper:{
-    borderWidth: 1,
-    borderColor: "white",
-    borderRadius: 2,
-    padding: 5,
+    marginRight: 5,
   },
   monsterImage: {
-    height: 40,
-    width: 40,
+
   },
-  monsterName:{
-    fontSize:25,
-    color: "white",
+  monsterName: {
+    fontSize:16,
+    fontWeight: 'bold',
+    color: 'black',
   },
-  monsterInitiative:{
-    fontSize:30,
-    color: "white",
-    marginTop: 3,
-    fontWeight: "bold",
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 12,
+  monsterStatText: {
+    fontSize: 14,
+    color: 'grey'
   },
-  initiativeBG: {
-    height: 55,
-    width: 55,
-    color: "white",
-    backgroundColor: "transparent",
-    padding: 3,
+  buttonContainer: {
+    height: '100%',
+    width: '20%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-around'
   },
-  gradientContainer: {
-    borderRadius: 5,
-    marginBottom: 2
-  },
-  first: {
-    borderWidth: 2,
-    borderColor: "#FF3D00",
-    shadowColor: "#FF3D00",
-    shadowOffset: {
-    	width: 0,
-    	height: 12,
-    },
-    shadowOpacity: .58,
-    shadowRadius: 16.00,
-    },
-    swipeableView:{
-      alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      marginVertical: 15,
-      height: '75%',
-      padding: 10,
-      width: 300,
-      backgroundColor: 'rgba(255, 61, 0, 0.5)'
-    },
-    actionText: {
-      fontSize: 20,
-    },
-    rightAction: {
-      height: '100%',
-    },
-    button: {
-      width: '40%',
-    }
+  addButton: {
+    padding: 2,
+  }
 });
 
 export default MonsterItem;

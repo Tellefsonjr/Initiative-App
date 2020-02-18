@@ -64,7 +64,7 @@ const EncountersScreen = props => {
         <Provider>
           <Portal>
           <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={ styles.modalContainer }>
-              <EncounterForm addEncounterHandler={ addEncounterHandler } cancelEncounterHandler={ hideModal }/>
+              <EncounterForm handleSubmit={ addEncounterHandler } cancelEncounterHandler={ hideModal }/>
             </Modal>
           </Portal>
         </Provider>
