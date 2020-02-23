@@ -1,5 +1,5 @@
 class Encounter {
-  constructor(id, title, campaign, description, difficulty, party, monsters, allies){
+  constructor(id, title, campaign, description, difficulty, party, monsters, allies, settings, active, state, combatants){
     this.id = id;
     this.title = title;
     this.campaign = campaign;
@@ -8,6 +8,10 @@ class Encounter {
     this.party = party;
     this.monsters = monsters;
     this.allies = allies;
+    this.settings = settings;
+    this.active = active;
+    this.state = state;
+    this.combatants = combatants;
   }
 }
 

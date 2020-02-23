@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 const EncounterItem = props => {
 
   return (
-      <TouchableOpacity onPress={() => { props.navigate("Encounter", { id: props.encounter.id, title: props.encounter.title })} }>
+      <TouchableOpacity onPress={() => { props.navigate("EditEncounter", { id: props.encounter.id, title: props.encounter.title })} }>
         <View style={ (props.index == 0 ? [styles.first, styles.listItem]: styles.listItem)  }>
         <View style={ styles.encounterTitleWrapper }>
           <Text style={ styles.encounterName}> { props.encounter.title } </Text>

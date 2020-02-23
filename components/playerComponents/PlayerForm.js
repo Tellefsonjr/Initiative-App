@@ -19,9 +19,9 @@ const PlayerForm = props => {
     name: '',
     className: '',
     level: '',
+    maxHp: '',
     hp: '',
     initiativeBonus: '',
-    initiative: '',
   });
 
   const fields = [
@@ -29,13 +29,14 @@ const PlayerForm = props => {
     // {label: 'Class', type: 'input', name: 'className', placeholder: 'Class name (Required)'},
     {label: 'Select Class', type: 'select', name: 'className', default: 'default', data: ['Artificer', 'Barbarian', 'Bard', 'Blood Hunter', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard', 'Other'], value: 'Please Select'},
     {label: 'Level', type: 'input-number', name: 'level', placeholder: 'Level (Required)'},
-    {label: 'HP Total', type: 'input-number', name: 'hp', placeholder: 'HP Total (Optional)'},
+    {label: 'HP Total', type: 'input-number', name: 'maxHp', placeholder: 'HP Total (Optional)'},
     {label: 'Initiative Bonus', type: 'input-number', name: 'initiativeBonus', placeholder: 'Initiative Bonus (Optional)'},
   ];
 
   const handleSubmit = (player) => {
-    player.hp = parseInt(player.hp, 10);
-    player.initiativeBonus = parseInt(player.hp, 10);
+    player.maxHp = parseInt(player.maxHp, 10);
+    player.hp = parseInt(player.maxHp, 10);
+    player.initiativeBonus = parseInt(player.initiativeBonus, 10);
     props.handleSubmit(player);
   };
   const handleCancel = () => {

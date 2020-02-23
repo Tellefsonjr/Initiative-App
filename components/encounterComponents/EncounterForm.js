@@ -31,7 +31,19 @@ const EncounterForm = props => {
         players: []
       },
       monsters: [],
-      allies: []
+      allies: [],
+      active: false,
+      settings: {
+        autoRoll: {
+          monsters: true, players: true
+          },
+      },
+      state: {
+        round: 0,
+        turn: 0,
+        order: [],
+      },
+      combatants: [],
     }
   );
   const defaultParty = {
@@ -45,7 +57,8 @@ const EncounterForm = props => {
     {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'Campaign (Optional)'},
     {label: 'Description', type: 'input', name: 'description', placeholder: 'Description (Optional)'},
     {label: 'Party', type: 'select', subType: 'party', name: 'party', data: parties, default: defaultParty, },
-
+    {label: 'Auto Roll - Monsters', type: 'switch', name: 'settings.autoRoll.monsters', size: 'med'},
+    {label: 'Auto Roll - Players', type: 'switch', name: 'settings.autoRoll.players', size: 'med' },
   ];
 
   const handleSubmit = (encounter) => {

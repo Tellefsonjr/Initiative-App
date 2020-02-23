@@ -21,8 +21,11 @@ const encountersReducer = (state = initialState, action) => {
         action.encounterData.difficulty,
         action.encounterData.party,
         action.encounterData.monsters,
-        action.encounterData.allies
-
+        action.encounterData.allies,
+        action.encounterData.settings,
+        action.encounterData.active,
+        action.encounterData.state,
+        action.encounterData.combatants,
       );
       return { ...state, encounters: state.encounters.concat( newEncounter ) };
     case DELETE:
@@ -38,7 +41,11 @@ const encountersReducer = (state = initialState, action) => {
         action.encounterData.difficulty,
         action.encounterData.party,
         action.encounterData.monsters,
-        action.encounterData.allies
+        action.encounterData.allies,
+        action.encounterData.settings,
+        action.encounterData.active,
+        action.encounterData.state,
+        action.encounterData.combatants,
       );
       const updatedEncounters = [...state.encounters];
       updatedEncounters[encounterIndex] = updatedEncounter;

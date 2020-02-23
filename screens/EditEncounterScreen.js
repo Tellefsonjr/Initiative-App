@@ -1,4 +1,4 @@
-/* aka Encounter Detail Screen, shows selected encounter details and allows edit before ActiveEncounterScreen */
+/* aka Encounter Detail Screen, shows selected encounter details and allows edit before ActiveEditEncounterScreen */
 
 import React, { useState, useEffect } from 'react';
 import { Dimensions, View, Text, StyleSheet, ImageBackground, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView} from 'react-native';
@@ -7,6 +7,7 @@ import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector, useDispatch } from 'react-redux';
 import { FAB, Portal, Provider, Modal, Button, TouchableRipple, Badge } from 'react-native-paper';
+import * as _ from 'lodash';
 
 import CustomHeaderButton from '../components/HeaderButton';
 
@@ -24,10 +25,10 @@ import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 import * as playerActions from '../store/actions/players'; //Redux Actions
 import * as monsterActions from '../store/actions/monsters'; //Redux Actions
 
-const EncounterScreen = props => {
+const EditEncounterScreen = props => {
   const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
   const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)));
-  console.log("These are the players", players, players.length);
+  const monsters = useSelector(state => state.monsters.monsters.filter((monster) => _.matches(encounter.monsters, monster.id)));
 
   const [open, setOpen ] = useState( false );
   const [visible, setVisible ] = useState( false );
@@ -65,9 +66,9 @@ const EncounterScreen = props => {
   };
   const removePlayerHandler = ( playerId ) => {
     const newEncounter = encounter;
-    console.log("New encounter: ", newEncounter);
+    // console.log("New encounter: ", newEncounter);
     newEncounter.party.players = newEncounter.party.players.filter(p => p != playerId);
-    console.log("New encounter after: ", newEncounter);
+    // console.log("New encounter after: ", newEncounter);
     updateEncounterHandler(newEncounter);
   };
   const updateEncounterPlayers = ( updatedPlayers ) => {
@@ -76,7 +77,7 @@ const EncounterScreen = props => {
     updateEncounterHandler(updatedEncounter);
   };
   const updateEncounterHandler = ( encounter ) => {
-    console.log("Updated encounter::::::::", encounter);
+    // console.log("Updated encounter::::::::", encounter);
     dispatch(encounterActions.updateEncounter(encounter));
     setVisible(false);
   };
@@ -87,7 +88,7 @@ const EncounterScreen = props => {
     setVisible(false);
   };
   const updateEncounterMonsters = ( updatedMonsters ) => {
-    console.log("Updating Monsters:", updatedMonsters);
+    // console.log("Updating Monsters:", updatedMonsters);
     const updatedEncounter = encounter;
     updatedEncounter.monsters = updatedMonsters;
     updateEncounterHandler(updatedEncounter);
@@ -97,11 +98,9 @@ const EncounterScreen = props => {
     setVisible(true);
   };
   const hideModal = (type) => {
-    console.log("hiding modal", type);
     setVisible(false);
   }
   const handleExpand = (type) => {
-    console.log("Expanded Type before: ", expandedType, expandedType.length);
     expandedType.includes(type) ?
       setExpandedType(expandedType.filter( t => t != type ))
       :
@@ -111,6 +110,56 @@ const EncounterScreen = props => {
       :
       setExpanded(true);
     console.log("Expanded: ", expanded, "Type: ", expandedType, "Includes: ", expandedType.includes(type), expandedType);
+  };
+  const startEncounter = ( ) => {
+    console.log("STARTING ENCOUNTER: ");
+    const updatedEncounter = encounter;
+    // Map through Players & Monsters to populate combatants [ { id, type, name (monster 1, 2, 3, ...), initiative, stats: {hp, ac,} }]
+    if(!encounter.active){
+      encounter.monsters.forEach( monster => {
+        let m = monsters.find( mData => mData.id == monster.id);
+        for( i=0; i < monster.count; i++){
+          let roll = Math.floor(Math.random() * 20) + 1;
+          //console.log(m.name, "rolled :", roll, "+", m.initiativeBonus);
+          updatedEncounter.combatants.push({
+            cId: Math.random(),
+            refId: m.id,
+            type: m.type,
+            cr: m.cr,
+            cType: 'monster',
+            name: `${m.name} ${i+1}`,
+            initiative: encounter.settings.autoRoll.monsters ? roll + m.initiativeBonus : 0,
+            stats: {
+              maxHp: m.maxHp,
+              hp: m.hp,
+              ac: m.ac
+            }
+
+          });
+        }
+      });
+      players.forEach( player => {
+        let roll = Math.floor(Math.random() * 20) + 1;
+        console.log(player.name, "rolled :", roll, "+", player.initiativeBonus);
+        updatedEncounter.combatants.push({
+          cId: Math.random(),
+          refId: player.id,
+          cType: 'player',
+          name: player.name,
+          className: player.className,
+          level: player.level,
+          initiativeBonus: player.initiativeBonus,
+          initiative: encounter.settings.autoRoll.players ? roll + player.initiativeBonus : 0,
+          stats: {
+            maxHp: player.maxHp,
+            hp: player.hp,
+            ac: player.ac
+          }
+        });
+        updateEncounterHandler(updatedEncounter);
+    });
+  };
+    props.navigation.navigate("ActiveEncounter", { id: encounter.id, title: encounter.title });
   };
 
  return (
@@ -292,7 +341,7 @@ const EncounterScreen = props => {
                           </View>
                           {
                             toggle == 'edit' ?
-                            <EncounterForm encounter={ encounter } handleSubmit={ updateEncounterHandler } 
+                            <EncounterForm encounter={ encounter } handleSubmit={ updateEncounterHandler }
                             cancelEncounterHandler={ () => hideModal('encounter') }/>
                             :
                             null
@@ -304,7 +353,7 @@ const EncounterScreen = props => {
               open={open}
               icon={open ? 'close' : 'dots-vertical'}
               actions={[
-                { icon: 'sword-cross', label: 'Start Encounter', onPress: () => console.log('Pressed star')},
+                { icon: 'sword-cross', label: 'Start Encounter', onPress: () => startEncounter() },
                 { icon: 'pencil-outline', label: 'Edit Encounter', onPress: () => {
                   setToggle('edit');
                   showModal('encounter');
@@ -325,7 +374,7 @@ const EncounterScreen = props => {
   );
 }
 
-EncounterScreen.navigationOptions = (navData, encounter) => {
+EditEncounterScreen.navigationOptions = (navData, encounter) => {
   return {
     headerTitle: navData.navigation.getParam("title"),
     headerRight: (
@@ -408,4 +457,4 @@ const styles = StyleSheet.create({
 
 
 
- export default EncounterScreen;
+ export default EditEncounterScreen;

@@ -23,6 +23,7 @@ const monstersReducer = (state = initialState, action) => {
         action.monsterData.name,
         action.monsterData.type,
         action.monsterData.cr,
+        action.monsterData.maxHp,
         action.monsterData.hp,
         action.monsterData.ac,
         action.monsterData.initiativeBonus,

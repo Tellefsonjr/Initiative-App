@@ -8,15 +8,16 @@ import {
   View,Text, StyleSheet, Form, Picker, Keyboard, TouchableWithoutFeedback, ActivityIndicator, Platform
 } from 'react-native';
 import { Formik, FieldArray, Field } from 'formik';
+import { withFormikControl } from 'react-native-formik';
 import Colors from '../constants/Colors';
 import { Button, TextInput, Menu } from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Switch from './SwitchComponent';
+import * as _ from 'lodash';
 
 class DynamicForm extends PureComponent {
 
   renderSelect = ( input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, i, initialValues ) => {
-    console.log("ASKDJLAKSJDLK", values.party.title === '');
     return(
       <FieldArray name={input.name}>
       {(arrayHelpers) => (
@@ -84,6 +85,14 @@ class DynamicForm extends PureComponent {
       />
       )
   }
+  renderSwitch = (input, setFieldValue, values, errors, i) => {
+    console.log("VALUES : ", values);
+    let inputName = input.name;
+    return( <Switch input={input} setFieldValue={setFieldValue}
+              value={ _.get( values, input.name)} errors={errors} i={i}
+            />
+          )
+  }
   renderNumber = (input, handleChange, values, errors, i) => {
     return(
       <TextInput
@@ -101,20 +110,28 @@ class DynamicForm extends PureComponent {
   }
 
 
-
+  renderInput = (input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i) => {
+    console.log("RENDERING INPUTS: !~~~~~~~~~~~~!", input.type);
+    switch (input.type) {
+      case 'select':
+        return(this.renderSelect(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, i, initialValues));
+      case 'input-number':
+        return(this.renderNumber(input, handleChange, values, errors, i));
+      case 'switch':
+        return(this.renderSwitch(input, setFieldValue, values, errors, i));
+      case 'input':
+        return(this.renderText(input, handleChange, values, errors, i));
+      return(null);
+    }
+  }
   renderFields = (inputs, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) => {
     return inputs.map((input, i) => {
       return(
         <View key={input.name} style={styles.input} name={input.name}>
           <View>
-            { (input.type == 'select'?
-              this.renderSelect(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, i, initialValues)
-              :
-              (input.type == 'input-number' ?
-              this.renderNumber(input, handleChange, values, errors, i)
-              :
-              this.renderText(input, handleChange, values, errors, i) )
-              )
+            {
+              this.renderInput(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i)
+
             }
 
               { (errors[input.name] ?
@@ -139,6 +156,8 @@ class DynamicForm extends PureComponent {
             <Formik
             onSubmit={this.props.handleSubmit}
             validationSchema={this.props.validation}
+            validationOnChange={false}
+            validationOnBlur={false}
             initialValues={initialValues}>
             {({handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues }) => (
               <View>
