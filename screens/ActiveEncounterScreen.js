@@ -4,91 +4,89 @@ import React, { Component, useState } from 'react';
 import { Dimensions, View, Text, StyleSheet, ImageBackground, Platform, ScrollView} from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { useSelector, useDispatch } from 'react-redux';
-import { FAB, Modal, Button, Switch, Snackbar, Portal, Dialog, IconButton, Badge, Avatar, TextInput, Chip } from 'react-native-paper';
+import { useSelector, useDispatch, connect } from 'react-redux';
+import { FAB, Modal, Button, Switch, Portal, Dialog, IconButton, Badge, Avatar, TextInput, Chip, Snackbar } from 'react-native-paper';
 import * as _ from 'lodash';
+import { ActionCreators as UndoActionCreators } from 'redux-undo'
 
 import CustomHeaderButton from '../components/HeaderButton';
+import UndoRedo from '../components/UndoRedo';
 
 import EncounterCombatantItem from '../components/encounterComponents/EncounterCombatantItem';
+import EncounterCombatantForm from '../components/encounterComponents/EncounterCombatantForm';
 import PlayerDetailModal from '../components/playerComponents/PlayerDetailModal';
 import MonsterDetailModal from '../components/monsterComponents/MonsterDetailModal';
 
 
 import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 
-const ActiveEncounterScreen = (props) => {
-  const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
-  const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)));
-
-
-  console.log("ENCOUNTER ACTIVE : ", encounter);
+let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, players, ...props}) => {
   const [ open, setOpen ] = useState(false);
   const [ detailModalVisible, setDetailModalVisible ] = useState(false);
   const [ displayRollModal, setDisplayRollModal ] = useState( encounter.state.turn == 0? true : false );
   const [ showUndo, setShowUndo ] = useState(false);
+  const [ lastAction, setLastAction ] = useState({});
   const [ selectedCombatant, setSelectedCombatant ] = useState(encounter.combatants[0]);
-  const [ showActionDialog, setShowActionDialog ] = useState(false);
-  const [ combatantCount , setCombatantCount ] = useState( {
-    monsters: encounter.combatants.filter( c => c.cType == 'monster' && c.initiative != 0).length,
-    players: encounter.combatants.filter( c => c.cType == 'player' && c.initiative != 0).length,
-  });
   const [ monsterCount, setMonsterCount ] = useState( encounter.monsters.reduce(function(prev, cur) {
-    return prev + cur.count;
-  }, 0));
+      return prev + cur.count;
+    }, 0));
+  const [ showActionDialog, setShowActionDialog ] = useState(false);
+
 
   const dispatch = useDispatch();
 
-  const rollInitiative = ( combatant ) => {
-    // roll individual combatant's initiative + bonus
-    let roll = Math.floor(Math.random() * 20) + 1;
-
+  const saveInitiative = ( newCombatants ) => {
+    encounter.combatants = newCombatants;
+    nextTurn(encounter.state.turn);
   };
   const nextTurn = ( turn ) => {
-    !encounter.active ? encounter.active = true : null;
-
+    setLastAction( {
+      type: 'turn',
+      prevState: encounter,
+    });
+    const updatedEncounter = encounter;
+    !updatedEncounter.active ? updatedEncounter.active = true : null;
     if(turn == 0){
-      encounter.combatants = _.sortBy(encounter.combatants, ['initiative'], 'desc').reverse();
-      console.log("Next order: ", encounter.combatants);
+      updatedEncounter.combatants = _.sortBy(updatedEncounter.combatants, ['initiative'], 'desc').reverse();
     } else {
-      let first = encounter.combatants[0];
-      console.log("first", first);
-      encounter.combatants.splice(0, 1);
-      encounter.combatants.push(first);
+      let first = updatedEncounter.combatants[0];
+      updatedEncounter.combatants.splice(0, 1);
+      updatedEncounter.combatants.push(first);
     }
-    encounter.state.round == 0? encounter.state.round = 1 : null;
-    encounter.state.turn ++;
-    if( encounter.state.turn % encounter.combatants.length == 0 ){
-      encounter.state.round++;
+    updatedEncounter.state.round == 0? updatedEncounter.state.round = 1 : null;
+    updatedEncounter.state.turn ++;
+    if( updatedEncounter.state.turn % updatedEncounter.combatants.length == 0 ){
+      updatedEncounter.state.round++;
     } else {
       null;
     }
+    dispatch(encounterActions.updateEncounter(updatedEncounter));
     setShowUndo(true);
     displayRollModal? setDisplayRollModal(false) : null;
 
   };
   const undoTurn = (turn) => {
+    const updatedEncounter = encounter;
     if(turn == 1){
       // If it's the first turn, user may want to show the roll modal again to correct something
       setDisplayRollModal(true);
     } else {
-      let last = _.last(encounter.combatants);
-      encounter.combatants.splice(encounter.combatants.length-1, 1);
-      console.log("CONCATED: ", _.concat(last, encounter.combatants));
-      encounter.combatants = _.concat(last, encounter.combatants);
+      let last = _.last(updatedEncounter.combatants);
+      updatedEncounter.combatants.splice(updatedEncounter.combatants.length-1, 1);
+      updatedEncounter.combatants = _.concat(last, updatedEncounter.combatants);
     };
-    encounter.state.turn--;
-    encounter.state.turn & encounter.combatants.length == 1? encounter.state.round -- : null;
+    updatedEncounter.state.turn--;
+    updatedEncounter.state.turn & updatedEncounter.combatants.length == 1? updatedEncounter.state.round -- : null;
+    dispatch(encounterActions.updateEncounter(updatedEncounter));
+
   };
   const showCombatantActions = ( combatant ) => {
     setSelectedCombatant(combatant);
     setShowActionDialog(true);
-    console.log("Selected: ", selectedCombatant, showActionDialog);
   }
   const editCombatantHealth = ( combatant, method ) => {
-    updatedEncounter = encounter;
+    const updatedEncounter = encounter;
     target = updatedEncounter.combatants.find( c => c.cId == combatant.cId);
-    console.log("Editing Health: ", target, method);
     if(method == 'damage'){
         target.stats.hp--;
       } else if(method == 'heal'){
@@ -97,19 +95,51 @@ const ActiveEncounterScreen = (props) => {
         target.stats.maxHp++;
       } else if(method == 'lowerMax'){
         target.stats.maxHp--;
+      } else if(method == 'successfulSave'){
+        target.stats.deathSaves.succeeded++;
+        if( target.stats.deathSaves.succeeded == 3){
+          target.stats.hp = 1;
+          target.stats.deathSaves.failed = 0;
+          target.stats.deathSaves.succeeded = 0;
+        }
+      } else if(method == 'failedSave'){
+        target.stats.deathSaves.failed--;
       }
       console.log("UPDATED THIS ONE : ", updatedEncounter.combatants.find( c => c.cId == combatant.cId) );
       dispatch(encounterActions.updateEncounter(updatedEncounter));
   };
-  const hideActionDialog = () => {
-    console.log("hiding", showActionDialog);
+  const removeCombatant = ( removedCombatant ) => {
+    setLastAction( {
+      type: 'remove',
+      prevState: encounter,
+    });
+    const updatedEncounter = encounter;
+    if(removedCombatant.cType == 'monster'){
+      const updatedItem = updatedEncounter.monsters.find( monster => monster.id == removedCombatant.refId );
+      updatedItem.count--;
+      if(updatedItem.count == 0){
+        updatedEncounter.monsters = _.reject( updatedEncounter.monsters, {'id': removedCombatant.refId});
+      }
+    };
+    newCombatants = _.reject( updatedEncounter.combatants, {'cId': removedCombatant.cId} );
+    updatedEncounter.combatants = newCombatants;
+    dispatch(encounterActions.updateEncounter(updatedEncounter));
     setShowActionDialog(false);
-  }
+    // TO DO, allow undo remove combatant
+    // setShowUndo(true);
+  };
+
   const showDetailModal = ( combatant ) => {
-    console.log("SHOWING MODAL");
     setSelectedCombatant( combatant )
     setDetailModalVisible(true);
   };
+  const handleUndo = (type) => {
+    if( type == 'turn' ){
+      undoTurn(encounter.state.turn);
+    } else {
+      //TO DO: Undo remove combatant
+    }
+  }
 
  return (
    <ImageBackground source={require('../assets/images/bg.jpg')} style={styles.backgroundImage} >
@@ -154,78 +184,16 @@ const ActiveEncounterScreen = (props) => {
           <View style={ styles.modalHeader }>
             <Text style={ styles.modalHeaderText }> Roll for initiative! </Text>
           </View>
-          <View style={ styles.statusContainer }>
-            <View style={ styles.statusItem }>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={ styles.statusLabel}> Monsters </Text>
-                <Text style={ styles.statusLabel, combatantCount.monsters == monsterCount? styles.countReady : styles.countNotReady }> { combatantCount.monsters } / { monsterCount } </Text>
-                <Icon name="emoticon-devil-outline" size={20} />
-              </View>
-              <View style={{ flexDirection: 'column' }}>
-                <Text> Waiting on these monsters... </Text>
-                <View>
-                  {
-                    encounter.combatants.map( combatant => {
-                      combatant.initiative == 0 && combatant.cType == 'monster' ?
-                      (<Chip
-                        avatar={
-                          <Avatar.Image
-                            size={18}
-                            style={ styles.combatantImage }
-                            source= { require("../assets/images/whtenemy.png") }
-                          />}
-                      > { combatant.name } </Chip>)
-                      :
-                      (null)
-                    })
-                  }
-                </View>
-              </View>
-            </View>
-            <View style={ styles.statusItem }>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={ styles.statusLabel}> Players </Text>
-                <Text style={ styles.statusLabel, combatantCount.players == encounter.party.players.length? styles.countReady : styles.countNotReady}> { combatantCount.players } / { encounter.party.players.length } </Text>
-                <Icon name="account-outline" size={20} />
-              </View>
-              <View style={{ flexDirection: 'column' }}>
-                <Text> Waiting on these players... </Text>
-                <View style={{ height: '50%'}}>
-                {
-                  encounter.combatants.map( combatant =>
-                    combatant.initiative == 0 && combatant.cType == 'player' ?
-                    <Chip
-                      avatar={
-                        <Avatar.Image
-                          size={18}
-                          style={ styles.combatantImage }
-                          source= { require("../assets/images/whtenemy.png") }
-                        />}
-                    > { combatant.name } </Chip>
-                    :
-                    null
-                  )
-                }
-                </View>
-              </View>
-            </View>
+          <View style={ styles.combatantFormContainer }>
+            <EncounterCombatantForm combatants={ encounter.combatants }
+              handleSubmit={ saveInitiative }
+              handleCancel={ ()=> setDisplayRollModal(false) }
+              autoRoll={ encounter.settings.autoRoll }
+              playerCount={ encounter.party.players.length }
+              monsterCount={ monsterCount }
+              />
           </View>
-          <View style={ styles.buttonContainer }>
-            <Button onPress={() => console.log("Save!")}
-              style={ styles.button }
-              mode='contained'
-              compact={true}
-              icon='undo'
-            >Undo</Button>
-            <Button onPress={() => nextTurn(encounter.state.turn)}
-              style={ styles.button }
-              mode='contained'
-              compact={true}
-              disabled={ combatantCount.monsters + combatantCount.players != monsterCount + encounter.party.players.length }
-              icon='check-circle-outline'
-            >Save</Button>
           </View>
-        </View>
       </Modal>
 
 {/* Show ActionDialog on press */}
@@ -236,7 +204,7 @@ const ActiveEncounterScreen = (props) => {
               <Dialog
                 style={ styles.dialog }
                 visible={ showActionDialog }
-                onDismiss={ () => hideActionDialog() }
+                onDismiss={ () => setShowActionDialog(false) }
               >
                 <Dialog.Title>
                   <Text style={ styles.dialogHeader}> { selectedCombatant.name } </Text>
@@ -260,6 +228,7 @@ const ActiveEncounterScreen = (props) => {
                     />
                   </View>
                 </Dialog.Content>
+
                 <Dialog.Content style={ styles.dialogContentWrapper }>
                   <Text style={ styles.combatantStatText }> Max HP: </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center'}}>
@@ -279,8 +248,43 @@ const ActiveEncounterScreen = (props) => {
                     />
                   </View>
                 </Dialog.Content>
+{/* Render Death Saves Indicators if HP == 0 */}
+                <Dialog.Content style={ styles.dialogContentWrapper }>
+                  <Text style={ styles.combatantStatText }> Death Saves: </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'failedSave') }
+                      icon="minus"
+                      color="red"
+                      size={20}
+                      disabled={ selectedCombatant.stats.hp != 0 || selectedCombatant.stats.deathSaves == 3 }
+                    />
+                    <Icon name='skull' size={16} color={ selectedCombatant.stats.deathSaves.failed == -3? "red" : "grey" } />
+                    <Icon name='skull' size={16} color={ selectedCombatant.stats.deathSaves.failed <= -2? "red" : "grey" } />
+                    <Icon name='skull' size={16} color={ selectedCombatant.stats.deathSaves.failed <= -1? "red" : "grey" } />
+                    <Avatar.Image
+                      size={20}
+                      style={ styles.combatantImage }
+                      source= { require("../assets/images/whtenemy.png") }
+                    />
+                    <Icon name='heart-pulse' size={16} color={ selectedCombatant.stats.deathSaves.succeeded >= 1? "green" : "grey" } />
+                    <Icon name='heart-pulse' size={16} color={ selectedCombatant.stats.deathSaves.succeeded >= 2? "green" : "grey" } />
+                    <Icon name='heart-pulse' size={16} color={ selectedCombatant.stats.deathSaves.succeeded >= 3? "green" : "grey" } />
+
+                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'successfulSave') }
+                      icon="plus"
+                      color="green"
+                      size={20}
+                      disabled={ selectedCombatant.stats.hp != 0 || selectedCombatant.stats.deathSaves == 3 }
+                    />
+                  </View>
+                </Dialog.Content>
                 <Dialog.Actions>
-                  <Button onPress={() => hideActionDialog() }>Dismiss</Button>
+                  { selectedCombatant.stats.hp == 0 ?
+                    <Button onPress={() => removeCombatant(selectedCombatant) }>Remove</Button>
+                    :
+                    null
+                  }
+                  <Button onPress={() => setShowActionDialog(false) }>Dismiss</Button>
                 </Dialog.Actions>
               </Dialog>
             </Portal>
@@ -298,20 +302,28 @@ const ActiveEncounterScreen = (props) => {
     }
 
 {/* Show Snackbar to undo turn or action */}
-      <Snackbar
-          style={{ width: '75%' }}
-          visible={ showUndo }
-          onDismiss={() => setShowUndo(false)}
-          action={{
-            label: 'Undo',
-            onPress: () => {
-              undoTurn(encounter.state.turn)
-            },
-          }}> { encounter.state.turn == 1?
-            'The encounter begins!'
-            :
-            `${encounter.combatants[encounter.combatants.length-1].name} ended their turn!` }
-        </Snackbar>
+    <Snackbar
+        style={{ width: '75%' }}
+        visible={ showUndo }
+        duration={8000}
+        onDismiss={() => setShowUndo(false) }
+        action={{
+          label: 'Undo',
+          onPress: () => { handleUndo(lastAction.type) }
+        }}>
+        {
+          lastAction.type == 'turn'?
+                  encounter.state.turn == 1?
+                  'The encounter begins!'
+                  :
+                  `${encounter.combatants[encounter.combatants.length-1].name} ended their turn!`
+                :
+                lastAction.type == 'remove'?
+                "Removed a combatant from the encounter!"
+                :
+                ''
+        }
+      </Snackbar>
 
 {/* Render Google Floating Action Button */}
 
@@ -320,7 +332,7 @@ const ActiveEncounterScreen = (props) => {
               icon={open ? 'close' : 'dots-vertical'}
               actions={[
                 { icon: 'dice-d20', label: 'Roll Initiative', onPress: () => setDisplayRollModal(true)},
-                { icon: 'undo', label: 'Undo Turn', onPress: () => undoTurn(encounter.state.turn)},
+                { icon: 'undo', label: 'Undo Turn', onPress: () => handleUndo('turn') },
                 { icon: 'arrow-right-circle-outline', label: 'Next Turn', onPress: () => nextTurn(encounter.state.turn)},
               ]}
               onStateChange={({ open }) => setOpen(open)}
@@ -370,11 +382,16 @@ const styles = StyleSheet.create({
   },
   combatantContainer: {
     marginTop: 10,
-    height: '75%',
+    height: '80%',
+    paddingHorizontal: 5,
+  },
+  combatantFormContainer: {
+    marginTop: 10,
+    height: '100%',
     paddingHorizontal: 5,
   },
   modalContainer: {
-    height: '50%',
+    height: '75%',
     backgroundColor: 'white',
     padding: 10,
   },
@@ -388,30 +405,12 @@ const styles = StyleSheet.create({
   modalHeaderText: {
     fontSize: 24,
   },
-  statusContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   button: {
     width: '40%',
-  },
-  statusItem: {
-    flexDirection: 'column',
-  },
-  statusLabel: {
-    fontSize: 18,
-  },
-  countReady: {
-    color: 'green',
-    fontSize: 18,
-  },
-  countNotReady: {
-    color: 'red',
-    fontSize: 20,
   },
   combatantImage: {
 
@@ -456,6 +455,22 @@ const styles = StyleSheet.create({
   },
 });
 
+const mapStateToProps = (state, ownProps) => {
+    state.encounters.past? console.log("Encounter Screen State: ", state.encounters.past.length ) : null;
+    return {
+      encounter: state.encounters.present.encounters.find((encounter) => encounter.id == ownProps.navigation.getParam("id")),
+    }
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    onUndo: () => dispatch(UndoActionCreators.undo()),
+    onRedo: () => dispatch(UndoActionCreators.redo())
+  }
+}
 
+ActiveEncounterScreen = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ActiveEncounterScreen);
 
  export default ActiveEncounterScreen;

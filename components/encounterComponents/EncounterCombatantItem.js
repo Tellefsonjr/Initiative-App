@@ -53,13 +53,28 @@ const EncounterCombatantItem = props => {
           </View>
 
         </View>
-        <View style={{ width: '100%', height: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+        <View style={{ width: '100%', height: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
           <View style={{ width: '5%'}}>
             <Icon size={14} color="grey" name="heart-outline" />
           </View>
           <View style={{ width: '95%', height: 5}}>
             <ProgressBar style={{height: 2}} progress={props.hpPercentage} color={props.hpPercentage > .5? 'green' : 'red'} />
           </View>
+        </View>
+        <View style={{ width: '95%', height: 14, marginVertical: 0, paddingVertical: 0}}>
+        { props.combatant.stats.hp == 0 ?
+          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <Icon name='skull' size={14} color={ props.combatant.stats.deathSaves.failed == -3? "red" : "grey" } />
+            <Icon name='skull' size={14} color={ props.combatant.stats.deathSaves.failed <= -2? "red" : "grey" } />
+            <Icon name='skull' size={14} color={ props.combatant.stats.deathSaves.failed <= -1? "red" : "grey" } />
+            <Icon style={{ marginHorizontal: 5 }}name={props.combatant.cType == 'monster'? 'emoticon-devil-outline' : 'account-outline'} size={14} color="white" />
+            <Icon name='heart-pulse' size={14} color={ props.combatant.stats.deathSaves.succeeded >= 1? "green" : "grey" } />
+            <Icon name='heart-pulse' size={14} color={ props.combatant.stats.deathSaves.succeeded >= 2? "green" : "grey" } />
+            <Icon name='heart-pulse' size={14} color={ props.combatant.stats.deathSaves.succeeded >= 3? "green" : "grey" } />
+          </View>
+          :
+          null
+        }
         </View>
       </View>
       { /*</View> */}
@@ -70,7 +85,9 @@ const EncounterCombatantItem = props => {
 
 const styles = StyleSheet.create({
   listItem: {
-    padding: 15,
+    paddingHorizontal: 15,
+    paddingTop: 15,
+    paddingBottom: 5,
     marginVertical: 5,
     marginHorizontal: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',

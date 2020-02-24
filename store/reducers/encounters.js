@@ -1,3 +1,4 @@
+import undoable, { includeAction } from 'redux-undo';
 import ENCOUNTERS from '../../data/dummy-encounter-data';
 import { ADD, DELETE, UPDATE } from '../actions/encounters';
 import Encounter from '../../models/encounter';
@@ -7,7 +8,7 @@ const initialState = {
   // filteredEncounters: [],
   encounters: ENCOUNTERS,
   filteredEncounters: ENCOUNTERS,
-  selectedEncounter: ENCOUNTERS,
+  selectedEncounter: ENCOUNTERS[0],
 };
 
 const encountersReducer = (state = initialState, action) => {
@@ -31,7 +32,7 @@ const encountersReducer = (state = initialState, action) => {
     case DELETE:
       return { ...state, encounters: state.encounters.filter((encounter) => encounter.id !== action.encounterId ) };
     case UPDATE:
-      console.log('Updated Encounter:::::', action.encounterData);
+      console.log("Updating Redux State: ", action.encounterData.state);
       const encounterIndex = state.encounters.findIndex( enc => enc.id === action.encounterData.id);
       const updatedEncounter = new Encounter(
         action.encounterData.id,
@@ -56,6 +57,10 @@ const encountersReducer = (state = initialState, action) => {
     };
   return state;
 
-}
+};
 
-export default encountersReducer;
+const undoableEncountersReducer = undoable(encountersReducer, {
+  filter: includeAction(UPDATE)
+});
+
+export default undoableEncountersReducer;

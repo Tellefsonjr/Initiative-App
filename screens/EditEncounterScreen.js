@@ -26,7 +26,7 @@ import * as playerActions from '../store/actions/players'; //Redux Actions
 import * as monsterActions from '../store/actions/monsters'; //Redux Actions
 
 const EditEncounterScreen = props => {
-  const encounter = useSelector(state => state.encounters.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
+  const encounter = useSelector(state => state.encounters.present.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
   const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)));
   const monsters = useSelector(state => state.monsters.monsters.filter((monster) => _.matches(encounter.monsters, monster.id)));
 
@@ -109,7 +109,6 @@ const EditEncounterScreen = props => {
       setExpanded(false)
       :
       setExpanded(true);
-    console.log("Expanded: ", expanded, "Type: ", expandedType, "Includes: ", expandedType.includes(type), expandedType);
   };
   const startEncounter = ( ) => {
     console.log("STARTING ENCOUNTER: ");
@@ -129,10 +128,15 @@ const EditEncounterScreen = props => {
             cType: 'monster',
             name: `${m.name} ${i+1}`,
             initiative: encounter.settings.autoRoll.monsters ? roll + m.initiativeBonus : 0,
+            initiativeBonus: m.initiativeBonus,
             stats: {
               maxHp: m.maxHp,
               hp: m.hp,
-              ac: m.ac
+              ac: m.ac,
+              deathSaves: {
+                failed: 0,
+                succeeded: 0
+              }
             }
 
           });
@@ -153,7 +157,11 @@ const EditEncounterScreen = props => {
           stats: {
             maxHp: player.maxHp,
             hp: player.hp,
-            ac: player.ac
+            ac: player.ac,
+            deathSaves: {
+              failed: 0,
+              succeeded: 0
+            }
           }
         });
         updateEncounterHandler(updatedEncounter);

@@ -94,12 +94,13 @@ class DynamicForm extends PureComponent {
           )
   }
   renderNumber = (input, handleChange, values, errors, i) => {
+    console.log("RENDERING THIS ONE: ", input.name, _.get(values, input.name));
     return(
       <TextInput
             name={input.name}
             style={ styles.textInput }
             onChangeText={handleChange(input.name)}
-            value={values[input.name].toString()}
+            value={_.get(values, input.name).toString()}
             label={input.label}
             keyboardType={'number-pad'}
             placeholder={input.placeholder}
@@ -149,19 +150,21 @@ class DynamicForm extends PureComponent {
     const initialValues = this.props.data;
 
       return(
+        <View style={ styles.container }>
         <KeyboardAwareScrollView
           enableOnAndroid={true}
           extraScrollHeight={ Platform.OS == 'ios' ? -50 : 50}
         >
+
             <Formik
             onSubmit={this.props.handleSubmit}
             validationSchema={this.props.validation}
-            validationOnChange={false}
-            validationOnBlur={false}
             initialValues={initialValues}>
             {({handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues }) => (
-              <View>
+              <View style={{ height: '100%' }}>
+              <View style={{ height: '100%'}}>
               { this.renderFields(this.props.fields, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) }
+              </View>
               <View style={styles.buttonContainer}>
                 <Button onPress={this.props.handleCancel} style={styles.button}
                 icon="cancel"
@@ -182,10 +185,13 @@ class DynamicForm extends PureComponent {
                 </Button>
               </View>
               </View>
+
             )
           }
+
           </Formik>
           </KeyboardAwareScrollView>
+          </View>
 
   )
   }
@@ -193,7 +199,7 @@ class DynamicForm extends PureComponent {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    height: '100%'
   },
   button: {
     width: '30%'

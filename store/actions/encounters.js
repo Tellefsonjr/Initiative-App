@@ -1,7 +1,7 @@
 export const ADD = 'ADD_ENCOUNTER';
 export const DELETE = 'DELETE_ENCOUNTER';
 export const UPDATE = 'UPDATE_ENCOUNTER';
-
+export const UNDO = 'UNDO_ENCOUNTER_ACTION';
 
 export const addEncounter = encounter => {
   return { type: ADD, encounterData: encounter }
@@ -13,4 +13,7 @@ export const deleteEncounter = encounterId => {
 
 export const updateEncounter = encounter => {
   return { type: UPDATE, encounterData: encounter }
+};
+export const undoEncounter = encounter => {
+  return { type: UNDO, encounterData: encounter }
 };

@@ -15,8 +15,7 @@ import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 
 const EncountersScreen = props => {
   const dispatch = useDispatch();
-
-  const encounters = useSelector(state => state.encounters.encounters);
+  const encounters = useSelector(state => state.encounters.present.encounters);
   const [ open, setOpen ] = useState( false );
   const [ visible, setVisible ] = useState( false );
   const [ isEditing, setIsEditing ] = useState( false );

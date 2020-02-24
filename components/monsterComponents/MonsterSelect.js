@@ -41,7 +41,7 @@ const MonsterSelect = props => {
       existing.count == 0?
         (setSelectedMonsters( selectedMonsters.filter( (selected) => selected.count !== 0 ) ))
       :
-        (console.log("Count is now <1"));
+        (console.log("Count is now >=1"));
     console.log("Selected Monsters after Decrease", selectedMonsters);
     props.submitable? null : handleSubmit(selectedMonsters);
     setRefresh(!refresh);
