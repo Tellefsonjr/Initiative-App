@@ -37,7 +37,7 @@ const MonsterSelectItem = props => {
             </View>
             <View style={{ alignItems: 'center'}}>
               <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.size } </Text>
-              <Icon color="white" size={16} name="tape-measure" />
+              <Icon color="white" size={16} name="ruler" />
             </View>
             <View style={{ alignItems: 'center'}}>
               <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.cr } </Text>

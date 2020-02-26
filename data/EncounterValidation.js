@@ -15,6 +15,12 @@ const validation = Yup.object().shape({
   party: Yup.object().shape({
     title: Yup.string("Please enter a title for this party below."),
   }),
+  settings: Yup.object().shape({
+    autoRoll: Yup.object().shape({
+      monsters: Yup.boolean(),
+      players: Yup.boolean(),
+    })
+  })
 
 });
 
