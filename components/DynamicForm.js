@@ -162,7 +162,7 @@ class DynamicForm extends PureComponent {
             initialValues={initialValues}>
             {({handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues }) => (
               <View style={{ height: '100%' }}>
-              <View style={{ height: '100%'}}>
+              <View style={{ }}>
               { this.renderFields(this.props.fields, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) }
               </View>
               <View style={styles.buttonContainer}>

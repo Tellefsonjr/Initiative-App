@@ -42,24 +42,12 @@ const EncounterCombatantItem = props => {
               <Text allowsFontScaling style={ styles.combatantStatText}> { props.combatant.stats.ac } </Text>
             </View>
             {/* TO DO: If user != encounter creator, hide Monster HP */}
-            <View style={ styles.statItem }>
-              <Icon size={18} color="grey" name="heart-outline" />
-              <Text allowsFontScaling style={ styles.combatantStatText }> { props.combatant.stats.hp } </Text>
-            </View>
             <View style={ styles.statItem  }>
               <Icon size={18} color="grey" name="dice-d20" />
               <Text allowsFontScaling style={ styles.combatantStatText}> { props.combatant.initiative } </Text>
             </View>
           </View>
 
-        </View>
-        <View style={{ width: '100%', height: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-          <View style={{ width: '5%'}}>
-            <Icon size={14} color="grey" name="heart-outline" />
-          </View>
-          <View style={{ width: '95%', height: 5}}>
-            <ProgressBar style={{height: 2}} progress={props.hpPercentage} color={props.hpPercentage > .5? 'green' : 'red'} />
-          </View>
         </View>
         <View style={{ width: '95%', height: 14, marginVertical: 0, paddingVertical: 0}}>
         { props.combatant.stats.hp == 0 ?
@@ -75,6 +63,17 @@ const EncounterCombatantItem = props => {
           :
           null
         }
+        </View>
+        <View style={{ width: '100%', height: 14, flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ width: '5%', flexDirection: 'column', alignItems: 'flex-start'}}>
+            <Icon size={14} color={ props.hpPercentage > .66? 'green' : props.hpPercentage <= .66 && props.hpPercentage >= .33? 'orange' : 'red' } name="heart-outline" />
+          </View>
+          <View style={{ width: '80%', height: 5, paddingTop: 1,}}>
+            <ProgressBar style={{height: 2}} progress={props.hpPercentage} color={props.hpPercentage > .66? 'green' : props.hpPercentage <= .66 && props.hpPercentage >= .33? 'orange' : 'red'} />
+          </View>
+          <View style={{ width: '15%', alignItems: 'center'}}>
+            <Text style={{ fontSize: 12, color: 'white'}}> {props.combatant.stats.hp}/{props.combatant.stats.maxHp}</Text>
+          </View>
         </View>
       </View>
       { /*</View> */}

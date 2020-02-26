@@ -23,7 +23,7 @@ import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, players, ...props}) => {
   const [ open, setOpen ] = useState(false);
   const [ detailModalVisible, setDetailModalVisible ] = useState(false);
-  const [ displayRollModal, setDisplayRollModal ] = useState( encounter.state.turn == 0? true : false );
+  const [ displayRollModal, setDisplayRollModal ] = useState( encounter.state.turn == 0 || encounter.combatants.filter( c => c.initiative == 0).length > 0? true : false );
   const [ showUndo, setShowUndo ] = useState(false);
   const [ lastAction, setLastAction ] = useState({});
   const [ selectedCombatant, setSelectedCombatant ] = useState(encounter.combatants[0]);
@@ -36,8 +36,28 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
   const dispatch = useDispatch();
 
   const saveInitiative = ( newCombatants ) => {
-    encounter.combatants = newCombatants;
-    nextTurn(encounter.state.turn);
+    if( encounter.state.turn == 0){
+      console.log("________ STATE = 0 _____ SAVEINITIATIVE");
+      encounter.combatants = newCombatants;
+      startEncounter();
+    } else {
+      nextTurn(encounter.state.turn);
+    }
+  };
+  const startEncounter = () => {
+    const updatedEncounter = encounter;
+    !updatedEncounter.active ? updatedEncounter.active = true : null;
+    setLastAction( {
+      type: 'turn',
+      prevState: encounter,
+    });
+    if(updatedEncounter.state.turn == 0){
+      console.log("STARTING ENCOUNTER, TURN 0_____");
+      updatedEncounter.combatants = _.sortBy(updatedEncounter.combatants, ['initiative'], 'desc').reverse();
+      dispatch(encounterActions.updateEncounter(updatedEncounter));
+    };
+    nextTurn(updatedEncounter.state.turn);
+
   };
   const nextTurn = ( turn ) => {
     setLastAction( {
@@ -45,21 +65,20 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
       prevState: encounter,
     });
     const updatedEncounter = encounter;
-    !updatedEncounter.active ? updatedEncounter.active = true : null;
-    if(turn == 0){
-      updatedEncounter.combatants = _.sortBy(updatedEncounter.combatants, ['initiative'], 'desc').reverse();
-    } else {
+    // Handle shift array if not turn 0
+    if( encounter.state.turn > 0){
       let first = updatedEncounter.combatants[0];
       updatedEncounter.combatants.splice(0, 1);
       updatedEncounter.combatants.push(first);
-    }
-    updatedEncounter.state.round == 0? updatedEncounter.state.round = 1 : null;
-    updatedEncounter.state.turn ++;
+    };
     if( updatedEncounter.state.turn % updatedEncounter.combatants.length == 0 ){
       updatedEncounter.state.round++;
     } else {
       null;
     }
+    // Handle turn logic no matter what
+    updatedEncounter.state.round == 0? updatedEncounter.state.round = 1 : null;
+    updatedEncounter.state.turn ++;
     dispatch(encounterActions.updateEncounter(updatedEncounter));
     setShowUndo(true);
     displayRollModal? setDisplayRollModal(false) : null;
