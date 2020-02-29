@@ -68,6 +68,8 @@ const EditEncounterScreen = props => {
     const newEncounter = encounter;
     // console.log("New encounter: ", newEncounter);
     newEncounter.party.players = newEncounter.party.players.filter(p => p != playerId);
+    newEncounter.combatants = newEncounter.combatants.filter(p => p.refId != playerId);
+
     // console.log("New encounter after: ", newEncounter);
     updateEncounterHandler(newEncounter);
   };
@@ -133,7 +135,7 @@ const EditEncounterScreen = props => {
             type: m.type,
             cr: m.cr,
             cType: 'monster',
-            name: `${m.name} ${i+1}`,
+            name: `${m.name} ${String.fromCharCode(i+1+64)}`,
             initiative: encounter.settings.autoRoll.monsters ? roll + m.initiativeBonus : 0,
             initiativeBonus: m.initiativeBonus,
             stats: {
@@ -159,30 +161,30 @@ const EditEncounterScreen = props => {
       });
       players.forEach( player => {
         // skip player if combatants already contains it
-        let roll = Math.floor(Math.random() * 20) + 1;
-        console.log(player.name, "rolled :", roll, "+", player.initiativeBonus);
-        const newCombatant = {
-          cId: Math.random(),
-          refId: player.id,
-          cType: 'player',
-          name: player.name,
-          className: player.className,
-          level: player.level,
-          initiativeBonus: player.initiativeBonus,
-          initiative: encounter.settings.autoRoll.players ? roll + player.initiativeBonus : 0,
-          stats: {
-            maxHp: player.maxHp,
-            hp: player.hp,
-            ac: player.ac,
-            deathSaves: {
-              failed: 0,
-              succeeded: 0
-            }
-          }
-      };
         if( _.some(encounter.combatants, [ 'refId', player.id ])){
           console.log("Skipping player", player.name);
         } else {
+          let roll = Math.floor(Math.random() * 20) + 1;
+          console.log(player.name, "rolled :", roll, "+", player.initiativeBonus);
+          const newCombatant = {
+            cId: Math.random(),
+            refId: player.id,
+            cType: 'player',
+            name: player.name,
+            className: player.className,
+            level: player.level,
+            initiativeBonus: player.initiativeBonus,
+            initiative: encounter.settings.autoRoll.players ? roll + player.initiativeBonus : 0,
+            stats: {
+              maxHp: player.maxHp,
+              hp: player.hp,
+              ac: player.ac,
+              deathSaves: {
+                failed: 0,
+                succeeded: 0
+              }
+            }
+        };
           if(encounter.active){
             // Encounter already going on, find index to place new Combatant
             pushNewCombatant(newCombatant);
@@ -191,6 +193,8 @@ const EditEncounterScreen = props => {
             // Encounter not active, just push into combatants
             encounter.combatants.push(newCombatant);
           }
+
+
         }
     });
     updateEncounterHandler(encounter);
@@ -199,44 +203,52 @@ const EditEncounterScreen = props => {
   };
   const pushNewCombatant = (newCombatant) => {
     console.log(" PUSHING: ", newCombatant.name);
-    for(var index=0; index < encounter.combatants.length - 1; index++){
-      let combatant = encounter.combatants[index];
-      let nextPosition = index == encounter.combatants.length - 1 ? 0 : index + 1;
-      let current = combatant.initiative;
-      let newI = newCombatant.initiative;
-      let next = encounter.combatants[nextPosition].initiative;
-      if( newI <= current
-          &&
-          newI >= next
-        ){
-        console.log( `~~~~~Found a spot for ${newCombatant.name} (${newI}) between ${combatant.name}[${index}] (${current}) and ${encounter.combatants[nextPosition].name}[${nextPosition}] (${next})` );
-        encounter.combatants.splice(nextPosition, 0, newCombatant);
-        break
-      } else if(  current < next
-              &&
-              newI <= current
-              &&
-              newI <= next
-            && nextPosition != 0 ){
-          console.log( `~~~~~Got to the end of initiative! ${newCombatant.name} (${newI}) between ${combatant.name}[${index}] (${current}) and ${encounter.combatants[nextPosition].name}[${nextPosition}] (${next})` )
-          encounter.combatants.splice(nextPosition, 0, newCombatant);
-          break
-
-      } else if( newI <= current
-              &&
-              newI <= next
-            && nextPosition == 0 ){
-        console.log( `~~~~~Got to the end of list! ${newCombatant.name} (${newI}) between ${combatant.name}[${index}] (${current}) and ${encounter.combatants[nextPosition].name}[${nextPosition}] (${next})` )
+    let topCombatant = _.maxBy(encounter.combatants, 'initiative');
+    // console.log("TOP INDEX::: ", topCombatant);
+    let bottomCombatant = _.minBy(encounter.combatants, 'initiative');
+    if (newCombatant.initiative >= topCombatant.initiative){
+      let topIndex = _.findIndex(encounter.combatants, topCombatant);
+      // console.log(`Top: This player: ${newCombatant.name} (${newCombatant.initiative}) is greater than top: ${topCombatant.name} (${topIndex})`);
+      encounter.combatants.splice( topIndex, 0, newCombatant);
+    } else if ( newCombatant.initiative <= bottomCombatant.initiative ){
+      let bottomIndex = _.findIndex(encounter.combatants, bottomCombatant);
+      if (bottomIndex == encounter.combatants.length - 1){
+        // console.log(`Bottom of list: This player: ${newCombatant.name} (${newCombatant.initiative}) is less than bottom: ${bottomCombatant.name} (${bottomIndex})`);
         encounter.combatants.push(newCombatant);
-        break
-      } else if (
-        newCombatant.initiative == 0
-      ){
-        encounter.combatants.push(newCombatant);
-        break
+      } else if (bottomIndex == 0 && encounter.combatants.length > 1) {
+        // console.log(`Top of list: This player: ${newCombatant.name} (${newCombatant.initiative}) is less than bottom: ${bottomCombatant.name} (${bottomIndex})`);
+        encounter.combatants.splice(bottomIndex+1, 0, newCombatant);
+      }else {
+        // console.log(`End of Initiative: This player: ${newCombatant.name} (${newCombatant.initiative}) is less than bottom: ${bottomCombatant.name} (${bottomIndex})`);
+        encounter.combatants.splice(bottomIndex, 0, newCombatant);
       }
-
+    } else {
+      // console.log("Not > top or < bottom");
+      for(var index=0; index <= encounter.combatants.length - 1; index++){
+        // console.log("Looping:::");
+        let combatant = encounter.combatants[index];
+        let nextPosition = index == encounter.combatants.length - 1 ? 0 : index + 1;
+        let current = combatant.initiative;
+        let newI = newCombatant.initiative;
+        let next = encounter.combatants[nextPosition].initiative;
+        // console.log("Current: ", current, "Next: ", next, "New Init: ", newI);
+         if ( newI <= current && newI >= next && nextPosition != 0 ) {
+           // console.log("Not top or bottom, found a position between", current, "and ", next);
+           encounter.combatants.splice(nextPosition, 0, newCombatant);
+           break
+         } else if (newI <= current && newI >= next && nextPosition == 0) {
+           // console.log("Got to the end and found a spot after", combatant.name, current);
+           encounter.combatants.push(newCombatant);
+           break
+         }else if (
+          newCombatant.initiative == 0
+        ){
+          encounter.combatants.push(newCombatant);
+          break
+        };
+      }
     }
+
   };
  return (
    <ImageBackground source={require('../assets/images/bg.jpg')} style={styles.backgroundImage} >

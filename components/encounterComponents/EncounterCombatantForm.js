@@ -14,7 +14,7 @@ import DynamicForm from "../DynamicForm";
 import validation from '../../data/CombatantValidation';
 
 const EncounterCombatantForm = props => {
-  console.log("FORM COMBATANTS AND Player Count: ", props.combatants, props.playerCount);
+  // console.log("FORM COMBATANTS AND Player Count: ", props.combatants, props.playerCount);
   const [combatants, setCombatants] = useState(props.combatants);
   const [ autoRoll, setAutoRoll ] = useState( props.autoRoll );
   const [ combatantCount , setCombatantCount ] = useState( {
