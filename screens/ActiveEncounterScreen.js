@@ -139,6 +139,8 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
       if(updatedItem.count == 0){
         updatedEncounter.monsters = _.reject( updatedEncounter.monsters, {'id': removedCombatant.refId});
       }
+    } else {
+      updatedEncounter.party.players = _.reject( updatedEncounter.party.players, removedCombatant.refId );
     };
     newCombatants = _.reject( updatedEncounter.combatants, {'cId': removedCombatant.cId} );
     updatedEncounter.combatants = newCombatants;
@@ -298,11 +300,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
                   </View>
                 </Dialog.Content>
                 <Dialog.Actions>
-                  { selectedCombatant.stats.hp == 0 ?
-                    <Button onPress={() => removeCombatant(selectedCombatant) }>Remove</Button>
-                    :
-                    null
-                  }
+                  <Button onPress={() => removeCombatant(selectedCombatant) }>Remove</Button>
                   <Button onPress={() => setShowActionDialog(false) }>Dismiss</Button>
                 </Dialog.Actions>
               </Dialog>
@@ -392,6 +390,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 5,
+    paddingBottom: 15,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(78, 78, 78, 0.9)',
   },
@@ -400,7 +399,6 @@ const styles = StyleSheet.create({
     color: "white",
   },
   combatantContainer: {
-    marginTop: 10,
     height: '80%',
     paddingHorizontal: 5,
   },
