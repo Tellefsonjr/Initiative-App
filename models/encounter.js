@@ -1,11 +1,11 @@
 class Encounter {
-  constructor(id, title, campaign, description, difficulty, party, monsters, allies, settings, active, state, combatants){
+  constructor(id, title, campaign, description, difficulty, partyId, monsters, allies, settings, active, state, combatants){
     this.id = id;
     this.title = title;
     this.campaign = campaign;
     this.description = description;
     this.difficulty = difficulty;
-    this.party = party;
+    this.partyId = partyId;
     this.monsters = monsters;
     this.allies = allies;
     this.settings = settings;

@@ -13,7 +13,7 @@ const validation = Yup.object().shape({
   type: Yup.string()
     .matches(/^(?!.*(default))/, "Please choose a different type."),
   cr: Yup.string()
-    .matches(numericFraction, "Level must be a number.")
+    .matches(numericFraction, "CR must be a fraction or number.")
     .max(20),
   hp: Yup.number()
     .typeError("HP must be a number.")

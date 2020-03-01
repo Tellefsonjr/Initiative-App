@@ -22,11 +22,7 @@ const playersReducer = (state = initialState, action) => {
         action.playerData.id,
         action.playerData.name,
         action.playerData.className,
-        action.playerData.level,
-        action.playerData.maxHp,
-        action.playerData.hp,
-        action.playerData.ac,
-        action.playerData.initiativeBonus,
+        action.playerData.stats,
       );
       return { ...state, players: state.players.concat( newPlayer ) };
     case UPDATE:
@@ -35,12 +31,7 @@ const playersReducer = (state = initialState, action) => {
           action.playerData.id,
           action.playerData.name,
           action.playerData.className,
-          action.playerData.level,
-          action.playerData.maxHp,
-          action.playerData.hp,
-          action.playerData.ac,
-          action.playerData.initiativeBonus,
-          action.playerData.initiative,
+          action.playerData.stats,
         );
         const updatedPlayers = [ ...state.players ];
         updatedPlayers[playerIndex] = updatedPlayer;

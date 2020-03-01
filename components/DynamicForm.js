@@ -10,7 +10,7 @@ import {
 import { Formik, FieldArray, Field } from 'formik';
 import { withFormikControl } from 'react-native-formik';
 import Colors from '../constants/Colors';
-import { Button, TextInput, Menu } from 'react-native-paper';
+import { Button, TextInput, Menu, RadioButton } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Switch from './SwitchComponent';
 import * as _ from 'lodash';
@@ -36,7 +36,7 @@ class DynamicForm extends PureComponent {
           prompt={ input.label }
         >
         {input.subType == 'party' ?
-          <Picker.Item name={input.name} label='New Party' value={ { title: '', players: [], id: new Date().toString() } } />
+          <Picker.Item name={input.name} label='New Party' value={ initialValues.party } />
           :
           <Picker.Item name={input.name} label='Select an option' value='default' />
         }
@@ -57,8 +57,8 @@ class DynamicForm extends PureComponent {
         </Picker>
         { //If Party && default option, render party title input
           (input.subType == 'party') ?
-            ( values.party.title === '' ?
-              this.renderText({label: 'Party Title', type: 'input', name: 'party.title', placeholder: 'Party Title (Required)' }, handleChange, values, errors)
+            ( values[input.name].id == initialValues.party.id ?
+              this.renderText({label: 'Party Title', type: 'input', name: 'party.title', placeholder: '', size: 'lrg' }, handleChange, values, errors)
               :
                 <TextInput style={ styles.textInput } disabled value={ values.party.title }/>
               )
@@ -86,19 +86,18 @@ class DynamicForm extends PureComponent {
       )
   }
   renderSwitch = (input, setFieldValue, values, errors, i) => {
-    console.log("VALUES : ", values);
-    let inputName = input.name;
-    return( <Switch input={input} setFieldValue={setFieldValue}
-              value={ _.get( values, input.name)} errors={errors} i={i}
-            />
+    return(
+      <Switch
+        input={input} setFieldValue={setFieldValue}
+        value={ _.get( values, input.name)} errors={errors} i={i}
+      />
           )
   }
   renderNumber = (input, handleChange, values, errors, i) => {
-    console.log("RENDERING THIS ONE: ", input.name, _.get(values, input.name));
     return(
       <TextInput
             name={input.name}
-            style={ styles.textInput }
+            style={ [_.get(styles, `text${input.size}`), styles.textInput] }
             onChangeText={handleChange(input.name)}
             value={_.get(values, input.name).toString()}
             label={input.label}
@@ -112,7 +111,6 @@ class DynamicForm extends PureComponent {
 
 
   renderInput = (input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i) => {
-    console.log("RENDERING INPUTS: !~~~~~~~~~~~~!", input.type);
     switch (input.type) {
       case 'select':
         return(this.renderSelect(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, i, initialValues));
@@ -126,23 +124,49 @@ class DynamicForm extends PureComponent {
     }
   }
   renderFields = (inputs, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) => {
-    return inputs.map((input, i) => {
-      return(
-        <View key={input.name} style={styles.input} name={input.name}>
-          <View>
-            {
-              this.renderInput(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i)
+    return(
+      <View>
+      {inputs.map((input, i) => {
+        if(input.length > 1){
+          return(
+            <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-around'}} name={i}>
+            {input.map((subInput, index) => {
+            return(
+                <View key={subInput.name} style={ subInput.size? [_.get(styles, subInput.size), styles.input]: ''}>
+                  {
+                    this.renderInput(subInput, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, index)
 
-            }
+                  }
+                  { (errors[subInput.name] ?
+                    <Text name={subInput.name} style={{ fontSize: 10, color: 'red' }}>{errors[subInput.name]}</Text>
+                    : null )
+                  }
+                </View>
+              );
+            })}
+            </View>
+          );
+        } else {
+          return(
+            <View key={input.name} style={ input.size? [_.get(styles, input.size), styles.input]: ''}  name={input.name}>
+              <View>
+                {
+                  this.renderInput(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i)
 
-              { (errors[input.name] ?
-                <Text name={input.name} style={{ fontSize: 10, color: 'red' }}>{errors[input.name]}</Text>
-                : null )
-              }
-          </View>
-        </View>
-        )
-      });
+                }
+
+                  { (errors[input.name] ?
+                    <Text name={input.name} style={{ fontSize: 10, color: 'red' }}>{errors[input.name]}</Text>
+                    : null )
+                  }
+              </View>
+            </View>
+            )
+        }
+        })
+      }
+      </View>
+    )
   }
 
 
@@ -159,12 +183,11 @@ class DynamicForm extends PureComponent {
             <Formik
             onSubmit={this.props.handleSubmit}
             validationSchema={this.props.validation}
+            validateOnBlur={true}
             initialValues={initialValues}>
             {({handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues }) => (
               <View style={{ height: '100%' }}>
-              <View style={{ }}>
               { this.renderFields(this.props.fields, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) }
-              </View>
               <View style={styles.buttonContainer}>
                 <Button onPress={this.props.handleCancel} style={styles.button}
                 icon="cancel"
@@ -203,6 +226,24 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '30%'
+  },
+  sm: {
+    width: '30%',
+  },
+  textsm: {
+    fontSize: 14,
+  },
+  med: {
+    width: '40%',
+  },
+  textmed: {
+    fontSize: 16
+  },
+  lrg: {
+    width: '100%',
+  },
+  textlrg: {
+    fontSize: 18
   },
   buttonContainer: {
     flexDirection: 'row',

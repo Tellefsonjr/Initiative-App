@@ -36,11 +36,11 @@ const PlayerItem = props => {
             <Icon size={16} color="grey" name="tag-outline" />
           </View>
           <View style={ styles.statItem }>
-            <Text allowsFontScaling style={ styles.playerStatText}> lv { props.player.level } </Text>
+            <Text allowsFontScaling style={ styles.playerStatText}> lv { props.player.stats.level } </Text>
             <Icon size={16} color="grey" name="account-star-outline" />
           </View>
           <View style={ styles.statItem }>
-            <Text allowsFontScaling style={ styles.playerStatText}> { props.player.hp } </Text>
+            <Text allowsFontScaling style={ styles.playerStatText}> { props.player.stats.hp } </Text>
             <Icon size={16} color="grey" name="heart-outline" />
           </View>
         </View>

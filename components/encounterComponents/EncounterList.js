@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, FlatList, StyleSheet, Dimensions } from 'react-native';
-
+import * as _ from 'lodash';
 
 import EncounterItem from './EncounterItem';
 
@@ -18,9 +18,10 @@ const EncounterList = props => {
 
 
   const renderEncounter = (itemData, i) => {
+    let party = _.find(props.parties, ['id', itemData.item.partyId]);
     return (
 
-        <EncounterItem index={itemData.index} encounter={ itemData.item } onEdit={ editEncounterHandler } onDelete={ removeEncounterHandler } navigate={ props.navigate }/>
+        <EncounterItem index={itemData.index} encounter={ itemData.item } party={ party } onEdit={ editEncounterHandler } onDelete={ removeEncounterHandler } navigate={ props.navigate }/>
     )
 
   };
@@ -28,7 +29,7 @@ const EncounterList = props => {
   return (
     <View style={ styles.listContainer }>
       <FlatList
-        extraData={ props.encounters }
+        extraData={ props.encounters, props.parties }
         keyExtractor={(item, index) => index.toString()}
         data={ props.encounters }
         renderItem={ renderEncounter.bind(this) }

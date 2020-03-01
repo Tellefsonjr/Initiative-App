@@ -28,7 +28,7 @@ const EncounterCombatantForm = props => {
     combatants.forEach( (combatant, index) => {
       if((combatant.cType == 'player' && autoRoll.players == false) || (combatant.cType == 'monster' && autoRoll.monsters == false)){
           fields.push(
-          {label: `${combatant.name} Initiative +${combatant.initiativeBonus}`, type: 'input-number', name: `[${index}].initiative`, placeholder: 'Initiative (max 20)'}
+          {label: `${combatant.name} Initiative +${combatant.stats.initiativeBonus}`, type: 'input-number', name: `[${index}].initiative`, placeholder: 'Initiative (max 20)'}
           )
       }
       });
@@ -37,7 +37,7 @@ const EncounterCombatantForm = props => {
 
   const handleSubmit = (combatants) => {
     combatants.map( combatant => {
-      combatant.initiative = parseInt(combatant.initiative, 10) + combatant.initiativeBonus;
+      combatant.initiative = parseInt(combatant.initiative, 10) + combatant.stats.initiativeBonus;
     });
     props.handleSubmit(combatants);
   };

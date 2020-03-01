@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Platform } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import { Dialog, Portal, Provider, Button } from 'react-native-paper';
 
+import * as _ from 'lodash';
 
 import MonsterItem from './MonsterItem';
+import MonsterDetailModal from './MonsterDetailModal';
 
 const MonsterList = props => {
-  const [ monsters, setMonsters ] = useState( useSelector(state => state.monsters.monsters) );
-  const [ selectedMonsters, setSelectedMonsters ] = useState( props.monsters.map( pmonster => monsters.map( monster => monster.id == pmonster.id)));
+  const [ visible, setVisible ] = useState(false);
+  const [ selectedMonster, setSelectedMonster ] = useState(props.monsters[0]);
+
   const handlePress = (id) => {
     props.handlePress(id);
   };
@@ -18,20 +22,29 @@ const MonsterList = props => {
   const removeMonsterHandler = (id) => {
     props.removeMonsterHandler(id);
   };
+  const showDetailModal = (monster) => {
+    setSelectedMonster(monster);
+    console.log("Long boi");
+    setVisible(true);
+  };
+  const hideDetailModal = () => {
+    setVisible(false);
+  };
 
-
-  const renderMonster = (itemData, i) => {
-    // console.log("ITEMDATA", itemData);
-    // console.log("Monster Instance", itemData.item.constructor.name);
+  const renderMonster = (monster, index) => {
+    // console.log("ITEMDATA", monster);
+    // console.log("Monster Instance", monster.constructor.name);
     return (
 
         <MonsterItem
-          key={ itemData.item.id }
-          index={itemData.index}
-          id={itemData.item.id}
-          monster={ itemData.item }
+          key={ monster.id }
+          index={monster.index}
+          id={monster.id}
+          monster={ monster }
+          count={ _.find(props.monsterCount, {id: monster.id}).count }
           onEdit={ editMonsterHandler }
           handlePress={ handlePress }
+          handleLongPress={ () => showDetailModal(monster)}
         />
     )
 
@@ -39,13 +52,16 @@ const MonsterList = props => {
   };
 
   return (
+
     <View style={ styles.container }>
-      <FlatList
-        contentContainerStyle={ styles.listContainer }
-        keyExtractor={(item, index) => item.id}
-        data={ selectedMonsters }
-        renderItem={ renderMonster.bind(this) }
-      />
+      {
+        props.monsters.map( (monster, index) => {
+          return(renderMonster(monster, index));
+        })
+      }
+      <Portal>
+        <MonsterDetailModal monster={selectedMonster} visible={visible} onDismiss={() => setVisible(false)}/>
+      </Portal>
     </View>
   )
 
@@ -55,7 +71,6 @@ const styles = StyleSheet.create({
   container: {
   },
   listContainer: {
-    height: '100%',
     width: '100%',
     justifyContent: 'center',
     padding: 5,

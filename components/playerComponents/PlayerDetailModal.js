@@ -4,9 +4,22 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button, IconButton, Avatar, Modal, Portal, Badge } from 'react-native-paper';
+import * as _ from 'lodash';
 
 const PlayerDetailModal = props => {
 
+  const renderAbilityScores = (array) => {
+    const views = array.map( (abilityScore, i) => {
+      let bonuses = props.player.stats.abilityScoreBonus;
+      return(
+        <View key={i} style={ styles.abilityScoreItem }>
+          <Text style={{ fontSize: 18 }} > {_.slice(_.startCase(abilityScore), 0, 3)}: {props.player.stats.abilityScores[abilityScore] } </Text>
+          <Badge style={{color: 'white', backgroundColor: 'grey'}}>+{bonuses[abilityScore]}</Badge>
+        </View>
+      )
+    });
+    return (views);
+  }
   return (
       <Modal
         visible={ props.visible }
@@ -20,17 +33,19 @@ const PlayerDetailModal = props => {
               source= { require("../../assets/images/whtenemy.png") }
             />
             <Text style={{ fontSize: 28, fontWeight: 'bold', marginRight: 5,}}> { props.player.name } </Text>
-            <Text style={{ fontSize: 24, color: 'grey', fontStyle: 'italic'}}> Level { props.player.level } </Text>
-            <Text style={{ fontSize: 24, color: 'grey', fontStyle: 'italic'}}> { props.player.className } </Text>
           </View>
-          <View style={{ flexDirection: 'row', }}>
+          <View style={{ flexDirection: 'row', marginLeft: 24}}>
+            <Text style={{ fontSize: 22, color: 'grey', fontStyle: 'italic'}}> Level { props.player.stats.level } </Text>
+            <Text style={{ fontSize: 22, color: 'grey', fontStyle: 'italic'}}> { props.player.className } </Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
             <View style={ styles.headerStats }>
               <Icon name='shield-outline' size={20} />
               <Text style={{ fontSize: 18 }}> Armor Class: { props.player.stats.ac } </Text>
             </View>
             <View style={ styles.headerStats }>
               <Icon name='dice-d20' size={20} />
-              <Text style={{ fontSize: 18 }}> Initiative: +{ props.player.initiativeBonus } </Text>
+              <Text style={{ fontSize: 18 }}> Initiative: +{ props.player.stats.initiativeBonus } </Text>
             </View>
             <View style={ styles.headerStats }>
               <Icon name='heart-outline' size={20} />
@@ -47,33 +62,16 @@ const PlayerDetailModal = props => {
               </Text>
             </View>
             <View style={ styles.abilityScoreContainer}>
-              <View style={ styles.abilityScoreItem }>
-                <Text style={{ fontSize: 18 }} > Str: _ </Text>
-                <Badge style={{color: 'white', backgroundColor: 'grey'}}>+2</Badge>
-              </View>
-              <View style={ styles.abilityScoreItem }>
-                <Text style={{ fontSize: 18 }} > Dex: _ </Text>
-                <Badge style={{color: 'white', backgroundColor: 'grey'}}>+2</Badge>
-              </View>
-              <View style={ styles.abilityScoreItem }>
-                <Text style={{ fontSize: 18 }} > Con: _ </Text>
-                <Badge style={{color: 'white', backgroundColor: 'grey'}}>+2</Badge>
-              </View>
-            </View>
+            {
+              renderAbilityScores(['strength', 'dexterity', 'constitution'])
+            }
 
+            </View>
             <View style={ styles.abilityScoreContainer}>
-              <View style={ styles.abilityScoreItem }>
-                <Text style={{ fontSize: 18 }} > Int: _ </Text>
-                <Badge style={{color: 'white', backgroundColor: 'grey'}}>+2</Badge>
-              </View>
-              <View style={ styles.abilityScoreItem }>
-                <Text style={{ fontSize: 18 }} > Wis: _ </Text>
-                <Badge style={{color: 'white', backgroundColor: 'grey'}}>+2</Badge>
-              </View>
-              <View style={ styles.abilityScoreItem }>
-                <Text style={{ fontSize: 18 }} > Cha: _ </Text>
-                <Badge style={{color: 'white', backgroundColor: 'grey'}}>+2</Badge>
-              </View>
+            {
+              renderAbilityScores(['intelligence', 'wisdom', 'charisma'])
+            }
+
             </View>
 {/* Saving Throws */}
             <View style={{ marginVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.7)',}}>
@@ -153,7 +151,7 @@ const PlayerDetailModal = props => {
 
         </View>
         <View style={ styles.buttonContainer }>
-          <Button onPress={() => props.onDismiss }>Dismiss</Button>
+          <Button onPress={props.onDismiss }>Dismiss</Button>
         </View>
       </Modal>
   );

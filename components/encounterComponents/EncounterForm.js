@@ -15,20 +15,20 @@ import validation from '../../data/EncounterValidation';
 
 const EncounterForm = props => {
   const parties = useSelector(state => state.parties.parties);
-  console.log(parties);
+  console.log("PARTIES AT ENCOUNTER FORM: ", parties);
   //If encounter, set initial values to current encounter
   const [ encounter, setEncounter ] = useState(
     props.encounter ? props.encounter :
     {
-      id: new Date().toString(),
+      id: Math.random().toString(),
       title: "",
       campaign: "",
       description: "",
       difficulty: 0,
       party: {
-        id: new Date().toString(),
+        id: Math.random().toString(),
         title: '',
-        players: []
+        players: [],
       },
       monsters: [],
       allies: [],
@@ -46,19 +46,17 @@ const EncounterForm = props => {
       combatants: [],
     }
   );
-  const defaultParty = {
-    id: new Date().toString(),
-    title: '',
-    players: []
-  };
 
   const fields = [
-    {label: 'Title', type: 'input', name: 'title', placeholder: 'Encounter Title (Required)'},
-    {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'Campaign (Optional)'},
-    {label: 'Description', type: 'input', name: 'description', placeholder: 'Description (Optional)'},
-    {label: 'Party', type: 'select', subType: 'party', name: 'party', data: parties, default: defaultParty, },
-    {label: 'Auto Roll - Monsters', type: 'switch', name: 'settings.autoRoll.monsters', size: 'med'},
-    {label: 'Auto Roll - Players', type: 'switch', name: 'settings.autoRoll.players', size: 'med' },
+      {label: 'Title', type: 'input', name: 'title', placeholder: 'max: 25 characters', size:'lrg'},
+      {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'max: 25 characters', size: 'lrg'},
+      {label: 'Description', type: 'input', name: 'description', placeholder: 'max: 255 characters', size: 'lrg'},
+      {label: 'Party', type: 'select', subType: 'party', name: 'party', data: parties, size: 'lrg'},
+      [
+        {label: 'Auto Roll - Monsters', type: 'switch', name: 'settings.autoRoll.monsters', size: 'med'},
+        {label: 'Auto Roll - Players', type: 'switch', name: 'settings.autoRoll.players', size: 'med' },
+      ],
+
   ];
 
   const handleSubmit = (encounter) => {

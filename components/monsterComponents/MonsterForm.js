@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Keyboard, KeyboardAvoidingView, Form, TouchableWithoutFeedback} from 'react-native';
 import { Formik } from 'formik';
 import { Button, TextInput, HelperText, ToggleButton } from 'react-native-paper';
-
+import * as _ from 'lodash';
 import DynamicForm from "../DynamicForm";
 import validation from '../../data/MonsterValidation';
 
@@ -19,16 +19,35 @@ const MonsterForm = props => {
     type: '',
     size: '',
     cr: '',
-    hp: '',
-    ac: '',
-    initiativeBonus: '',
-    initiative: '',
+    stats: {
+      maxHp: '',
+      hp: '',
+      ac: '',
+      initiativeBonus: '',
+      deathSaves: { succeeded: 0, failed: 0 },
+      abilityScores: {
+        strength: '',
+        dexterity: '',
+        constitution: '',
+        intelligence: '',
+        wisdom: '',
+        charisma: ''
+      },
+      abilityScoreBonus: {
+        strength: '',
+        dexterity: '',
+        constitution: '',
+        intelligence: '',
+        wisdom: '',
+        charisma: ''
+      },
+    }
   });
 
   const fields = [
-    {label: 'Name', type: 'input', name: 'name', placeholder: 'Monster name (Required)'},
+    {label: 'Name', type: 'input', name: 'name', placeholder: 'Monster name (Required)', size: 'lrg'},
     // {label: 'Class', type: 'input', name: 'className', placeholder: 'Class name (Required)'},
-    {label: 'Select Type', type: 'select', name: 'type', default: 'default', data: [
+    {label: 'Select Type', type: 'select', name: 'type', default: 'default', size: 'lrg', data: [
       'Abberation',
       'Beast',
       'Celestial',
@@ -45,26 +64,42 @@ const MonsterForm = props => {
       'Swarm',
       'Undead',
       ], value: 'Please Select'},
-    {label: 'Challenge Rating', type: 'input-number', name: 'cr', placeholder: 'Challenge Rating (Required)'},
-    {label: 'HP Total', type: 'input-number', name: 'hp', placeholder: 'HP Total (Required)'},
-    {label: 'Armor Class', type: 'input-number', name: 'ac', placeholder: 'Armor Class (Required)'},
-    {label: 'Initiative Bonus', type: 'input-number', name: 'initiativeBonus', placeholder: 'Initiative Bonus (Required)'},
+    [
+      {label: 'Size', type: 'input-number', name: 'size', placeholder: 'Size (Required)', size: 'med'},
+      {label: 'Challenge Rating', type: 'input-number', name: 'cr', placeholder: 'Challenge Rating (Required)', size: 'med'},
+    ],
+    [
+      {label: 'HP Total', type: 'input-number', name: 'stats.maxHp', placeholder: 'HP Total (Required)', size: 'sm'},
+      {label: 'Armor Class', type: 'input-number', name: 'stats.ac', placeholder: 'Armor Class (Required)', size: 'sm'},
+      {label: 'Initiative Bonus', type: 'input-number', name: 'stats.initiativeBonus', placeholder: 'Initiative Bonus (Required)', size: 'sm'},
+    ],
   ];
 
   const handleSubmit = (monster) => {
-    monster.hp = parseInt(monster.hp, 10);
-    monster.initiativeBonus = parseInt(monster.hp, 10);
+    console.log("SUBMITTING CR: ", monster.cr);
+    monster.stats.hp = parseInt(monster.hp, 10);
+    monster.stats.initiativeBonus = parseInt(monster.hp, 10);
     props.handleSubmit(monster);
   };
   const handleCancel = () => {
     props.handleCancel();
   };
 
-
+  const populateFields = (fields) => {
+    let newFields = fields;
+    let abilityScores = _.keys(monster.stats.abilityScores);
+    let abilityScoreFields = [];
+    abilityScores.map( abilityScore => {
+        abilityScoreFields.push({label: _.startCase(abilityScore), type: 'input-number', name: `stats.abilityScores.${abilityScore}`, placeholder: 'max: 30', size: 'sm'})
+        }
+      );
+    newFields.push(_.slice(abilityScoreFields, 0, 3), _.slice(abilityScoreFields, 3, abilityScoreFields.length));
+    return( newFields );
+  };
   return (
     <View style={ styles.container }>
       <View style={styles.content}>
-              <DynamicForm fields={fields}
+              <DynamicForm fields={populateFields(fields)}
               data={monster}
               validation={validation}
               handleCancel={handleCancel}

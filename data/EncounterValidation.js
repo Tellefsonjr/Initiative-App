@@ -6,14 +6,13 @@ const alpha = /^[a-zA-Z_]+( [a-zA-Z_]+)*$/;
 const validation = Yup.object().shape({
   title: Yup.string()
     .required()
-    .min(1)
-    .max(35),
+    .max(25),
   campaign: Yup.string()
-    .max(50),
+    .max(25),
   description: Yup.string()
     .max(255),
   party: Yup.object().shape({
-    title: Yup.string("Please enter a title for this party below."),
+    title: Yup.string("Please enter a title for this party below.").max(25),
   }),
   settings: Yup.object().shape({
     autoRoll: Yup.object().shape({
