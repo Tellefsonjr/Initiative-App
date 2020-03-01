@@ -9,11 +9,12 @@ import MonsterSelectItem from './MonsterSelectItem';
 
 
 const MonsterSelect = props => {
-  const [ monsters, setMonsters ] = useState( useSelector(state => state.monsters.monsters) );
+  const [ monsters, setMonsters ] = useState( props.monsters? props.monsters : useSelector(state => state.monsters.monsters) );
+  console.log("MONSTER SELECT: ", props.monsters);
   const [ query, setQuery ] = useState('');
   const [ visible, setVisible ] = useState(false);
   //dive into nested monster array...
-  const [ selectedMonsters, setSelectedMonsters ] = useState( props.monsters );
+  const [ selectedMonsters, setSelectedMonsters ] = useState( props.selectedMonsters );
   const [ filteredMonsters, setFilteredMonsters ] = useState( monsters );
   const [ selectedMonster, setSelectedMonster ] = useState({});
   console.log("Selected Monsters: ", selectedMonsters);
@@ -100,7 +101,7 @@ const MonsterSelect = props => {
 
               <View style={ styles.selectListContainer } >
                 <FlatList
-                extraData={ refresh }
+                extraData={ monsters, selectedMonsters, refresh }
                 keyExtractor={(item, index) => index.toString()}
                 data={ filteredMonsters }
                 renderItem={ (item, index) => renderMonster(item, index) }
@@ -175,7 +176,7 @@ const MonsterSelect = props => {
                     style={ styles.button }
                     mode="contained"
                     color="#00578A">
-                  Save
+                  Submit
                   </Button>
                 </View>
                 :
@@ -189,6 +190,7 @@ const MonsterSelect = props => {
 
 const styles = StyleSheet.create({
   container: {
+    padding: 10,
   },
   searchBarContainer: {
     padding: 10,
@@ -255,11 +257,10 @@ const styles = StyleSheet.create({
     alignContent: 'flex-end',
   },
   button: {
-    width: '40%'
+    width: '30%'
   },
   buttonContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 10,
   },

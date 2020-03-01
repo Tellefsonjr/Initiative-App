@@ -6,16 +6,19 @@ import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector, useDispatch } from 'react-redux';
 import { FAB, Portal, Provider, Modal } from 'react-native-paper';
+import * as _ from 'lodash';
 
 import EncounterList from '../components/encounterComponents/EncounterList';
 import EncounterForm from '../components/encounterComponents/EncounterForm';
 import CustomHeaderButton from '../components/HeaderButton';
 
 import * as encounterActions from '../store/actions/encounters'; //Redux Actions
+import * as partyActions from '../store/actions/parties'; //Redux Actions
 
 const EncountersScreen = props => {
   const dispatch = useDispatch();
   const encounters = useSelector(state => state.encounters.present.encounters);
+  const parties = useSelector(state => state.parties.parties);
   const [ open, setOpen ] = useState( false );
   const [ visible, setVisible ] = useState( false );
   const [ isEditing, setIsEditing ] = useState( false );
@@ -23,7 +26,13 @@ const EncountersScreen = props => {
   console.log("Rendering EncountersScreen");
 
   const addEncounterHandler = ( encounter ) => {
-    dispatch(encounterActions.addEncounter(encounter));
+    console.log("ADDING: ", encounter.party.id);
+    console.log(_.some(parties, encounter.party.id));
+    _.some(parties, encounter.party) ? null : dispatch(partyActions.addParty(encounter.party));
+    let newEncounter = encounter;
+    // Modify Encounter party -> partyId to fit model
+    newEncounter.partyId = newEncounter.party.id;
+    dispatch(encounterActions.addEncounter(newEncounter));
     setVisible(false);
   };
   const editEncounterHandler = ( encounterId ) => {
@@ -34,7 +43,6 @@ const EncountersScreen = props => {
     //   return currentEncounters.filter((encounter) => encounter.id !== encounterId );
     // })
   };
-
   const removeEncounterHandler = ( encounterId ) => {
     dispatch(encounterActions.deleteEncounter(encounterId));
   };
@@ -57,7 +65,7 @@ const EncountersScreen = props => {
               <Text style={ styles.textEmpty }> Click the + icon to add encounters! </Text>
               </View>
                 :
-              <EncounterList encounters={ encounters } editEncounterHandler={ editEncounterHandler } removeEncounterHandler={ removeEncounterHandler } navigate={ props.navigation.navigate }/>
+              <EncounterList encounters={ encounters } parties={ parties } editEncounterHandler={ editEncounterHandler } removeEncounterHandler={ removeEncounterHandler } navigate={ props.navigation.navigate }/>
             }
         </View>
         <Provider>

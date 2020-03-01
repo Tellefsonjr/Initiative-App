@@ -22,12 +22,9 @@ const monstersReducer = (state = initialState, action) => {
         action.monsterData.id,
         action.monsterData.name,
         action.monsterData.type,
+        action.monsterData.size,
         action.monsterData.cr,
-        action.monsterData.maxHp,
-        action.monsterData.hp,
-        action.monsterData.ac,
-        action.monsterData.initiativeBonus,
-        action.monsterData.initiative,
+        action.monsterData.stats,
       );
       return { ...state, monsters: state.monsters.concat( newMonster ) };
     case DELETE:

@@ -20,7 +20,7 @@ import MonsterDetailModal from '../components/monsterComponents/MonsterDetailMod
 
 import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 
-let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, players, ...props}) => {
+let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, players, party, ...props}) => {
   const [ open, setOpen ] = useState(false);
   const [ detailModalVisible, setDetailModalVisible ] = useState(false);
   const [ displayRollModal, setDisplayRollModal ] = useState( encounter.state.turn == 0 || encounter.combatants.filter( c => c.initiative == 0).length > 0? true : false );
@@ -140,7 +140,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
         updatedEncounter.monsters = _.reject( updatedEncounter.monsters, {'id': removedCombatant.refId});
       }
     } else {
-      updatedEncounter.party.players = _.reject( updatedEncounter.party.players, removedCombatant.refId );
+      party.players = _.reject( party.players, removedCombatant.refId );
     };
     newCombatants = _.reject( updatedEncounter.combatants, {'cId': removedCombatant.cId} );
     updatedEncounter.combatants = newCombatants;
@@ -181,6 +181,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
         >
           {
             encounter.combatants.map( (combatant, i) => {
+              console.log("COMBATANT MAP: ", combatant.initiative);
               return(
                 <EncounterCombatantItem combatant={combatant}
                 hpPercentage={(combatant.stats.hp / combatant.stats.maxHp)}
@@ -210,7 +211,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
               handleSubmit={ saveInitiative }
               handleCancel={ ()=> setDisplayRollModal(false) }
               autoRoll={ encounter.settings.autoRoll }
-              playerCount={ encounter.party.players.length }
+              playerCount={ party.players.length }
               monsterCount={ monsterCount }
               />
           </View>
@@ -476,6 +477,8 @@ const mapStateToProps = (state, ownProps) => {
     state.encounters.past? console.log("Encounter Screen State: ", state.encounters.past.length ) : null;
     return {
       encounter: state.encounters.present.encounters.find((encounter) => encounter.id == ownProps.navigation.getParam("id")),
+      party:  state.parties.parties.find((party) => party.id == ownProps.navigation.getParam("partyId")),
+
     }
 };
 const mapDispatchToProps = dispatch => {

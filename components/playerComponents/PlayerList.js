@@ -3,42 +3,43 @@ import { View, FlatList, StyleSheet, Text, TouchableWithoutFeedback } from 'reac
 import { Dialog, Portal, Provider, Button } from 'react-native-paper';
 
 import PlayerItem from './PlayerItem';
+import PlayerDetailModal from './PlayerDetailModal';
 
 const PlayerList = props => {
-  const [ selectedPlayer, setSelectedPlayer ] = useState({});
+  const [ selectedPlayer, setSelectedPlayer ] = useState(props.players[0]);
   const [ visible, setVisible ] = useState(false);
   const [ refresh, setRefresh ] = useState(false);
   const handlePress = (player) => {
     props.handlePress(player);
   };
 
-  const showDialog = (player) => {
+  const showDetailModal = (player) => {
     setSelectedPlayer(player);
-    console.log("Longboi", player, selectedPlayer);
+    console.log("Long boi");
     setVisible(true);
   };
-  const hideDialog = () => {
+  const hideDetailModal = () => {
     setVisible(false);
     setRefresh(!refresh);
   };
 
   const removePlayerHandler = (id) => {
     props.removePlayerHandler(id);
-    visible == true ? hideDialog() : null;
+    visible == true ? hideDetailModal() : null;
   };
 
 
-  const renderPlayer = (itemData, i) => {
-    // console.log("ITEMDATA", itemData);
-    // console.log("Player Instance", itemData.item.constructor.name);
+  const renderPlayer = (player, i) => {
+    // console.log("ITEMDATA", player);
+    // console.log("Player Instance", player.constructor.name);
     return (
         <PlayerItem
-          key={ itemData.item.id }
-          index={itemData.index}
-          id={itemData.item.id}
-          player={ itemData.item }
-          handlePress={ () => handlePress(itemData.item) }
-          handleLongPress={ () => showDialog(itemData.item) }
+          key={ player.id }
+          index={player.index}
+          id={player.id}
+          player={ player }
+          handlePress={ () => handlePress(player) }
+          handleLongPress={ () => showDetailModal(player) }
           onDelete={ removePlayerHandler }
         />
     )
@@ -48,49 +49,14 @@ const PlayerList = props => {
 
   return (
     <View style={styles.container}>
-        <FlatList
-        keyExtractor={(item, index) => item.id}
-        extraData={ refresh }
-        data={ props.players }
-        renderItem={ renderPlayer.bind(this) }
-        contentContainerStyle={{flexGrow: 1}}
-        />
         {
-          selectedPlayer ?
-          <View style={ styles.dialogContainer }>
-          <Portal>
-          <Dialog
-          style={ styles.dialog }
-          visible={ visible }
-          onDismiss={ () => hideDialog() }>
-          <Dialog.Title>
-          <Text style={ styles.dialogHeader}> { selectedPlayer.name } </Text>
-          <Text style={ styles.dialogSubHeader}> Level { selectedPlayer.level } </Text>
-          <Text style={ styles.dialogSubHeader}> { selectedPlayer.className } </Text>
-          </Dialog.Title>
-          <Dialog.Content style={ styles.dialogContentWrapper }>
-          <Text style={ styles.monsterStatText }> Hit Points: { selectedPlayer.hp } </Text>
-          <Text style={ styles.monsterStatText }> Armor Class: { selectedPlayer.ac } </Text>
-          <Text style={ styles.monsterStatText }> Initative Bonus: +{ selectedPlayer.initiativeBonus } </Text>
-          </Dialog.Content>
-          <Dialog.Content style={ styles.dialogContentWrapper }>
-          <Text style={ styles.monsterStatText }> Challenge Rating: { selectedPlayer.cr } </Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-          <Button onPress={() => removePlayerHandler(selectedPlayer.id) }
-            icon='trash-can'
-            color='red'
-            compact={true}
-            dark={true}
-          >Remove</Button>
-          <Button onPress={() => hideDialog() }>Dismiss</Button>
-          </Dialog.Actions>
-          </Dialog>
-          </Portal>
-          </View>
-          :
-          null
+          props.players.map( (player, index) => {
+            return(renderPlayer(player, index));
+          })
         }
+      <Portal>
+        <PlayerDetailModal player={selectedPlayer} visible={visible} onDismiss={() => setVisible(false)}/>
+      </Portal>
     </View>
   )
 
@@ -98,7 +64,6 @@ const PlayerList = props => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: 25,
   },
   listContainer: {
     width: '100%',

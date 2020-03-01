@@ -13,23 +13,27 @@ const EncounterItem = props => {
         <View style={ (props.index == 0 ? [styles.first, styles.listItem]: styles.listItem)  }>
         <View style={ styles.encounterTitleWrapper }>
           <Text style={ styles.encounterName}> { props.encounter.title } </Text>
-          <View style={ styles.partyWrapper }>
+          <View style={ styles.wrapper }>
+            <Icon name="map-outline" size={16} color="white" />
+          <Text style={ styles.title }> { props.encounter.campaign? props.encounter.campaign : "none" } </Text>
+          </View>
+          <View style={ styles.wrapper }>
             <Icon name="account-group-outline" size={16} color="white" />
-          <Text style={ styles.partyTitle }> { props.encounter.party.title? props.encounter.party.title : "none" } </Text>
+          <Text style={ styles.title }> { props.party.title? props.party.title : "none" } </Text>
           </View>
         </View>
         <View style={ styles.encounterStats }>
           <View>
-            <Icon name="account-outline" size={28} color="white" />
-          <Text style={ styles.encounterName}> { props.encounter.party.players? " "+props.encounter.party.players.length : 0} </Text>
+            <Icon name="account-outline" size={24} color="white" />
+          <Text style={ styles.statItem}> { props.party.players? " "+props.party.players.length : 0} </Text>
           </View>
           <View>
-            <Icon name="emoticon-devil-outline" size={28} color="white"/>
-            <Text style={ styles.encounterName}> { " "+props.encounter.monsters.length } </Text>
+            <Icon name="emoticon-devil-outline" size={24} color="white"/>
+            <Text style={ styles.statItem}> { " "+props.encounter.monsters.length } </Text>
           </View>
           <View>
-            <Icon name="account-heart-outline" size={28} color="white" />
-            <Text style={ styles.encounterName}> { " "+props.encounter.allies.length } </Text>
+            <Icon name="account-heart-outline" size={24} color="white" />
+            <Text style={ styles.statItem}> { " "+props.encounter.allies.length } </Text>
           </View>
         </View>
         </View>
@@ -54,16 +58,16 @@ const styles = StyleSheet.create({
     // width: "90%"
   },
   encounterTitleWrapper: {
-    flex: 2,
+    width: '80%',
     flexDirection: 'column',
   },
-  partyWrapper: {
+  wrapper: {
     marginTop: 2,
     paddingLeft: 3,
     flexDirection: 'row',
     // justifyContent: 'center',
   },
-  partyTitle:{
+  title:{
     color: "white",
     fontSize: 14,
   },
@@ -72,9 +76,14 @@ const styles = StyleSheet.create({
     color: "white",
   },
   encounterStats: {
+    alignItems: 'center',
+    width: '20%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    flex: 1,
+  },
+  statItem:{
+    fontSize:16,
+    color: "white",
   },
   gradientContainer: {
     borderRadius: 5,

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, ImageBackgroun
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Button, IconButton, Avatar } from 'react-native-paper';
+import { Button, IconButton, Avatar, Badge } from 'react-native-paper';
 
 const MonsterItem = props => {
   const handlePress = (monsterId) => {
@@ -18,7 +18,7 @@ const MonsterItem = props => {
   return (
     <TouchableWithoutFeedback
       onPress={ () => console.log("What to do here?") }
-      onLongPress={ () => handleLongPress(props.monster.id) }>
+      onLongPress={ () => handleLongPress(props.monster) }>
       <View style={ styles.listItem } >
         <View style= { styles.imageWrapper }>
           <Avatar.Image
@@ -31,40 +31,31 @@ const MonsterItem = props => {
           <Text allowsFontScaling style={ styles.monsterName}>{ props.monster.name } </Text>
         </View>
         <View style={ styles.statsContainer }>
-        <View style={{ alignItems: 'center'}}>
+        <View style={ styles.statItem }>
             <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.type } </Text>
-            <Icon size={16} name="tag-outline" />
+            <Icon size={16} color='grey' name="tag-outline" />
           </View>
-          <View style={{ alignItems: 'center'}}>
+          <View style={ styles.statItem }>
             <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.size } </Text>
-            <Icon size={16} name="tape-measure" />
+            <Icon size={16} color='grey' name="ruler" />
           </View>
-          <View style={{ alignItems: 'center'}}>
+          <View style={ styles.statItem }>
             <Text allowsFontScaling style={ styles.monsterStatText}> { props.monster.cr } </Text>
-            <Icon size={16} name="sword-cross" />
+            <Icon size={16} color='grey' name="sword-cross" />
+          </View>
+          <View style={ styles.statItem }>
+            <Text allowsFontScaling style={ styles.monsterStatText}> { props.count } </Text>
+            <Icon size={16} color='grey' name="emoticon-devil-outline" />
           </View>
         </View>
-        {
-          props.isSelected?
-          <View style={ styles.buttonContainer }>
-            <IconButton onPress={() => decreaseMonster(props.monster.id)}
-              icon="minus"
-              size={18}
-            />
-            <Text style={{ fontSize: 14}}>{ props.isSelected.count }</Text>
-            <IconButton onPress={() => handlePress(props.monster.id) }
-              icon="plus"
-              size={18}
-            />
-          </View>
-          :
         <View style={ styles.buttonContainer }>
           <Button onPress={() => handlePress(props.monster.id)}
+            styles={ styles.removeButton }
             compact={true}
-            style={ styles.addButton }
-            icon="plus">Add</Button>
+            dark={true}
+            color="red"
+            icon="trash-can" />
         </View>
-        }
       </View>
     </TouchableWithoutFeedback>
   );
@@ -75,7 +66,7 @@ const styles = StyleSheet.create({
   listItem: {
     padding: 10,
     marginVertical: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -89,6 +80,10 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     textAlign: 'right',
   },
+  statItem: {
+    alignItems: 'center',
+    marginHorizontal: 2,
+  },
   imageWrapper:{
     marginRight: 5,
   },
@@ -98,20 +93,20 @@ const styles = StyleSheet.create({
   monsterName: {
     fontSize:16,
     fontWeight: 'bold',
-    color: 'black',
+    color: 'white',
   },
   monsterStatText: {
     fontSize: 14,
-    color: 'grey'
+    color: 'white',
   },
   buttonContainer: {
     height: '100%',
-    width: '20%',
+    width: '10%',
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-around'
   },
-  addButton: {
+  removeButton: {
     padding: 2,
   }
 });

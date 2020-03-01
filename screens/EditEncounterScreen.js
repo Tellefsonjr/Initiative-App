@@ -23,17 +23,19 @@ import MonsterSelect from '../components/monsterComponents/MonsterSelect';
 
 import * as encounterActions from '../store/actions/encounters'; //Redux Actions
 import * as playerActions from '../store/actions/players'; //Redux Actions
+import * as partyActions from '../store/actions/parties'; //Redux Actions
 import * as monsterActions from '../store/actions/monsters'; //Redux Actions
 
 const EditEncounterScreen = props => {
   const encounter = useSelector(state => state.encounters.present.encounters.find((encounter) => encounter.id == props.navigation.getParam("id")));
-  const players = useSelector(state => state.players.players.filter((player) => encounter.party.players.includes(player.id)));
-  const monsters = useSelector(state => state.monsters.monsters.filter((monster) => _.matches(encounter.monsters, monster.id)));
-
+  const party = useSelector(state => state.parties.parties.find((party) => party.id == encounter.partyId));
+  const players = useSelector(state => state.players.players.filter((player) => party.players.includes(player.id)));
+  const monsters = useSelector(state => state.monsters.monsters.filter((monster) => _.find(encounter.monsters, {id: monster.id})));
+  console.log("PARTY AT ENCOUNTER SCREEN: ", encounter.party);
   const [open, setOpen ] = useState( false );
   const [visible, setVisible ] = useState( false );
   const [ toggle, setToggle ] = useState( 'create' );
-  const [ expandedType, setExpandedType ] = useState(['']);
+  const [ expandedType, setExpandedType ] = useState(['monsters', 'players']);
   const [ expanded, setExpanded ] = useState(true);
   const [modalType, setModalType] = useState( '' );
   const [ progress, setProgress ] = useState( encounter.difficulty );
@@ -44,11 +46,9 @@ const EditEncounterScreen = props => {
 
   const createPlayerHandler = ( player ) => {
     dispatch(playerActions.addPlayer(player));
-    const newEncounter = encounter;
-    console.log("New encounter: ", newEncounter);
-    newEncounter.party.players = newEncounter.party.players.concat(player.id);
-    console.log("New encounter after: ", newEncounter);
-    dispatch(encounterActions.updateEncounter(newEncounter));
+    const newParty = party;
+    newParty.players = newParty.players.concat(player.id);
+    dispatch(partyActions.updateParty(newParty));
     setVisible(false);
   };
   const toggleEditPlayer = ( player ) => {
@@ -66,27 +66,35 @@ const EditEncounterScreen = props => {
   };
   const removePlayerHandler = ( playerId ) => {
     const newEncounter = encounter;
+    const updatedParty = party;
     // console.log("New encounter: ", newEncounter);
-    newEncounter.party.players = newEncounter.party.players.filter(p => p != playerId);
+    updatedParty.players = updatedParty.players.filter(p => p != playerId);
+    dispatch(partyActions.updateParty(updatedParty));
     newEncounter.combatants = newEncounter.combatants.filter(p => p.refId != playerId);
-
     // console.log("New encounter after: ", newEncounter);
     updateEncounterHandler(newEncounter);
+
   };
   const updateEncounterPlayers = ( updatedPlayers ) => {
-    const updatedEncounter = encounter;
-    updatedEncounter.party.players = updatedPlayers.map(player => player.id);
-    updateEncounterHandler(updatedEncounter);
+    const updatedParty = party;
+    const updatedPartyPlayers = updatedPlayers.map(player => player.id);
+    dispatch(partyActions.updateParty({
+      id: updatedParty.id,
+      title: updatedParty.title,
+      players: updatedPartyPlayers
+    }));
+    setVisible(false);
   };
   const updateEncounterHandler = ( encounter ) => {
-    // console.log("Updated encounter::::::::", encounter);
+    // TO DO: Calculate difficult here
     dispatch(encounterActions.updateEncounter(encounter));
     setVisible(false);
   };
   const createMonsterHandler = ( monster ) => {
     dispatch(monsterActions.addMonster(monster));
-    encounter.monsters.push({ id: monster.id, count: 1});
-    dispatch(encounterActions.updateEncounter(encounter));
+    const updatedEncounter = encounter;
+    updatedEncounter.monsters.push({ id: monster.id, count: 1});
+    updateEncounterHandler(encounter);
     setVisible(false);
   };
   const updateEncounterMonsters = ( updatedMonsters ) => {
@@ -119,7 +127,7 @@ const EditEncounterScreen = props => {
       return prev + cur.count;
     }, 0);
     // Map through Players & Monsters to populate combatants [ { id, type, name (monster 1, 2, 3, ...), initiative, stats: {hp, ac,} }]
-    if(!encounter.active || encounter.combatants.length != monsterCount + encounter.party.players.length){
+    if(!encounter.active || encounter.combatants.length != monsterCount + party.players.length){
       encounter.monsters.forEach( monster => {
         let m = monsters.find( mData => mData.id == monster.id);
         // if combatants contains monsters already, reduce loop by length of refId array
@@ -136,17 +144,8 @@ const EditEncounterScreen = props => {
             cr: m.cr,
             cType: 'monster',
             name: `${m.name} ${String.fromCharCode(i+1+64)}`,
-            initiative: encounter.settings.autoRoll.monsters ? roll + m.initiativeBonus : 0,
-            initiativeBonus: m.initiativeBonus,
-            stats: {
-              maxHp: m.maxHp,
-              hp: m.hp,
-              ac: m.ac,
-              deathSaves: {
-                failed: 0,
-                succeeded: 0
-              }
-            }
+            initiative: encounter.settings.autoRoll.monsters ? roll + m.stats.initiativeBonus : 0,
+            stats: m.stats,
 
           };
           if(encounter.active){
@@ -165,26 +164,17 @@ const EditEncounterScreen = props => {
           console.log("Skipping player", player.name);
         } else {
           let roll = Math.floor(Math.random() * 20) + 1;
-          console.log(player.name, "rolled :", roll, "+", player.initiativeBonus);
+          console.log(player.name, "rolled :", roll, "+", player.stats.initiativeBonus, '=', roll+player.stats.initiativeBonus);
           const newCombatant = {
             cId: Math.random(),
             refId: player.id,
             cType: 'player',
             name: player.name,
             className: player.className,
-            level: player.level,
-            initiativeBonus: player.initiativeBonus,
-            initiative: encounter.settings.autoRoll.players ? roll + player.initiativeBonus : 0,
-            stats: {
-              maxHp: player.maxHp,
-              hp: player.hp,
-              ac: player.ac,
-              deathSaves: {
-                failed: 0,
-                succeeded: 0
-              }
-            }
+            initiative: encounter.settings.autoRoll.players ? (roll + player.stats.initiativeBonus) : 0,
+            stats: player.stats,
         };
+        console.log("NEW COMBATANT: ", newCombatant.initiative);
           if(encounter.active){
             // Encounter already going on, find index to place new Combatant
             pushNewCombatant(newCombatant);
@@ -199,7 +189,7 @@ const EditEncounterScreen = props => {
     });
     updateEncounterHandler(encounter);
   };
-    props.navigation.navigate("ActiveEncounter", { id: encounter.id, title: encounter.title });
+    props.navigation.navigate("ActiveEncounter", { id: encounter.id, title: encounter.title, partyId: encounter.partyId });
   };
   const pushNewCombatant = (newCombatant) => {
     console.log(" PUSHING: ", newCombatant.name);
@@ -262,8 +252,9 @@ const EditEncounterScreen = props => {
             backgroundColorOnComplete="#6CC644"
           />
         </View>
-
-{/* Monster List view based on expanded && expandedType */}
+        <View style={ styles.listViewWrapper}>
+<ScrollView>
+{/* Player List view based on expanded && expandedType */}
 <View style={ styles.playerListWrapper }>
         <TouchableRipple
           style={ styles.expandButton }
@@ -272,7 +263,7 @@ const EditEncounterScreen = props => {
         >
         <View style={ styles.expandInner }>
           <Icon name="account-outline" size={24} color="white">
-            <Text style={{ fontSize: 24}}>{ encounter.party.players.length.toString() }</Text>
+            <Text style={{ fontSize: 24}}>{ party.players.length.toString() }</Text>
           </Icon>
           <Text style={ styles.expandText}>Players</Text>
           <Icon name={expanded && expandedType.includes("players")? "menu-up": "menu-down"} size={24} color="white" />
@@ -280,36 +271,10 @@ const EditEncounterScreen = props => {
         </TouchableRipple>
         {
           expanded && expandedType.includes('players') ?
-          <View>
-
-          {
-            visible?
-            null
-            :
-              <View style={styles.buttonContainer}>
-                <Button
-                  icon="account-plus-outline"
-                  onPress={() => {setToggle('create'); showModal("player")}}
-                  style={ styles.toggleButton }
-                  color='#00578A'
-                  mode='contained'>
-                Create
-                </Button>
-                <Button
-                  icon="account-details"
-                  onPress={() => {setToggle('select'); showModal("player")}}
-                  style={ styles.toggleButton }
-                  color='#00578A'
-                  mode='contained'>
-                Select
-                </Button>
-              </View>
-              }
               <PlayerList
                 players={players}
                 handlePress={ toggleEditPlayer }
                 removePlayerHandler={removePlayerHandler}/>
-              </View>
             :
             null
         }
@@ -335,42 +300,18 @@ const EditEncounterScreen = props => {
         </TouchableRipple>
         {
           expanded && expandedType.includes('monsters') ?
-          <View>
-          {
-            visible?
-            null
-            :
-          <View style={styles.buttonContainer}>
-            <Button
-              icon="emoticon-devil-outline"
-              onPress={() => {setToggle('create'); showModal("monster")}}
-              style={ styles.toggleButton }
-              color='#00578A'
-              mode='contained'>
-              Create
-            </Button>
-            <Button
-              icon="account-details"
-              onPress={() => {setToggle('select'); showModal("monster")}}
-              style={ styles.toggleButton }
-              color='#00578A'
-              mode='contained'>
-              Select
-            </Button>
-          </View>
-          }
-            <MonsterSelect
-              monsters={encounter.monsters}
-              submitable={false}
-              handleSubmit={updateEncounterMonsters}
-              searchable={false}
+            <MonsterList
+              monsters={monsters}
+              monsterCount={encounter.monsters}
+              handlePress={() => console.log("Pressed a Monster")}
+              removeMonsterHandler={() => console.log("Deleting a monster")}
               />
-          </View>
             :
             null
         }
 </View>
-
+</ScrollView>
+</View>
 
 {/* Player Modal changes per toggle and modalType */}
 
@@ -384,6 +325,24 @@ const EditEncounterScreen = props => {
                 :
                 <Text style={styles.formHeaderText}>Select Players</Text>
                 }
+               </View>
+               <View style={styles.buttonContainer}>
+                 <Button
+                   icon="account-plus-outline"
+                   onPress={() => {setToggle('create')}}
+                   style={ styles.toggleButton }
+                   color={toggle == 'create' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
+                   mode='contained'>
+                 Create
+                 </Button>
+                 <Button
+                   icon="account-details"
+                   onPress={() => {setToggle('select')}}
+                   style={ styles.toggleButton }
+                   color={toggle == 'select' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
+                   mode='contained'>
+                 Select
+                 </Button>
                </View>
               {
                 toggle == 'create' ?
@@ -408,11 +367,29 @@ const EditEncounterScreen = props => {
                 <Text style={styles.formHeaderText}>Select Monsters</Text>
                 }
               </View>
+              <View style={styles.buttonContainer}>
+                <Button
+                  icon="emoticon-devil-outline"
+                  onPress={() => {setToggle('create'); showModal("monster")}}
+                  style={ styles.toggleButton }
+                  color={toggle == 'create' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
+                  mode='contained'>
+                  Create
+                </Button>
+                <Button
+                  icon="account-details"
+                  onPress={() => {setToggle('select'); showModal("monster")}}
+                  style={ styles.toggleButton }
+                  color={toggle == 'select' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
+                  mode='contained'>
+                  Select
+                </Button>
+              </View>
               {
                 toggle == 'create' ?
                 <MonsterForm handleSubmit={ createMonsterHandler } handleCancel={ () => {hideModal('monster') } } />
                 :
-                <MonsterSelect monsters={encounter.monsters} handleSubmit={ updateEncounterMonsters }
+                <MonsterSelect selectedMonsters={encounter.monsters} handleSubmit={ updateEncounterMonsters }
                  submitable={true} searchable={true} handleCancel={ () => {hideModal('monster') } } />
               }
             </Modal>
@@ -446,10 +423,19 @@ const EditEncounterScreen = props => {
                   setToggle('edit');
                   showModal('encounter');
                 }},
+                { icon: 'account-plus-outline', label: 'Add Players', onPress: () => {
+                  setToggle('create');
+                  showModal('player');
+                }},
+                { icon: 'emoticon-devil-outline', label: 'Add Monsters', onPress: () => {
+                  setToggle('create');
+                  showModal('monster');
+                }},
               ]}
               onStateChange={({ open }) => setOpen(open)}
               onPress={() => {
                 if (open) {
+
                   // do something if the speed dial is open
                 }
               }}
@@ -479,11 +465,14 @@ const styles = StyleSheet.create({
     height: '90%',
 
   },
+  listViewWrapper: {
+    height: '80%'
+  },
   playerListWrapper: {
-
+    marginBottom: 10,
   },
   monsterListWrapper: {
-
+    marginTop: 10,
   },
   backgroundImage: {
       flex: 1,
@@ -535,8 +524,7 @@ const styles = StyleSheet.create({
   toggleButton:{
     marginTop: 10,
     width: "50%",
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+    borderRadius: 0,
   },
   input: {
     marginBottom: 10,

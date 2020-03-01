@@ -141,7 +141,7 @@ const PlayerSelect = props => {
                   icon="check-circle-outline"
                   mode="contained"
                   color="#00578A">
-                  Save
+                  Submit
                 </Button>
               </View>
               </View>
@@ -152,6 +152,7 @@ const PlayerSelect = props => {
 
 const styles = StyleSheet.create({
   container: {
+    padding: 10,
   },
   searchBarContainer: {
     padding: 10,
