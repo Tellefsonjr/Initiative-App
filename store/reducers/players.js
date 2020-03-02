@@ -20,7 +20,9 @@ const playersReducer = (state = initialState, action) => {
     case ADD:
       const newPlayer = new Player(
         action.playerData.id,
+        action.playerData.avatar,
         action.playerData.name,
+        action.playerData.race,
         action.playerData.className,
         action.playerData.stats,
       );
@@ -29,7 +31,9 @@ const playersReducer = (state = initialState, action) => {
         const playerIndex = state.players.findIndex( player => player.id == action.playerData.id);
         const updatedPlayer = new Player(
           action.playerData.id,
+          action.playerData.avatar,
           action.playerData.name,
+          action.playerData.race,
           action.playerData.className,
           action.playerData.stats,
         );

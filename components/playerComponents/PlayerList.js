@@ -54,9 +54,15 @@ const PlayerList = props => {
             return(renderPlayer(player, index));
           })
         }
-      <Portal>
-        <PlayerDetailModal player={selectedPlayer} visible={visible} onDismiss={() => setVisible(false)}/>
-      </Portal>
+      {
+        selectedPlayer?
+        <Portal>
+          <PlayerDetailModal player={selectedPlayer} visible={visible} onDismiss={() => setVisible(false)}/>
+        </Portal>
+        :
+        null
+      }
+
     </View>
   )
 

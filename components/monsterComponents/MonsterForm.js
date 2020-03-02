@@ -15,6 +15,7 @@ import validation from '../../data/MonsterValidation';
 const MonsterForm = props => {
   const [ monster, setMonster ] = useState( {
     id: new Date().toString(),
+    avatar: null,
     name: '',
     type: '',
     size: '',
@@ -45,9 +46,10 @@ const MonsterForm = props => {
   });
 
   const fields = [
-    {label: 'Name', type: 'input', name: 'name', placeholder: 'Monster name (Required)', size: 'lrg'},
+    [{label: 'Avatar', type: 'image-picker', name: 'avatar', size: 'tiny'},
+    {label: 'Name', type: 'input', name: 'name', placeholder: 'max: 50 characters', icon: 'emoticon-devil-outline', size: 'mlrg'},],
     // {label: 'Class', type: 'input', name: 'className', placeholder: 'Class name (Required)'},
-    {label: 'Select Type', type: 'select', name: 'type', default: 'default', size: 'lrg', data: [
+    [{label: 'Select Type', type: 'select', name: 'type', default: 'Type', icon: 'tag-outline', size: 'med',  data: [
       'Abberation',
       'Beast',
       'Celestial',
@@ -63,15 +65,19 @@ const MonsterForm = props => {
       'Plant',
       'Swarm',
       'Undead',
-      ], value: 'Please Select'},
-    [
-      {label: 'Size', type: 'input-number', name: 'size', placeholder: 'Size (Required)', size: 'med'},
-      {label: 'Challenge Rating', type: 'input-number', name: 'cr', placeholder: 'Challenge Rating (Required)', size: 'med'},
-    ],
-    [
-      {label: 'HP Total', type: 'input-number', name: 'stats.maxHp', placeholder: 'HP Total (Required)', size: 'sm'},
-      {label: 'Armor Class', type: 'input-number', name: 'stats.ac', placeholder: 'Armor Class (Required)', size: 'sm'},
-      {label: 'Initiative Bonus', type: 'input-number', name: 'stats.initiativeBonus', placeholder: 'Initiative Bonus (Required)', size: 'sm'},
+      ]},
+      {label: 'Select Size', type: 'select', name: 'size', default: 'Size', icon: 'ruler-square', size: 'med', data: [
+        'Tiny',
+        'Small',
+        'Medium',
+        'Large',
+        'Huge',
+        'Gargantuan',
+        ]},],
+    [ {label: 'CR', type: 'input', name: 'cr', placeholder: 'e.g: 1/4, 14', icon: 'sword-cross', size: 'med'},
+      {label: 'HP Total', type: 'input-number', name: 'stats.maxHp', placeholder: 'max: 400', icon: 'heart-outline', size: 'med'},],
+      [{label: 'Armor Class', type: 'input-number', name: 'stats.ac', placeholder: 'max: 30', icon: 'shield-half-full', size: 'med'},
+      {label: 'Initiative Bonus', type: 'input-number', name: 'stats.initiativeBonus', placeholder: 'min: -10 max: 10', icon: 'account-alert-outline', size: 'med'},
     ],
   ];
 
@@ -89,8 +95,16 @@ const MonsterForm = props => {
     let newFields = fields;
     let abilityScores = _.keys(monster.stats.abilityScores);
     let abilityScoreFields = [];
+    let iconList = {
+      strength: 'dumbbell',
+      dexterity: 'run-fast',
+      constitution: 'account-heart-outline',
+      intelligence: 'brain',
+      wisdom: 'motion-sensor',
+      charisma: 'drama-masks',
+    };
     abilityScores.map( abilityScore => {
-        abilityScoreFields.push({label: _.startCase(abilityScore), type: 'input-number', name: `stats.abilityScores.${abilityScore}`, placeholder: 'max: 30', size: 'sm'})
+        abilityScoreFields.push({label: _.startCase(abilityScore), type: 'input-number', name: `stats.abilityScores.${abilityScore}`, placeholder: 'max: 30', icon: _.get(iconList, abilityScore), size: 'sm'})
         }
       );
     newFields.push(_.slice(abilityScoreFields, 0, 3), _.slice(abilityScoreFields, 3, abilityScoreFields.length));

@@ -24,7 +24,7 @@ const PlayerItem = props => {
           <Avatar.Image
             size={24}
             style={ styles.playerImage }
-            source= { require("../../assets/images/whtenemy.png") }
+            source={ props.player.avatar ? {uri: props.player.avatar} : require("../../assets/images/whtenemy.png") }
           />
         </View>
         <View>

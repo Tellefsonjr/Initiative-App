@@ -47,8 +47,11 @@ const EditEncounterScreen = props => {
   const createPlayerHandler = ( player ) => {
     dispatch(playerActions.addPlayer(player));
     const newParty = party;
-    newParty.players = newParty.players.concat(player.id);
-    dispatch(partyActions.updateParty(newParty));
+    dispatch(partyActions.updateParty({
+      id: newParty.id,
+      title: newParty.title,
+      players: newParty.players.concat(player.id)
+    }));
     setVisible(false);
   };
   const toggleEditPlayer = ( player ) => {

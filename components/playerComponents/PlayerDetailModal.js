@@ -30,7 +30,7 @@ const PlayerDetailModal = props => {
             <Avatar.Image
               size={24}
               style={ styles.combatantImage }
-              source= { require("../../assets/images/whtenemy.png") }
+              source={ props.player.avatar ? {uri: props.player.avatar} : require("../../assets/images/whtenemy.png") }
             />
             <Text style={{ fontSize: 28, fontWeight: 'bold', marginRight: 5,}}> { props.player.name } </Text>
           </View>
