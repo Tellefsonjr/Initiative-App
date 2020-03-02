@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Keyboard, Form, TouchableWithoutFeedback } from 'react-native';
 import { Formik } from 'formik';
 import { Button, TextInput, HelperText } from 'react-native-paper';
+import * as _ from 'lodash';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -16,9 +17,11 @@ import validation from '../../data/EncounterValidation';
 const EncounterForm = props => {
   const parties = useSelector(state => state.parties.parties);
   console.log("PARTIES AT ENCOUNTER FORM: ", parties);
+  const propEncounter = props.encounter ? props.encounter : {};
+  propEncounter.party = _.find(parties, ['id', propEncounter.partyId]);
   //If encounter, set initial values to current encounter
   const [ encounter, setEncounter ] = useState(
-    props.encounter ? props.encounter :
+    props.encounter ? propEncounter :
     {
       id: Math.random().toString(),
       title: "",
@@ -48,13 +51,13 @@ const EncounterForm = props => {
   );
 
   const fields = [
-      {label: 'Title', type: 'input', name: 'title', placeholder: 'max: 25 characters', size:'lrg'},
-      {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'max: 25 characters', size: 'lrg'},
-      {label: 'Description', type: 'input', name: 'description', placeholder: 'max: 255 characters', size: 'lrg'},
-      {label: 'Party', type: 'select', subType: 'party', name: 'party', data: parties, size: 'lrg'},
+      [{label: 'Title', type: 'input', name: 'title', placeholder: 'max: 25 characters', icon: 'text-short', size: 'lrg'},
+      {label: 'Campaign', type: 'input', name: 'campaign', placeholder: 'max: 25 characters', icon: 'map-outline', size: 'lrg'},
+      {label: 'Description', type: 'input', name: 'description', placeholder: 'max: 255 characters', icon: 'text-subject', size: 'lrg'},],
+      {label: 'Party', type: 'select', subType: 'party', name: 'party', data: parties, icon: 'account-group-outline', size: 'lrg'},
       [
-        {label: 'Auto Roll - Monsters', type: 'switch', name: 'settings.autoRoll.monsters', size: 'med'},
-        {label: 'Auto Roll - Players', type: 'switch', name: 'settings.autoRoll.players', size: 'med' },
+        {label: 'Auto Roll - Monsters', type: 'switch', name: 'settings.autoRoll.monsters', icon: 'emoticon-devil-outline', icon2: 'dice-d20', size: 'med'},
+        {label: 'Auto Roll - Players', type: 'switch', name: 'settings.autoRoll.players', icon: 'account-outline', icon2: 'dice-d20', size: 'med' },
       ],
 
   ];

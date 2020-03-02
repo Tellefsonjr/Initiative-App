@@ -55,7 +55,7 @@ const PlayerSelect = props => {
               <Avatar.Image
                 style={ styles.avatar }
                 size={25}
-                source={require("../../assets/images/whtenemy.png")} />
+                source={ itemData.item.avatar ? {uri: itemData.item.avatar} : require("../../assets/images/whtenemy.png") } />
               }
             accessibilityLabel={`player: ${itemData.item.name}+selected: ${selectedPlayers.length > 0 && selectedPlayers.find( p => p.id == itemData.item.id)}? true : false`}
             style={ styles.playerChip }
@@ -65,8 +65,9 @@ const PlayerSelect = props => {
             onLongPress={() => { showDialog() }}
             >
             <Text style={ styles.playerName }> {itemData.item.name} </Text>
+            <Text style={ styles.playerStatsText }> Level {itemData.item.stats.level} </Text>
+            <Text style={ styles.playerStatsText }> {itemData.item.race} </Text>
             <Text style={ styles.playerStatsText }> {itemData.item.className} </Text>
-            <Text style={ styles.playerStatsText }> Level {itemData.item.level} </Text>
           </Chip>
           <Portal>
             <Dialog
@@ -75,21 +76,21 @@ const PlayerSelect = props => {
               <Dialog.Title style={ styles.dialogHeaderWrapper }>
                 <Text style={ styles.dialogueHeader }> { itemData.item.name } </Text>
                 <Text style={ styles.dialogueSubHeader }> { itemData.item.className }</Text>
-                <Text style={ styles.dialogueSubHeader }> Level { itemData.item.level }</Text>
+                <Text style={ styles.dialogueSubHeader }> Level { itemData.item.stats.level }</Text>
               </Dialog.Title>
               <Dialog.Content style={ styles.dialogContentWrapper }>
                 <View style={ styles.contentGroup }>
                   <View style={ styles.contentSubGroup }>
                     <Text style={{ fontWeight: 'bold'}}>Health:</Text>
-                    <Text> {itemData.item.hp} </Text>
+                    <Text> {itemData.item.stats.hp} </Text>
                   </View>
                   <View style={ styles.contentSubGroup }>
                     <Text style={{ fontWeight: 'bold'}}>Initiative Bonus:</Text>
-                    <Text> {itemData.item.initiativeBonus} </Text>
+                    <Text> {itemData.item.stats.initiativeBonus} </Text>
                   </View>
                   <View style={ styles.contentSubGroup }>
                     <Text style={{ fontWeight: 'bold'}}>Armor Class:</Text>
-                    <Text> 15 </Text>
+                    <Text> {itemData.item.stats.ac} </Text>
                   </View>
                 </View>
               </Dialog.Content>

@@ -19,6 +19,8 @@ const PlayerForm = props => {
     id: Math.random().toString(),
     name: '',
     className: '',
+    race: '',
+    avatar: null,
     stats: {
       level: '',
       maxHp: '',
@@ -46,17 +48,62 @@ const PlayerForm = props => {
   });
 
   const fields = [
-    {label: 'Name', type: 'input', name: 'name', placeholder: 'max: 50 characters', size: 'lrg'},
+    [{label: 'Avatar', type: 'image-picker', name: 'avatar', size: 'tiny'},
+    {label: 'Name', type: 'input', name: 'name', placeholder: 'max: 50 characters', icon: 'account-details', size: 'mlrg'},],
     // {label: 'Class', type: 'input', name: 'className', placeholder: 'Class name (Required)'},
-    {label: 'Select Class', type: 'select', name: 'className', default: 'default', size: 'lrg',
-      data: ['Artificer', 'Barbarian', 'Bard', 'Blood Hunter', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'], value: 'Please Select'},
     [
-      {label: 'Level', type: 'input-number', name: 'stats.level', placeholder: 'max: 20', size: 'med'},
-      {label: 'HP Total', type: 'input-number', name: 'stats.maxHp', placeholder: 'max: 200', size: 'med'},
+      {label: 'Select Race', type: 'select', name: 'race', default: 'Race', icon: 'account-convert', size: 'med',
+        data: [
+          'Aarakocra',
+          'Aasimar',
+          'Bugbear',
+          'Centuar',
+          'Changeling',
+          'Dragonborn',
+          'Dwarf',
+          'Elf',
+          'Feral Tiefling',
+          'Firbolg',
+          'Genasi',
+          'Gith',
+          'Gnome',
+          'Goblin',
+          'Goliath',
+          'Grung',
+          'Half-Elf',
+          'Halfling',
+          'Half-Orc',
+          'Hobgoblin',
+          'Human',
+          'Kalashtar',
+          'Kenku',
+          'Kobold',
+          'Lizardfolk',
+          'Locathah',
+          'Loxodon',
+          'Minotaur',
+          'Orc',
+          'Orc of Ebberon',
+          'Shifter',
+          'Simic Hybrid',
+          'Tabaxi',
+          'Tiefling',
+          'Tortle',
+          'Triton',
+          'Vedalken',
+          'Verdan',
+          'Warforged',
+          'Yuan-Ti Pureblood',
+        ],},
+      {label: 'Select Class', type: 'select', name: 'className', default: 'Class', icon: 'account-card-details', size: 'med',
+        data: ['Artificer', 'Barbarian', 'Bard', 'Blood Hunter', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'],},],
+    [
+      {label: 'Level', type: 'input-number', name: 'stats.level', placeholder: 'max: 20', icon: 'account-star-outline', size: 'med'},
+      {label: 'HP Total', type: 'input-number', name: 'stats.maxHp', placeholder: 'max: 200', icon: 'heart-outline', size: 'med'},
     ],
     [
-      {label: 'Armor Class', type: 'input-number', name: 'stats.ac', placeholder: 'max: 30', size: 'med'},
-      {label: 'Initiative Bonus', type: 'input-number', name: 'stats.initiativeBonus', placeholder: 'max: 10', size: 'med'},
+      {label: 'Armor Class', type: 'input-number', name: 'stats.ac', placeholder: 'max: 30', icon: 'shield-half-full', size: 'med'},
+      {label: 'Initiative Bonus', type: 'input-number', name: 'stats.initiativeBonus', placeholder: 'max: 10', icon: 'account-alert-outline', size: 'med'},
     ],
 
   ];
@@ -64,8 +111,18 @@ const PlayerForm = props => {
     let newFields = fields;
     let abilityScores = _.keys(player.stats.abilityScores);
     let abilityScoreFields = [];
+    let iconList = {
+      strength: 'dumbbell',
+      dexterity: 'run-fast',
+      constitution: 'account-heart-outline',
+      intelligence: 'brain',
+      wisdom: 'motion-sensor',
+      charisma: 'drama-masks',
+    }
     abilityScores.map( abilityScore => {
-        abilityScoreFields.push({label: _.startCase(abilityScore), type: 'input-number', name: `stats.abilityScores.${abilityScore}`, placeholder: 'max: 30', size: 'sm'})
+        console.log(" SCORE MAP: ", abilityScore);
+
+        abilityScoreFields.push({label: _.startCase(abilityScore), type: 'input-number', name: `stats.abilityScores.${abilityScore}`, placeholder: 'max: 30', icon: _.get(iconList, abilityScore), size: 'sm'})
         }
       );
     newFields.push(_.slice(abilityScoreFields, 0, 3), _.slice(abilityScoreFields, 3, abilityScoreFields.length));
@@ -80,9 +137,10 @@ const PlayerForm = props => {
     // calc bonuses
     let abilityScores = _.keys(player.stats.abilityScores);
     abilityScores.map( key => {
+      player.stats.abilityScores[key] = parseInt(player.stats.abilityScores[key], 10);
       player.stats.abilityScoreBonus[key] = Math.floor((player.stats.abilityScores[key] - 10) / 2);
       });
-    console.log("SAVING LEVEL: ", player.stats.level);
+    console.log("SAVING: ", player);
     props.handleSubmit(player);
   };
   const handleCancel = () => {

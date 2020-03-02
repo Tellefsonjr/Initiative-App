@@ -28,7 +28,7 @@ const EncounterCombatantItem = props => {
             <Avatar.Image
               size={24}
               style={ styles.combatantImage }
-              source= { require("../../assets/images/whtenemy.png") }
+              source={ props.combatant.avatar ? {uri: props.combatant.avatar} : require("../../assets/images/whtenemy.png") }
             />
           </View>
           <View>

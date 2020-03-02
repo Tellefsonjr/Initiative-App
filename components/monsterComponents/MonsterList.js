@@ -59,9 +59,14 @@ const MonsterList = props => {
           return(renderMonster(monster, index));
         })
       }
-      <Portal>
-        <MonsterDetailModal monster={selectedMonster} visible={visible} onDismiss={() => setVisible(false)}/>
-      </Portal>
+      {
+        selectedMonster ?
+          <Portal>
+            <MonsterDetailModal monster={selectedMonster} visible={visible} onDismiss={() => setVisible(false)}/>
+          </Portal>
+          :
+          null
+      }
     </View>
   )
 

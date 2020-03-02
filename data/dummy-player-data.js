@@ -1,7 +1,7 @@
 import Player from '../models/player';
 
 const PLAYERS = [
-  new Player('p1', 'Okaros', 'Blood Hunter',
+  new Player('p1', null, 'Okaros', 'Goliath', 'Blood Hunter',
   {
     level: 3,
     maxHp: 21,
@@ -26,7 +26,7 @@ const PLAYERS = [
       charisma: 1
     }
   }),
-  new Player('p2', 'Vethis', 'Cleric',
+  new Player('p2', null, 'Vethis', 'Aasimar', 'Cleric',
   {
     level: 3,
     maxHp: 23,
@@ -51,7 +51,7 @@ const PLAYERS = [
       charisma: 1
     },
   }),
-  new Player('p3', 'Scree', 'Monk',
+  new Player('p3', null, 'Scree', 'Aarakocra', 'Monk',
   {
     level: 3,
     maxHp: 24,
@@ -76,7 +76,7 @@ const PLAYERS = [
       charisma: 1
     },
   },),
-  new Player('p4', 'Whisp', 'Warlock',
+  new Player('p4', null, 'Whisp', 'Kenku', 'Warlock',
   {
     level: 3,
     maxHp: 19,
@@ -101,7 +101,7 @@ const PLAYERS = [
       charisma: 3
     },
   },),
-  new Player('p5', 'Kallista', 'Rogue',
+  new Player('p5', null, 'Kallista', 'Tiefling', 'Rogue', 
   {
     level: 3,
     maxHp: 21,

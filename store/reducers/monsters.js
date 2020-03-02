@@ -20,6 +20,7 @@ const monstersReducer = (state = initialState, action) => {
     case ADD:
       const newMonster = new Monster(
         action.monsterData.id,
+        action.monsterData.avatar,
         action.monsterData.name,
         action.monsterData.type,
         action.monsterData.size,
