@@ -6,8 +6,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button, IconButton, Avatar, Badge } from 'react-native-paper';
 
 const MonsterItem = props => {
-  const handlePress = (monsterId) => {
-    props.handlePress(monsterId);
+  const handlePress = (monster) => {
+    props.handlePress(monster);
   }
   const handleLongPress = (monsterId) => {
     props.handleLongPress(monsterId);
@@ -15,9 +15,12 @@ const MonsterItem = props => {
   const decreaseMonster = (monsterId) => {
     props.decreaseMonster(monsterId);
   }
+  const onDelete = (monsterId) => {
+    props.onDelete(monsterId);
+  }
   return (
     <TouchableWithoutFeedback
-      onPress={ () => console.log("What to do here?") }
+      onPress={ () => handlePress(props.monster.id) }
       onLongPress={ () => handleLongPress(props.monster) }>
       <View style={ styles.listItem } >
         <View style= { styles.imageWrapper }>
@@ -49,7 +52,7 @@ const MonsterItem = props => {
           </View>
         </View>
         <View style={ styles.buttonContainer }>
-          <Button onPress={() => handlePress(props.monster.id)}
+          <Button onPress={() => onDelete(props.monster.id)}
             styles={ styles.removeButton }
             compact={true}
             dark={true}

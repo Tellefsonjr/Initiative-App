@@ -1,6 +1,7 @@
 import PARTIES from '../../data/dummy-party-data';
-import { GET, ADD, DELETE, UPDATE } from '../actions/parties';
+import { GET, ADD, DELETE, UPDATE, DELETE_PLAYER } from '../actions/parties';
 import Party from '../../models/party';
+import * as _ from 'lodash';
 
 const initialState = {
   // parties: [],
@@ -40,7 +41,20 @@ const partiesReducer = (state = initialState, action) => {
         };
     case DELETE:
       return { ...state, parties: state.parties.filter((party) => party.id !== action.partyId ) }
-
+    case DELETE_PLAYER:
+      let updatedPartiesWithoutPlayer = [];
+      state.parties.forEach( party => {
+        if(_.includes(party.players, action.playerId)){
+          party.players = _.pull(party.players, action.playerId);
+          updatedPartiesWithoutPlayer.push(party);
+        } else {
+          updatedPartiesWithoutPlayer.push(party);
+        }
+      });
+      return {
+        ...state,
+        parties: updatedPartiesWithoutPlayer,
+      };
   };
   return state;
 }

@@ -1,7 +1,8 @@
 import undoable, { includeAction } from 'redux-undo';
 import ENCOUNTERS from '../../data/dummy-encounter-data';
-import { ADD, DELETE, UPDATE } from '../actions/encounters';
+import { ADD, DELETE, UPDATE, DELETE_PLAYER } from '../actions/encounters';
 import Encounter from '../../models/encounter';
+import * as _ from 'lodash';
 
 const initialState = {
   // encounters: [],
@@ -48,16 +49,30 @@ const encountersReducer = (state = initialState, action) => {
         action.encounterData.state,
         action.encounterData.combatants,
       );
-      const updatedEncounters = [...state.encounters];
+      let updatedEncounters = [...state.encounters];
       updatedEncounters[encounterIndex] = updatedEncounter;
       return {
         ...state,
         encounters: updatedEncounters,
       };
+      case DELETE_PLAYER:
+        let updatedEncountersWithoutPlayer = [];
+        state.encounters.forEach( encounter => {
+          if(_.includes(encounter.combatants, ['refId', action.playerId])){
+            encounter.combatants = _.pull(encounter.combatants, ['refId', action.playerId]);
+            updatedEncountersWithoutPlayer.push(encounter);
+          } else {
+            updatedEncountersWithoutPlayer.push(encounter);
+          }
+        });
+        return {
+          ...state,
+          encounters: updatedEncountersWithoutPlayer,
+        };
+      };
+      return state;
     };
-  return state;
 
-};
 
 const undoableEncountersReducer = undoable(encountersReducer, {
   filter: includeAction(UPDATE)

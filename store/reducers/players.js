@@ -1,5 +1,5 @@
 import PLAYERS from '../../data/dummy-player-data';
-import { GET, ADD, DELETE, UPDATE } from '../actions/players';
+import { GET, ADD, DELETE, UPDATE, } from '../actions/players';
 import Player from '../../models/player';
 
 const initialState = {
@@ -44,8 +44,8 @@ const playersReducer = (state = initialState, action) => {
           players: updatedPlayers,
         }
     case DELETE:
+    console.log("Deleteing in reducer: ", action.playerId);
       return { ...state, players: state.players.filter((player) => player.id !== action.playerId ) }
-
   };
   return state;
 }

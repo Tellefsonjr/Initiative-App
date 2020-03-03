@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   },
   combatantFormContainer: {
     marginTop: 10,
-    height: '100%',
+    height: '80%',
     paddingHorizontal: 5,
   },
   modalContainer: {

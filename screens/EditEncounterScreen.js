@@ -143,6 +143,7 @@ const EditEncounterScreen = props => {
           let newCombatant = {
             cId: Math.random(),
             refId: m.id,
+            avatar: m.avatar,
             type: m.type,
             cr: m.cr,
             cType: 'monster',
@@ -172,6 +173,7 @@ const EditEncounterScreen = props => {
             cId: Math.random(),
             refId: player.id,
             cType: 'player',
+            avatar: player.avatar,
             name: player.name,
             className: player.className,
             initiative: encounter.settings.autoRoll.players ? (roll + player.stats.initiativeBonus) : 0,
@@ -506,7 +508,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   modalContainer: {
-    height: '80%',
+    height: '85%',
     backgroundColor: 'white',
     padding: 10,
   },

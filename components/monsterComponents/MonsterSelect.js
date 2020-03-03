@@ -190,9 +190,11 @@ const MonsterSelect = props => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 10,
   },
   searchBarContainer: {
+    flex: 1,
     padding: 10,
     marginBottom: 5,
     justifyContent: 'center',
@@ -202,9 +204,10 @@ const styles = StyleSheet.create({
     height: 30,
   },
   monsterListContainer: {
-    height: '90%',
+    flex: 1,
   },
   selectListContainer: {
+    flex: 9,
   },
   monsterItemContainer: {
     flexDirection: 'row',
@@ -257,9 +260,11 @@ const styles = StyleSheet.create({
     alignContent: 'flex-end',
   },
   button: {
-    width: '30%'
+    width: '30%',
+    height: 35,
   },
   buttonContainer: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
