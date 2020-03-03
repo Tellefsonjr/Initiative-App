@@ -10,7 +10,7 @@ import {
 import { Formik, FieldArray, Field } from 'formik';
 import { withFormikControl } from 'react-native-formik';
 import Colors from '../constants/Colors';
-import { Button, TextInput, Menu, RadioButton } from 'react-native-paper';
+import { Button, TextInput, Menu, RadioButton, IconButton } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Switch from './SwitchComponent';
@@ -63,7 +63,7 @@ class DynamicForm extends PureComponent {
         { //If Party && default option, render party title input
           (input.subType == 'party') ?
             ( values[input.name].id == initialValues.party.id ?
-              this.renderText({label: 'Party Title', type: 'input', name: 'party.title', placeholder: '', icon: 'account-group-outline', size: 'lrg' }, handleChange, values, errors, setFieldTouched, i, inputs)
+              this.renderText({label: 'Party Title', type: 'input', name: 'party.title', placeholder: '', icon: 'account-group-outline', }, handleChange, values, errors, setFieldTouched, i, inputs)
               :
                 <TextInput style={ styles.textInput } disabled value={ values.party.title }/>
               )
@@ -92,7 +92,7 @@ class DynamicForm extends PureComponent {
             enablesReturnKeyAutomatically={true}
             returnKeyType={ nextInput != 'none' ? 'next' : 'done' }
             onSubmitEditing={() => {
-              nextInput != 'none' && nextInput?  this[nextInput].focus() : this[input.name].blur();
+              nextInput != 'none'?  this[nextInput].focus() : this[input.name].blur();
               }}
             type='text'
       />
@@ -128,7 +128,7 @@ class DynamicForm extends PureComponent {
             enablesReturnKeyAutomatically={true}
             returnKeyType={ nextInput != 'none' ? 'next' : 'done' }
             onSubmitEditing={() => {
-              nextInput != 'none' && nextInput?  this[nextInput].focus() : this[input.name].blur();
+              nextInput != 'none'?  this[nextInput].focus() : this[input.name].blur();
               }}
             type='text'
       />
@@ -161,14 +161,17 @@ class DynamicForm extends PureComponent {
   };
   renderFields = (inputs, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) => {
     return(
-      <View>
+      <View style={ this.props.displayColumn ? { flex: 1, flexDirection: 'row'} : ''}>
       {inputs.map((input, i) => {
         if(input.length > 1){
           return(
-            <View key={i} style={ _.some(input, ['size', 'lrg']) ? styles.column : styles.row } name={i}>
+            <View key={i} style={ _.some(input, ['size', 'lrg']) || this.props.displayColumn ? [{ flex: 1, flexDirection: 'column'}] : styles.row } name={i}>
             {input.map((subInput, index) => {
-              let nextInput = input[index+1]? input[index+1].name : _.isArray(inputs[i+1]) ? inputs[i+1][0].name :  'none';
-              console.log("ERRORS: ", _.get(errors, subInput.name), _.get(touched, subInput.name));
+              let nextInput = input[index+1]?
+                input[index+1].name :
+                _.isArray(inputs[i+1]) && (inputs[i+1][0].type == 'input' || inputs[i+1][0].type == 'input-number') ?
+                 inputs[i+1][0].name :
+                 'none';
             return(
                 <View key={subInput.name} style={ subInput.size? [_.get(styles, subInput.size), styles.input]: ''}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
@@ -176,6 +179,14 @@ class DynamicForm extends PureComponent {
                   {
                     this.renderInput(subInput, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i, inputs, nextInput)
 
+                  }
+                  { subInput.rollable ?
+                    <IconButton icon='dice-d20' color='white' size={24} style={{ backgroundColor: '#00578A', borderRadius: 5 }} onPress={ () => {
+                      setFieldValue(subInput.name, Math.floor(Math.random() * 20) + 1 + subInput.modifier);
+                      setFieldTouched(subInput.name);
+                      }} />
+                      :
+                      null
                   }
                   </View>
                   { (_.get(errors, subInput.name) && _.get(touched, subInput.name) ?
@@ -188,17 +199,17 @@ class DynamicForm extends PureComponent {
             </View>
           );
         } else {
+          let nextInput = inputs[i+1] && inputs[i+1].name? inputs[i+1].name : 'none';
           return(
             <View key={input.name} style={ input.size? [_.get(styles, input.size), styles.input]: ''}  name={input.name}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
             { input.icon && input.type != 'switch' ? <Icon name={input.icon} size={24} color='black' /> : null }
                 {
-                  this.renderInput(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i, inputs)
+                  this.renderInput(input, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues, i, inputs, nextInput)
 
                 }
-
                   { (errors ?
-                    <Text name={input.name} style={{ fontSize: 10, color: 'red'}}>{errors[input.name]}</Text>
+                    <Text name={input.name} style={{ fontSize: 10, color: 'red', }}>{errors[input.name]}</Text>
                     : null )
                   }
               </View>
@@ -217,46 +228,48 @@ class DynamicForm extends PureComponent {
 
       return(
         <View style={ styles.container }>
-        <KeyboardAwareScrollView
-          enableOnAndroid={true}
-          extraScrollHeight={ Platform.OS == 'ios' ? -50 : 50}
-          keyboardShouldPersistTaps={'handled'}
-        >
-
             <Formik
             onSubmit={this.props.handleSubmit}
             validationSchema={this.props.validation}
             validateOnChange={true}
             initialValues={initialValues}>
             {({handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues }) => (
-              <View style={{ height: '100%' }}>
-              { this.renderFields(this.props.fields, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) }
+              <View style={{ flex: 1,}}>
+              <View style={{ flex: 10 }}>
+              <KeyboardAwareScrollView
+                enableOnAndroid={true}
+                enableAutomaticScroll={true}
+                extraScrollHeight={ Platform.OS == 'ios' ? -150 : 90 }
+                keyboardShouldPersistTaps={'handled'}
+              >
+              <View>
+                { this.renderFields(this.props.fields, handleChange, handleSubmit, values, errors, isSubmitting, touched, isValid, setFieldValue, setFieldTouched, initialValues) }
+              </View>
+              </KeyboardAwareScrollView>
+              </View>
               <View style={styles.buttonContainer}>
-                <Button onPress={this.props.handleCancel} style={styles.button}
+                <Button onPress={this.props.handleCancel} style={ this.props.buttonIcons? styles.buttonIcon : styles.button }
                 icon="cancel"
                 mode="contained"
                 title="Cancel"
                 color="rgba(255, 61, 0, .5)">
-                Cancel
+                { this.props.buttonIcons? '' : 'Cancel' }
                 </Button>
-
-                <Button disabled={isSubmitting || !isValid} onPress={handleSubmit} style={styles.button}
+                <View style={ styles.spacer }></View>
+                <Button disabled={isSubmitting || !isValid} onPress={handleSubmit} style={ this.props.buttonIcons? styles.buttonIcon : styles.button }
                   disabled={ isSubmitting || Object.keys(errors).length > 0 ? true : false}
                   type="submit"
                   icon={isSubmitting? <ActivityIndicator size="small" color="#00ff00" /> : "check-circle-outline"}
                   mode="contained"
                   title="Submit"
                   color="#00578A">
-                  Submit
+                  { this.props.buttonIcons? '' : 'Submit' }
                 </Button>
               </View>
               </View>
-
             )
           }
-
           </Formik>
-          </KeyboardAwareScrollView>
           </View>
 
   )
@@ -265,10 +278,7 @@ class DynamicForm extends PureComponent {
 
 const styles = StyleSheet.create({
   container: {
-    height: '100%'
-  },
-  button: {
-    width: '30%'
+    height: '100%',
   },
   tiny: {
     width: '15%',
@@ -290,6 +300,14 @@ const styles = StyleSheet.create({
     width: '85%',
     fontSize: 16
   },
+  medRollable: {
+    
+  },
+  textmedRollable: {
+    marginLeft: 5,
+    fontSize: 18,
+    width: '75%'
+  },
   pickermed: {
     width: '85%',
     fontSize: 10,
@@ -303,10 +321,10 @@ const styles = StyleSheet.create({
     height: 80,
   },
   mlrg: {
-    width: '85%'
+    width: '100%'
   },
   textmlrg: {
-    width: '90%',
+    width: '85%',
   },
   lrg: {
     width: '100%',
@@ -314,6 +332,13 @@ const styles = StyleSheet.create({
   textlrg: {
     width: '90%',
     fontSize: 18
+  },
+  lrgRollable: {
+    width: '100%'
+  },
+  textlrgRollable: {
+    marginLeft: 5,
+    width: '60%'
   },
   pickerlrg: {
     width: '90%',
@@ -333,15 +358,30 @@ const styles = StyleSheet.create({
   },
   column: {
     flexDirection: 'column',
-    justifyContent: 'space-around'
+    justifyContent: 'space-between'
   },
   buttonContainer: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
   },
+  button: {
+    flex: 1,
+    height: 35,
+    width: '30%'
+  },
+  buttonIcon: {
+    flex: 1,
+    justifyContent: 'center',
+    height: 35,
+    width: '15%'
+  },
+  spacer: {
+    flex: 2,
+  },
   input: {
-    marginBottom: 10,
+    marginBottom: 5,
   },
   textInput: {
     backgroundColor: 'rgba(0, 0, 0, 0.2)',

@@ -12,8 +12,8 @@ const PlayerItem = props => {
   const handleLongPress = (player) => {
     props.handleLongPress(player);
   }
-  const onDelete = (playerId) => {
-    props.onDelete(playerId);
+  const onDelete = (player) => {
+    props.onDelete(player);
   }
   return (
     <TouchableWithoutFeedback
@@ -45,7 +45,7 @@ const PlayerItem = props => {
           </View>
         </View>
           <View style={ styles.buttonContainer }>
-            <Button onPress={() => onDelete(props.player.id)}
+            <Button onPress={() => onDelete(props.player)}
             style={ styles.removeButton }
             compact={true}
             dark={true}

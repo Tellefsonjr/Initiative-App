@@ -9,7 +9,7 @@ import { View, Text, StyleSheet, Dimensions, Keyboard, KeyboardAvoidingView, For
 import { Formik } from 'formik';
 import { Button, TextInput, HelperText, ToggleButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import * as _ from 'lodash';
 import DynamicForm from "../DynamicForm";
 import validation from '../../data/CombatantValidation';
 
@@ -22,16 +22,21 @@ const EncounterCombatantForm = props => {
     players: combatants.filter( c => c.cType == 'player' && c.initiative != 0).length,
   });
 
-  const fields = [];
 
   const returnFields = (combatants) => {
+    let fields = [[],[]];
     combatants.forEach( (combatant, index) => {
-      if((combatant.cType == 'player' && autoRoll.players == false) || (combatant.cType == 'monster' && autoRoll.monsters == false)){
-          fields.push(
-          {label: `${combatant.name} Initiative +${combatant.stats.initiativeBonus}`, type: 'input-number', name: `[${index}].initiative`, placeholder: 'Initiative (max 20)'}
-          )
-      }
+          if( combatant.cType == 'monster'){
+            fields[0].push(
+            {label: `${combatant.name}`, type: 'input-number', name: `[${index}].initiative`, placeholder: 'Initiative (max 20)', rollable: true, modifier: combatant.stats.initiativeBonus, size: 'medRollable'}
+            )
+          } else {
+            fields[1].push(
+            {label: `${combatant.name}`, type: 'input-number', name: `[${index}].initiative`, placeholder: 'Initiative (max 20)', rollable: true, modifier: combatant.stats.initiativeBonus, size: 'medRollable'}
+            )
+          }
       });
+      console.log("FIELDS :::::::: ", fields, "^^^^^ FIELDS ^^^^");
     return(fields);
   }
 
@@ -63,13 +68,17 @@ const EncounterCombatantForm = props => {
           <Icon name="account-outline" size={20} />
         </View>
       </View>
-      <View style={ styles.formContainer }>
-        <DynamicForm fields={returnFields(combatants)}
-        data={combatants}
-        validation={validation}
-        handleCancel={handleCancel}
-        handleSubmit={handleSubmit}
-        />
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+        <View style={ styles.formContainer }>
+          <DynamicForm fields={returnFields(combatants)}
+          data={combatants}
+          validation={validation}
+          displayColumn={true}
+          handleCancel={handleCancel}
+          handleSubmit={handleSubmit}
+          buttonIcons={ false }
+          />
+        </View>
       </View>
     </View>
   );
@@ -77,8 +86,8 @@ const EncounterCombatantForm = props => {
 
 const styles = StyleSheet.create({
   formContainer: {
-    height: '90%',
-    padding: 10,
+    flex: 1,
+    padding: 5,
   },
   statusContainer: {
 

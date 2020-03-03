@@ -12,8 +12,8 @@ const MonsterList = props => {
   const [ visible, setVisible ] = useState(false);
   const [ selectedMonster, setSelectedMonster ] = useState(props.monsters[0]);
 
-  const handlePress = (id) => {
-    props.handlePress(id);
+  const handlePress = (monster) => {
+    props.handlePress(monster);
   };
   const editMonsterHandler = (id) => {
     props.editMonsterHandler(id);
@@ -41,8 +41,9 @@ const MonsterList = props => {
           index={monster.index}
           id={monster.id}
           monster={ monster }
-          count={ _.find(props.monsterCount, {id: monster.id}).count }
+          count={ props.monsterCount ? _.find(props.monsterCount, {id: monster.id}).count : null }
           onEdit={ editMonsterHandler }
+          onDelete={ () => removeMonsterHandler(monster)}
           handlePress={ handlePress }
           handleLongPress={ () => showDetailModal(monster)}
         />
