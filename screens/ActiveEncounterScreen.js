@@ -5,15 +5,16 @@ import { Dimensions, View, Text, StyleSheet, ImageBackground, Platform, ScrollVi
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector, useDispatch, connect } from 'react-redux';
-import { FAB, Modal, Button, Switch, Portal, Dialog, IconButton, Badge, Avatar, TextInput, Chip, Snackbar } from 'react-native-paper';
+import { FAB, Modal, Button, Switch, TextInput, Snackbar} from 'react-native-paper';
 import * as _ from 'lodash';
-import { ActionCreators as UndoActionCreators } from 'redux-undo'
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
 import CustomHeaderButton from '../components/HeaderButton';
 import UndoRedo from '../components/UndoRedo';
 
 import EncounterCombatantItem from '../components/encounterComponents/EncounterCombatantItem';
 import EncounterCombatantForm from '../components/encounterComponents/EncounterCombatantForm';
+import CombatantActionForm from '../components/encounterComponents/CombatantActionForm';
 import PlayerDetailModal from '../components/playerComponents/PlayerDetailModal';
 import MonsterDetailModal from '../components/monsterComponents/MonsterDetailModal';
 
@@ -36,6 +37,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
   const dispatch = useDispatch();
 
   const saveInitiative = ( newCombatants ) => {
+    console.log("SAVING INIT");
     if( encounter.state.turn == 0){
       console.log("________ STATE = 0 _____ SAVEINITIATIVE");
       encounter.combatants = newCombatants;
@@ -60,6 +62,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
 
   };
   const nextTurn = ( turn ) => {
+    console.log("Got to next turn");
     setLastAction( {
       type: 'turn',
       prevState: encounter,
@@ -101,32 +104,24 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
   };
   const showCombatantActions = ( combatant ) => {
     setSelectedCombatant(combatant);
+    console.log("SELECTED COMBATANT: ", selectedCombatant);
     setShowActionDialog(true);
   }
-  const editCombatantHealth = ( combatant, method ) => {
+  const saveCombatantAction = ( combatant ) => {
     const updatedEncounter = encounter;
-    target = updatedEncounter.combatants.find( c => c.cId == combatant.cId);
-    if(method == 'damage'){
-        target.stats.hp--;
-      } else if(method == 'heal'){
-        target.stats.hp++;
-      } else if(method == 'addMax'){
-        target.stats.maxHp++;
-      } else if(method == 'lowerMax'){
-        target.stats.maxHp--;
-      } else if(method == 'successfulSave'){
-        target.stats.deathSaves.succeeded++;
-        if( target.stats.deathSaves.succeeded == 3){
-          target.stats.hp = 1;
-          target.stats.deathSaves.failed = 0;
-          target.stats.deathSaves.succeeded = 0;
-        }
-      } else if(method == 'failedSave'){
-        target.stats.deathSaves.failed--;
-      }
-      console.log("UPDATED THIS ONE : ", updatedEncounter.combatants.find( c => c.cId == combatant.cId) );
-      dispatch(encounterActions.updateEncounter(updatedEncounter));
+    target = updatedEncounter.combatants.findIndex( c => c.cId == combatant.cId);
+    console.log("SAVE TARGET: ", target, combatant);
+    updatedEncounter.combatants[target] = combatant;
+    console.log("POST SAVE: ", updatedEncounter.combatants[target]);
+    console.log("updated encounter", updatedEncounter);
+    dispatch(encounterActions.updateEncounter(updatedEncounter));
+    hideCombatantActions();
   };
+  const hideCombatantActions = ( ) => {
+    console.log("HIDING");
+    setSelectedCombatant('');
+    setShowActionDialog(false);
+  }
   const removeCombatant = ( removedCombatant ) => {
     setLastAction( {
       type: 'remove',
@@ -151,7 +146,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
   };
 
   const showDetailModal = ( combatant ) => {
-    setSelectedCombatant( combatant )
+    setSelectedCombatant( combatant );
     setDetailModalVisible(true);
   };
   const handleUndo = (type) => {
@@ -220,103 +215,17 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
 
 {/* Show ActionDialog on press */}
       <View>
-        { selectedCombatant?
-          <View style={ styles.dialogContainer }>
-            <Portal>
-              <Dialog
-                style={ styles.dialog }
-                visible={ showActionDialog }
-                onDismiss={ () => setShowActionDialog(false) }
-              >
-                <Dialog.Title>
-                  <Text style={ styles.dialogHeader}> { selectedCombatant.name } </Text>
-                  <Text style={ styles.dialogSubHeader}> { selectedCombatant.cType } </Text>
-                </Dialog.Title>
-                <Dialog.Content style={ styles.dialogContentWrapper }>
-                  <Text style={ styles.combatantStatText }> Hit Points: </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'damage') }
-                      icon="minus"
-                      color="red"
-                      size={20}
-                      disabled={ selectedCombatant.stats.hp == 0}
-                    />
-                    <Text style={ styles.combatantStatValue }> { selectedCombatant.stats.hp } </Text>
-                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'heal') }
-                      icon="plus"
-                      color="green"
-                      size={20}
-                      disabled={ selectedCombatant.stats.hp == selectedCombatant.stats.maxHp}
-                    />
-                  </View>
-                </Dialog.Content>
-
-                <Dialog.Content style={ styles.dialogContentWrapper }>
-                  <Text style={ styles.combatantStatText }> Max HP: </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'lowerMax') }
-                      icon="minus"
-                      color="red"
-                      size={20}
-                      disabled={ selectedCombatant.stats.maxHp == 0}
-
-                    />
-                    <Text style={ styles.combatantStatValue }> { selectedCombatant.stats.maxHp } </Text>
-                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'addMax') }
-                      icon="plus"
-                      color="green"
-                      size={20}
-
-                    />
-                  </View>
-                </Dialog.Content>
-{/* Render Death Saves Indicators if HP == 0 */}
-                <Dialog.Content style={ styles.dialogContentWrapper }>
-                  <Text style={ styles.combatantStatText }> Death Saves: </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'failedSave') }
-                      icon="minus"
-                      color="red"
-                      size={20}
-                      disabled={ selectedCombatant.stats.hp != 0 || selectedCombatant.stats.deathSaves == 3 }
-                    />
-                    <Icon name='skull' size={16} color={ selectedCombatant.stats.deathSaves.failed == -3? "red" : "grey" } />
-                    <Icon name='skull' size={16} color={ selectedCombatant.stats.deathSaves.failed <= -2? "red" : "grey" } />
-                    <Icon name='skull' size={16} color={ selectedCombatant.stats.deathSaves.failed <= -1? "red" : "grey" } />
-                    <Avatar.Image
-                      size={20}
-                      style={ styles.combatantImage }
-                      source= { require("../assets/images/whtenemy.png") }
-                    />
-                    <Icon name='heart-pulse' size={16} color={ selectedCombatant.stats.deathSaves.succeeded >= 1? "green" : "grey" } />
-                    <Icon name='heart-pulse' size={16} color={ selectedCombatant.stats.deathSaves.succeeded >= 2? "green" : "grey" } />
-                    <Icon name='heart-pulse' size={16} color={ selectedCombatant.stats.deathSaves.succeeded >= 3? "green" : "grey" } />
-
-                    <IconButton onPress={() => editCombatantHealth(selectedCombatant, 'successfulSave') }
-                      icon="plus"
-                      color="green"
-                      size={20}
-                      disabled={ selectedCombatant.stats.hp != 0 || selectedCombatant.stats.deathSaves == 3 }
-                    />
-                  </View>
-                </Dialog.Content>
-                <Dialog.Actions>
-                  <Button onPress={() => removeCombatant(selectedCombatant) }>Remove</Button>
-                  <Button onPress={() => setShowActionDialog(false) }>Dismiss</Button>
-                </Dialog.Actions>
-              </Dialog>
-            </Portal>
-          </View>
-          :
-          null
-        }
+        <CombatantActionForm visible={ showActionDialog } combatant={selectedCombatant} handleSubmit={ saveCombatantAction } handleCancel={ hideCombatantActions } onDelete={ removeCombatant } />
       </View>
 
 {/* Show detail modal on longPress */}
     { selectedCombatant.cType == 'player'?
       <PlayerDetailModal visible={ detailModalVisible } player={ selectedCombatant } onDismiss={ () => setDetailModalVisible(false)} />
       :
-      <MonsterDetailModal visible={ detailModalVisible } monster={ selectedCombatant } onDismiss={ () => setDetailModalVisible(false)} />
+      selectedCombatant.cType == 'monster'?
+        <MonsterDetailModal visible={ detailModalVisible } monster={ selectedCombatant } onDismiss={ () => setDetailModalVisible(false)} />
+        :
+        null
     }
 
 {/* Show Snackbar to undo turn or action */}
@@ -433,44 +342,7 @@ const styles = StyleSheet.create({
   combatantImage: {
 
   },
-  dialogContainer: {
-  },
-  dialog: {
-  },
-  dialogHeaderWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  dialogHeader: {
-    fontSize: 25,
-    fontWeight: 'bold',
-  },
-  dialogSubHeader: {
-    fontSize: 18,
-    color: 'rgb(77, 77, 77)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgb(77, 77, 77)',
-  },
-  dialogContentWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  combatantStatText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  combatantStatValue: {
-    fontSize: 20,
-  },
-  contentGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  contentSubGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
+
 });
 
 const mapStateToProps = (state, ownProps) => {

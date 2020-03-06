@@ -32,7 +32,7 @@ const AddEncounterScreen = props => {
  return (
    <ImageBackground source={require('../assets/images/bg.jpg')} style={styles.backgroundImage} >
       <View style={styles.container}>
-        <PartyForm addPartyHandler={ addPartyHandler }/>
+
       </View>
     </ImageBackground>
   );

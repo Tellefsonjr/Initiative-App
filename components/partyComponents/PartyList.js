@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
-
+import { View, ScrollView, StyleSheet } from 'react-native';
+import * as _ from 'lodash';
 
 import PartyItem from './PartyItem';
 
 const PartyList = props => {
-  const filteredEncounters = () => {
+  const filteredParties = () => {
 
       // const newPlayer = { id: Math.random().toString(),: player };
       // const initiatives = currentPlayers.map( (key,index) => Number(key.initiative));
@@ -30,12 +30,13 @@ const PartyList = props => {
   };
 
 
-  const renderParty = (itemData, i) => {
+  const renderParty = (party) => {
     //TO DO: add logic for next round here?
-    // console.log("ORDERRRR INITIAVTIVE ORDER", itemData);
+    // console.log("ORDERRRR INITIAVTIVE ORDER", party);
     //order.sort((a, b) => a.initiative.localeCompare(b.initiative)).reverse();
+    let players = props.players.filter(player => party.players.includes(player.id));
     return (
-      <PartyItem index={itemData.index} party={ itemData.item } onEdit={ editPartyHandler } onDelete={ removePartyHandler } handlePress={ handlePress }/>
+      <PartyItem key={party.id} party={ party } players={players} onEdit={ () => console.log("Editing Party") } onDelete={ () => console.log("Deleting Party") } handlePress={ () => console.log("Pressing Party") }/>
     )
 
     // })
@@ -43,12 +44,17 @@ const PartyList = props => {
 
   return (
     <View style={ styles.container }>
-      <FlatList
-        style={ styles.listContainer }
-        keyExtractor={(item, index) => item.id}
-        data={ props.parties }
-        renderItem={ renderParty.bind(this) }
-      />
+      <ScrollView>
+        {
+          props.parties?
+          props.parties.map(party => {
+            return(renderParty(party))
+          })
+          :
+          null
+        }
+      </ScrollView>
+
     </View>
   )
 
@@ -56,6 +62,8 @@ const PartyList = props => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    width: '100%',
   },
   listContainer: {
     width: "100%",

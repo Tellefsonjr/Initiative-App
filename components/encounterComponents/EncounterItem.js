@@ -85,27 +85,6 @@ const styles = StyleSheet.create({
     fontSize:16,
     color: "white",
   },
-  gradientContainer: {
-    borderRadius: 5,
-    marginBottom: 2
-  },
-  swipeableView:{
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 15,
-    height: '75%',
-    padding: 10,
-    width: 150,
-    backgroundColor: 'rgba(255, 61, 0, 0.5)'
-  },
-  actionText: {
-    fontSize: 20,
-    color: 'white'
-  },
-  rightAction: {
-    height: '100%',
-  },
 });
 
 export default EncounterItem;

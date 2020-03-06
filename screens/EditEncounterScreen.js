@@ -333,20 +333,20 @@ const EditEncounterScreen = props => {
                </View>
                <View style={styles.buttonContainer}>
                  <Button
-                   icon="account-plus-outline"
-                   onPress={() => {setToggle('create')}}
-                   style={ styles.toggleButton }
-                   color={toggle == 'create' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
-                   mode='contained'>
-                 Create
-                 </Button>
-                 <Button
                    icon="account-details"
                    onPress={() => {setToggle('select')}}
                    style={ styles.toggleButton }
                    color={toggle == 'select' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
                    mode='contained'>
                  Select
+                 </Button>
+                 <Button
+                   icon="account-plus-outline"
+                   onPress={() => {setToggle('create')}}
+                   style={ styles.toggleButton }
+                   color={toggle == 'create' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
+                   mode='contained'>
+                 Create
                  </Button>
                </View>
               {
@@ -374,20 +374,20 @@ const EditEncounterScreen = props => {
               </View>
               <View style={styles.buttonContainer}>
                 <Button
-                  icon="emoticon-devil-outline"
-                  onPress={() => {setToggle('create'); showModal("monster")}}
-                  style={ styles.toggleButton }
-                  color={toggle == 'create' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
-                  mode='contained'>
-                  Create
-                </Button>
-                <Button
                   icon="account-details"
                   onPress={() => {setToggle('select'); showModal("monster")}}
                   style={ styles.toggleButton }
                   color={toggle == 'select' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
                   mode='contained'>
                   Select
+                </Button>
+                <Button
+                  icon="emoticon-devil-outline"
+                  onPress={() => {setToggle('create'); showModal("monster")}}
+                  style={ styles.toggleButton }
+                  color={toggle == 'create' ? 'rgb(0, 87, 138)' : 'rgba(0, 87, 138, .7)'}
+                  mode='contained'>
+                  Create
                 </Button>
               </View>
               {
@@ -429,11 +429,11 @@ const EditEncounterScreen = props => {
                   showModal('encounter');
                 }},
                 { icon: 'account-plus-outline', label: 'Add Players', onPress: () => {
-                  setToggle('create');
+                  setToggle('select');
                   showModal('player');
                 }},
                 { icon: 'emoticon-devil-outline', label: 'Add Monsters', onPress: () => {
-                  setToggle('create');
+                  setToggle('select');
                   showModal('monster');
                 }},
               ]}

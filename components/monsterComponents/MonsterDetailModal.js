@@ -7,7 +7,6 @@ import { Button, IconButton, Avatar, Modal, Portal, Badge } from 'react-native-p
 import * as _ from 'lodash';
 
 const MonsterDetailModal = props => {
-
   const renderAbilityScores = (array) => {
     const views = array.map( (abilityScore, i) => {
       let bonuses = props.monster.stats.abilityScoreBonus;

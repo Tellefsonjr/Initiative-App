@@ -41,6 +41,7 @@ const EncounterCombatantForm = props => {
   }
 
   const handleSubmit = (combatants) => {
+    console.log("SUBMITTING COMBATANTS: ");
     combatants.map( combatant => {
       combatant.initiative = parseInt(combatant.initiative, 10) + combatant.stats.initiativeBonus;
     });

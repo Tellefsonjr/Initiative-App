@@ -1,123 +1,118 @@
 /* @flow */
+// Dynamic form used for easier Formik Forms.
+// format: {label: 'label for input', type: '{input type (text, select, number)}', name: {key of state obj}, placeholder: '{placeholder text}'}
+// validation for these forms stored in data/validation
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableHighlight, TouchableWithoutFeedback, Button, Dimensions } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import MultiStepForm from '../MultiStepForm';
-import FormInput from '../FormInput';
+import { View, Text, StyleSheet, Dimensions, Keyboard, Form, TouchableWithoutFeedback } from 'react-native';
+import { Formik } from 'formik';
+import { Button, TextInput, HelperText } from 'react-native-paper';
+import * as _ from 'lodash';
 
+import { useSelector, useDispatch } from 'react-redux';
+
+import DynamicForm from "../DynamicForm";
+import validation from '../../data/PartyValidation';
 
 const PartyForm = props => {
-  const [ progress, setProgress ] = useState(0);
-  const [ party, setParty ] = useState({
-    title: "",
-    players: [],
-  });
-  // console.log("PARTIIIIESSSSSUHH: ", parties);
-  const handlePress = () => {
-    console.log("CLICKED");
-  };
-  const handleClearPlayers = () => {
-    console.log("CLEARING");
-  };
-  const onChangeValue = (key, value) => {
-    console.log("OnChange in PartyForm:", key, value);
-  };
-  const handleSubmit = (party) => {
-    props.addPartyHandler(party);
-  };
-  const handleNext = (value) => {
-    setProgress( value );
-  };
-  const barWidth = Dimensions.get('screen').width - 30;
+  const parties = useSelector(state => state.parties.parties);
+  console.log("PARTIES AT ENCOUNTER FORM: ", parties);
+  const propParty = props.party ? props.party : {};
+  propParty.party = _.find(parties, ['id', propParty.partyId]);
+  //If party, set initial values to current party
+  const [ party, setParty ] = useState(
+    props.party ? propParty :
+    {
+      id: Math.random().toString(),
+      title: '',
+      players: [],
+    }
 
-  const forms = [
-    {
-        title: 'New Party: ',
-        message: 'What would you like to call this group?',
-        inputs: [
-          {
-            name: 'title',
-            type: 'text-input',
-            label: 'Party Title: ',
-            placeholder: 'Party title here...',
-          },
-        ],
-    },
-    {
-      title: 'Choose your players: ',
-      message: 'Choose your players here, or create one below!',
-      inputs: [
-        {
-          name: 'players',
-          type: 'picker',
-          label: 'Selected Players: ',
-          placeholder: 'Party players here...',
-        }
-      ],
-    },
+  );
+
+  const fields = [
+      [{label: 'Title', type: 'input', name: 'title', placeholder: 'max: 25 characters', icon: 'text-short', size: 'lrg'},]
+
   ];
-  return (
-      <View style={ styles.container }>
-      <ProgressBarAnimated
-        style={ styles.progressBar }
-        width={ barWidth }
-        value={ progress }
-        backgroundColorOnComplete="#6CC644"
-      />
-      <MultiStepForm onSubmit={ handleSubmit } initialValues={party} handleNext={ handleNext }>
-            { forms.map((el, index) => (
-              <MultiStepForm.Step key={ el.title }>
-              { ({ onChangeValue, values, type, label, message, inputs, currentIndex }) => (
-                <View style={{flex: 1}}>
-                  <View style={ styles.stepHeader }>
-                  <Text style={ styles.stepHeaderText }> {el.title} </Text>
-                  </View>
-                  {/* <Text style={ styles.messageText }> { el.message } </Text> */}
-                  <View>
-                    {
-                      el.inputs.map(input => (
-                        <FormInput
-                          theme={"light"}
-                          key={input.name}
-                          onChangeValue={ onChangeValue }
-                          placeholder={ input.placeholder }
-                          value={ values[input.name] }
-                          name={ input.name }
-                          type={ input.type }
-                          label={ input.label }
-                        />
-                        ))
-                    }
-                  </View>
-                </View>
-                )
 
-              }
-              </MultiStepForm.Step>
-              ))}
-        </MultiStepForm>
+  const handleSubmit = (party) => {
+    props.handleSubmit(party);
+  };
+  const handleCancel = () => {
+    props.cancelPartyHandler();
+  };
+
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={ styles.container }>
+      <View sytle={styles.formHeader}>
+        {
+          props.party?
+          <Text style={styles.formHeaderText}> Edit Party </Text>
+          :
+          <Text style={styles.formHeaderText}> New Party </Text>
+        }
       </View>
-    );
+
+      <View style={styles.content}>
+        <DynamicForm fields={fields}
+        data={party}
+        validation={validation}
+        handleCancel={handleCancel}
+        handleSubmit={handleSubmit}
+        />
+      </View>
+      </View>
+    </TouchableWithoutFeedback>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    alignItems: 'center',
   },
-  stepHeaderText: {
-    fontSize: 20,
-    color: "black",
-  },
-  stepHeader: {
+  formHeader: {
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
     marginBottom: 15,
   },
+  formHeaderText: {
+    fontSize: 20,
+    paddingLeft: 16,
+    color: "black",
+  },
+  // stepHeaderText: {
+  //   fontSize: 20,
+  //   color: "grey",
+  // },
+  // stepHeader: {
+  //   borderBottomWidth: 1,
+  //   borderBottomColor: 'grey',
+  //   marginBottom: 15,
+  // },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  content: {
+    padding: 16,
+  },
+  button: {
+    marginTop: 16,
+    width: "30%",
+  },
+  input: {
+    marginBottom: 10,
+  }
+  // messageText: {
+  //   alignSelf: 'center',
+  //   fontSize: 16,
+  //   fontStyle: 'italic',
+  //   color: 'gray',
+  //   marginBottom: 5,
+  // },
 });
 
 

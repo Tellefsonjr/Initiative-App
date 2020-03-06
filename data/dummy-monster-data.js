@@ -1,6 +1,6 @@
 import Monster from '../models/monster';
 const MONSTERS = [
-  new Monster('m1', null, 'Kobold', 'Humanoid', 'Small', '1/8',
+  new Monster('m1', '', 'Kobold', 'Humanoid', 'Small', '1/8',
   {
     maxHp: 5,
     hp: 5,
@@ -43,7 +43,7 @@ const MONSTERS = [
       stealth: 0,
       survival: 0,                                                                                                                                            }
   },),
-  new Monster('m2', null, 'Acolyte', 'Humanoid', 'Medium', '1/4',
+  new Monster('m2', '', 'Acolyte', 'Humanoid', 'Medium', '1/4',
   {
     maxHp: 9,
     hp: 9,
@@ -86,7 +86,7 @@ const MONSTERS = [
       stealth: 0,
       survival: 0,                                                                                                                                            }
   },),
-  new Monster('m3', null, 'Cultist', 'Humanoid', 'Medium', '1/8',
+  new Monster('m3', '', 'Cultist', 'Humanoid', 'Medium', '1/8',
   {
     maxHp: 9,
     hp: 9,
@@ -129,7 +129,7 @@ const MONSTERS = [
       stealth: 0,
       survival: 0,                                                                                                                                            }
   },),
-  new Monster('m4', null, 'Drake', 'Dragon', 'Large', '2',
+  new Monster('m4', '', 'Drake', 'Dragon', 'Large', '2',
   {
     maxHp: 21,
     hp: 21,
@@ -172,7 +172,7 @@ const MONSTERS = [
       stealth: 2,
       survival: 0,                                                                                                                                            }
   },),
-  new Monster('m5', null, 'Adult Blue Dragon', 'Dragon', 'Huge', '16',
+  new Monster('m5', '', 'Adult Blue Dragon', 'Dragon', 'Huge', '16',
   {
     maxHp: 225,
     hp: 225,

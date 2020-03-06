@@ -10,7 +10,7 @@ import {
 import { Formik, FieldArray, Field } from 'formik';
 import { withFormikControl } from 'react-native-formik';
 import Colors from '../constants/Colors';
-import { Button, TextInput, Menu, RadioButton, IconButton } from 'react-native-paper';
+import { Button, TextInput, Menu, RadioButton, IconButton, HelperText } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Switch from './SwitchComponent';
@@ -248,6 +248,11 @@ class DynamicForm extends PureComponent {
               </KeyboardAwareScrollView>
               </View>
               <View style={styles.buttonContainer}>
+              { (errors ?
+                  console.log("ERRORS", _.mapKeys(errors))
+
+                : null )
+              }
                 <Button onPress={this.props.handleCancel} style={ this.props.buttonIcons? styles.buttonIcon : styles.button }
                 icon="cancel"
                 mode="contained"
@@ -301,7 +306,7 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   medRollable: {
-    
+
   },
   textmedRollable: {
     marginLeft: 5,
