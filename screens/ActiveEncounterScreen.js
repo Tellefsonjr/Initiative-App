@@ -37,9 +37,7 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
   const dispatch = useDispatch();
 
   const saveInitiative = ( newCombatants ) => {
-    console.log("SAVING INIT");
     if( encounter.state.turn == 0){
-      console.log("________ STATE = 0 _____ SAVEINITIATIVE");
       encounter.combatants = newCombatants;
       startEncounter();
     } else {
@@ -54,7 +52,6 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
       prevState: encounter,
     });
     if(updatedEncounter.state.turn == 0){
-      console.log("STARTING ENCOUNTER, TURN 0_____");
       updatedEncounter.combatants = _.sortBy(updatedEncounter.combatants, ['initiative'], 'desc').reverse();
       dispatch(encounterActions.updateEncounter(updatedEncounter));
     };
@@ -62,7 +59,6 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
 
   };
   const nextTurn = ( turn ) => {
-    console.log("Got to next turn");
     setLastAction( {
       type: 'turn',
       prevState: encounter,
@@ -103,29 +99,31 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
 
   };
   const showCombatantActions = ( combatant ) => {
-    console.log("Pressed:", combatant);
     setSelectedCombatant(combatant);
-    console.log("SELECTED COMBATANT: ", selectedCombatant);
     setShowActionDialog(true);
   }
   const saveCombatantAction = ( combatant ) => {
     const updatedEncounter = encounter;
-    // rez logic:
+    // rez logic ~~~
     if(combatant.stats.deathSaves.succeeded == 3){
       combatant.stats.hp = 1;
       combatant.stats.deathSaves.failed = 0;
       combatant.stats.deathSaves.succeeded = 0;
     };
+    if(combatant.stats.hp > 0){
+      combatant.stats.deathSaves.failed = 0;
+      combatant.stats.deathSaves.succeeded = 0;
+    };
+    // Find encounter combatant object and update
     target = updatedEncounter.combatants.findIndex( c => c.cId == combatant.cId);
-    console.log("SAVE TARGET: ", target, combatant);
+    // console.log("SAVE TARGET: ", target, combatant);
     updatedEncounter.combatants[target] = combatant;
-    console.log("POST SAVE: ", updatedEncounter.combatants[target]);
-    console.log("updated encounter", updatedEncounter);
+    // console.log("POST SAVE: ", updatedEncounter.combatants[target]);
+    // console.log("updated encounter", updatedEncounter);
     dispatch(encounterActions.updateEncounter(updatedEncounter));
     hideCombatantActions();
   };
   const hideCombatantActions = ( ) => {
-    console.log("HIDING");
     setSelectedCombatant('');
     setShowActionDialog(false);
   }

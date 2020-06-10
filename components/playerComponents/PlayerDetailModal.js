@@ -28,7 +28,7 @@ const PlayerDetailModal = props => {
         <View style={ styles.modalHeader }>
           <View style={{ flexDirection: 'row', alignItems: 'center'}}>
             <Avatar.Image
-              size={24}
+              size={48}
               style={ styles.combatantImage }
               source={ props.player.avatar ? {uri: props.player.avatar} : require("../../assets/images/whtenemy.png") }
             />
