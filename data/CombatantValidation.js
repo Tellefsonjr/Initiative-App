@@ -8,7 +8,7 @@ const validation = Yup.object().shape({
   initiative: Yup.number()
     .typeError("Initiative must be a number.")
     .min(1)
-    .max(20),
+    .max(30),
   cId: Yup.string(),
   refId: Yup.string(),
   name: Yup.string(),

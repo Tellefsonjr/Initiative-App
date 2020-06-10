@@ -423,7 +423,7 @@ const EditEncounterScreen = props => {
               open={open}
               icon={open ? 'close' : 'dots-vertical'}
               actions={[
-                { icon: 'sword-cross', label: 'Start Encounter', onPress: () => startEncounter() },
+                { icon: 'sword-cross', label: 'Start Encounter', size: 30, color: 'red',  onPress: () => startEncounter() },
                 { icon: 'pencil-outline', label: 'Edit Encounter', onPress: () => {
                   setToggle('edit');
                   showModal('encounter');

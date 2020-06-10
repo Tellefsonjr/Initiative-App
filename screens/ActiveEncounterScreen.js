@@ -1,6 +1,6 @@
 /* aka Encounter Detail Screen, shows selected encounter details and allows edit before ActiveActiveEncounterScreen */
 
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { Dimensions, View, Text, StyleSheet, ImageBackground, Platform, ScrollView} from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -103,12 +103,19 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
 
   };
   const showCombatantActions = ( combatant ) => {
+    console.log("Pressed:", combatant);
     setSelectedCombatant(combatant);
     console.log("SELECTED COMBATANT: ", selectedCombatant);
     setShowActionDialog(true);
   }
   const saveCombatantAction = ( combatant ) => {
     const updatedEncounter = encounter;
+    // rez logic:
+    if(combatant.stats.deathSaves.succeeded == 3){
+      combatant.stats.hp = 1;
+      combatant.stats.deathSaves.failed = 0;
+      combatant.stats.deathSaves.succeeded = 0;
+    };
     target = updatedEncounter.combatants.findIndex( c => c.cId == combatant.cId);
     console.log("SAVE TARGET: ", target, combatant);
     updatedEncounter.combatants[target] = combatant;
@@ -214,19 +221,23 @@ let ActiveEncounterScreen = ({ canUndo, canRedo, onUndo, onRedo, encounter, play
       </Modal>
 
 {/* Show ActionDialog on press */}
-      <View>
-        <CombatantActionForm visible={ showActionDialog } combatant={selectedCombatant} handleSubmit={ saveCombatantAction } handleCancel={ hideCombatantActions } onDelete={ removeCombatant } />
-      </View>
-
 {/* Show detail modal on longPress */}
-    { selectedCombatant.cType == 'player'?
-      <PlayerDetailModal visible={ detailModalVisible } player={ selectedCombatant } onDismiss={ () => setDetailModalVisible(false)} />
-      :
-      selectedCombatant.cType == 'monster'?
-        <MonsterDetailModal visible={ detailModalVisible } monster={ selectedCombatant } onDismiss={ () => setDetailModalVisible(false)} />
-        :
-        null
-    }
+{ selectedCombatant && showActionDialog?
+        <View>
+          <CombatantActionForm visible={ showActionDialog } combatant={selectedCombatant} handleSubmit={ saveCombatantAction } handleCancel={ hideCombatantActions } onDelete={ removeCombatant } />
+        </View>
+        : null
+}
+{ selectedCombatant && detailModalVisible && selectedCombatant.cType == 'player'?
+    <PlayerDetailModal visible={ detailModalVisible } player={ selectedCombatant } onDismiss={ () => setDetailModalVisible(false)} />
+    : null }
+{ selectedCombatant && detailModalVisible && selectedCombatant.cType == 'monster'?
+    <MonsterDetailModal visible={ detailModalVisible } monster={ selectedCombatant } onDismiss={ () => setDetailModalVisible(false)} />
+    :
+    null
+}
+
+
 
 {/* Show Snackbar to undo turn or action */}
     <Snackbar

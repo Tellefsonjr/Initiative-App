@@ -108,15 +108,23 @@ const CombatantActionForm = props => {
               <Dialog.Content style={ styles.dialogContentWrapper }>
                 <Text style={ styles.combatantStatText }> Death Saves: </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-                  <IconButton onPress={() => setFieldValue('stats.deathSaves.failed', values.stats.deathSaves.failed--) }
-                    icon="minus"
-                    color="red"
-                    size={20}
-                    disabled={ values.stats.hp != 0 || values.stats.deathSaves == 3 }
-                  />
-                  <Icon name='skull' size={16} color={ values.stats.deathSaves.failed == -3? "red" : "grey" } />
-                  <Icon name='skull' size={16} color={ values.stats.deathSaves.failed <= -2? "red" : "grey" } />
-                  <Icon name='skull' size={16} color={ values.stats.deathSaves.failed <= -1? "red" : "grey" } />
+                  <View style={{ flexDirection: 'column', alignItems: 'center'}}>
+                    <IconButton onPress={() => setFieldValue('values.stats.deathSaves.failed', values.stats.deathSaves.failed++) }
+                      icon="plus"
+                      color="red"
+                      size={20}
+                      disabled={ values.stats.hp != 0 || values.stats.deathSaves.failed == 3 }
+                    />
+                    <IconButton onPress={() => setFieldValue('values.stats.deathSaves.failed', values.stats.deathSaves.failed--) }
+                      icon="minus"
+                      color="red"
+                      size={20}
+                      disabled={ values.stats.hp != 0 || values.stats.deathSaves.failed == 0 }
+                    />
+                  </View>
+                  <Icon name='skull' size={16} color={ values.stats.deathSaves.failed == 3? "red" : "grey" } />
+                  <Icon name='skull' size={16} color={ values.stats.deathSaves.failed >= 2? "red" : "grey" } />
+                  <Icon name='skull' size={16} color={ values.stats.deathSaves.failed >= 1? "red" : "grey" } />
                   <Avatar.Image
                     size={20}
                     style={ styles.combatantImage }
@@ -125,13 +133,20 @@ const CombatantActionForm = props => {
                   <Icon name='heart-pulse' size={16} color={ values.stats.deathSaves.succeeded >= 1? "green" : "grey" } />
                   <Icon name='heart-pulse' size={16} color={ values.stats.deathSaves.succeeded >= 2? "green" : "grey" } />
                   <Icon name='heart-pulse' size={16} color={ values.stats.deathSaves.succeeded >= 3? "green" : "grey" } />
-
-                  <IconButton onPress={() => setFieldValue('stats.deathSaves.failed', values.stats.deathSaves.failed++) }
-                    icon="plus"
-                    color="green"
-                    size={20}
-                    disabled={ values.stats.hp != 0 || values.stats.deathSaves == 3 }
-                  />
+                  <View style={{ flexDirection: 'column', alignItems: 'center'}}>
+                    <IconButton onPress={() => setFieldValue('values.stats.deathSaves.succeeded', values.stats.deathSaves.succeeded++) }
+                      icon="plus"
+                      color="green"
+                      size={20}
+                      disabled={ values.stats.hp != 0 || values.stats.deathSaves.succeeded == 3 }
+                    />
+                    <IconButton onPress={() => setFieldValue('values.stats.deathSaves.succeeded', values.stats.deathSaves.succeeded--) }
+                      icon="minus"
+                      color="green"
+                      size={20}
+                      disabled={ values.stats.hp != 0 || values.stats.deathSaves.succeeded == 0 }
+                    />
+                  </View>
                 </View>
               </Dialog.Content>
               <Dialog.Actions>

@@ -8,7 +8,6 @@ import { Button, IconButton, Avatar, ProgressBar } from 'react-native-paper';
 const EncounterCombatantItem = props => {
   console.log("Combatant: ", props.combatant.name, props.combatant.initiative);
   const handlePress = (combatant) => {
-    console.log("Pressed: ", combatant);
     props.handlePress(combatant);
   }
   const handleLongPress = (combatant) => {
